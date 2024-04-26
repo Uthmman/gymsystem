@@ -1,0 +1,468 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Spotify_clone-1",
+            "cwd": "home/aj/AndroidStudioProjects/Spotify_clone-1",
+            "request": "launch",
+            "type": "dart"
+        },
+        {
+            "name": "Spotify_clone-1 (profile mode)",
+            "cwd": "home/aj/AndroidStudioProjects/Spotify_clone-1",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "profile"
+        },
+        {
+            "name": "Spotify_clone-1 (release mode)",
+            "cwd": "home/aj/AndroidStudioProjects/Spotify_clone-1",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "release"
+        },
+        {
+            "name": "abyssinia_shopping",
+            "cwd": "home/aj/AndroidStudioProjects/abyssinia_shopping",
+            "request": "launch",
+            "type": "dart"
+        },
+        {
+            "name": "abyssinia_shopping (profile mode)",
+            "cwd": "home/aj/AndroidStudioProjects/abyssinia_shopping",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "profile"
+        },
+        {
+            "name": "abyssinia_shopping (release mode)",
+            "cwd": "home/aj/AndroidStudioProjects/abyssinia_shopping",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "release"
+        },
+        {
+            "name": "al_qirat_app",
+            "cwd": "home/aj/AndroidStudioProjects/al_qirat_app",
+            "request": "launch",
+            "type": "dart"
+        },
+        {
+            "name": "al_qirat_app (profile mode)",
+            "cwd": "home/aj/AndroidStudioProjects/al_qirat_app",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "profile"
+        },
+        {
+            "name": "al_qirat_app (release mode)",
+            "cwd": "home/aj/AndroidStudioProjects/al_qirat_app",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "release"
+        },
+        {
+            "name": "amharic_qirat",
+            "cwd": "home/aj/AndroidStudioProjects/amharic_qirat",
+            "request": "launch",
+            "type": "dart"
+        },
+        {
+            "name": "amharic_qirat (profile mode)",
+            "cwd": "home/aj/AndroidStudioProjects/amharic_qirat",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "profile"
+        },
+        {
+            "name": "amharic_qirat (release mode)",
+            "cwd": "home/aj/AndroidStudioProjects/amharic_qirat",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "release"
+        },
+        {
+            "name": "bussiness_management",
+            "cwd": "home/aj/AndroidStudioProjects/bussiness_management",
+            "request": "launch",
+            "type": "dart"
+        },
+        {
+            "name": "bussiness_management (profile mode)",
+            "cwd": "home/aj/AndroidStudioProjects/bussiness_management",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "profile"
+        },
+        {
+            "name": "bussiness_management (release mode)",
+            "cwd": "home/aj/AndroidStudioProjects/bussiness_management",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "release"
+        },
+        {
+            "name": "ders_admin",
+            "cwd": "home/aj/AndroidStudioProjects/ders_admin",
+            "request": "launch",
+            "type": "dart"
+        },
+        {
+            "name": "ders_admin (profile mode)",
+            "cwd": "home/aj/AndroidStudioProjects/ders_admin",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "profile"
+        },
+        {
+            "name": "ders_admin (release mode)",
+            "cwd": "home/aj/AndroidStudioProjects/ders_admin",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "release"
+        },
+        {
+            "name": "doctor_conulting_app",
+            "cwd": "home/aj/AndroidStudioProjects/doctor_conulting_app",
+            "request": "launch",
+            "type": "dart"
+        },
+        {
+            "name": "doctor_conulting_app (profile mode)",
+            "cwd": "home/aj/AndroidStudioProjects/doctor_conulting_app",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "profile"
+        },
+        {
+            "name": "doctor_conulting_app (release mode)",
+            "cwd": "home/aj/AndroidStudioProjects/doctor_conulting_app",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "release"
+        },
+        {
+            "name": "e_shop",
+            "cwd": "home/aj/AndroidStudioProjects/e_shop",
+            "request": "launch",
+            "type": "dart"
+        },
+        {
+            "name": "e_shop (profile mode)",
+            "cwd": "home/aj/AndroidStudioProjects/e_shop",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "profile"
+        },
+        {
+            "name": "e_shop (release mode)",
+            "cwd": "home/aj/AndroidStudioProjects/e_shop",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "release"
+        },
+        {
+            "name": "imamu_ahmed_admin",
+            "cwd": "home/aj/AndroidStudioProjects/imamu_ahmed_admin",
+            "request": "launch",
+            "type": "dart"
+        },
+        {
+            "name": "imamu_ahmed_admin (profile mode)",
+            "cwd": "home/aj/AndroidStudioProjects/imamu_ahmed_admin",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "profile"
+        },
+        {
+            "name": "imamu_ahmed_admin (release mode)",
+            "cwd": "home/aj/AndroidStudioProjects/imamu_ahmed_admin",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "release"
+        },
+        {
+            "name": "imamu_ahmed_medresa",
+            "cwd": "home/aj/AndroidStudioProjects/imamu_ahmed_medresa",
+            "request": "launch",
+            "type": "dart"
+        },
+        {
+            "name": "imamu_ahmed_medresa (profile mode)",
+            "cwd": "home/aj/AndroidStudioProjects/imamu_ahmed_medresa",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "profile"
+        },
+        {
+            "name": "imamu_ahmed_medresa (release mode)",
+            "cwd": "home/aj/AndroidStudioProjects/imamu_ahmed_medresa",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "release"
+        },
+        {
+            "name": "islamic_online_learning",
+            "cwd": "home/aj/AndroidStudioProjects/islamic_online_learning",
+            "request": "launch",
+            "type": "dart"
+        },
+        {
+            "name": "islamic_online_learning (profile mode)",
+            "cwd": "home/aj/AndroidStudioProjects/islamic_online_learning",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "profile"
+        },
+        {
+            "name": "islamic_online_learning (release mode)",
+            "cwd": "home/aj/AndroidStudioProjects/islamic_online_learning",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "release"
+        },
+        {
+            "name": "my_alarm",
+            "cwd": "home/aj/AndroidStudioProjects/my_alarm",
+            "request": "launch",
+            "type": "dart"
+        },
+        {
+            "name": "my_alarm (profile mode)",
+            "cwd": "home/aj/AndroidStudioProjects/my_alarm",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "profile"
+        },
+        {
+            "name": "my_alarm (release mode)",
+            "cwd": "home/aj/AndroidStudioProjects/my_alarm",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "release"
+        },
+        {
+            "name": "on_edir",
+            "cwd": "home/aj/AndroidStudioProjects/on_edir",
+            "request": "launch",
+            "type": "dart"
+        },
+        {
+            "name": "on_edir (profile mode)",
+            "cwd": "home/aj/AndroidStudioProjects/on_edir",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "profile"
+        },
+        {
+            "name": "on_edir (release mode)",
+            "cwd": "home/aj/AndroidStudioProjects/on_edir",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "release"
+        },
+        {
+            "name": "online_edir",
+            "cwd": "home/aj/AndroidStudioProjects/online_edir",
+            "request": "launch",
+            "type": "dart"
+        },
+        {
+            "name": "online_edir (profile mode)",
+            "cwd": "home/aj/AndroidStudioProjects/online_edir",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "profile"
+        },
+        {
+            "name": "online_edir (release mode)",
+            "cwd": "home/aj/AndroidStudioProjects/online_edir",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "release"
+        },
+        {
+            "name": "restaurant_app",
+            "cwd": "home/aj/AndroidStudioProjects/restaurant_app",
+            "request": "launch",
+            "type": "dart"
+        },
+        {
+            "name": "restaurant_app (profile mode)",
+            "cwd": "home/aj/AndroidStudioProjects/restaurant_app",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "profile"
+        },
+        {
+            "name": "restaurant_app (release mode)",
+            "cwd": "home/aj/AndroidStudioProjects/restaurant_app",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "release"
+        },
+        {
+            "name": "sdl_v2",
+            "cwd": "home/aj/AndroidStudioProjects/sdl_v2",
+            "request": "launch",
+            "type": "dart"
+        },
+        {
+            "name": "sdl_v2 (profile mode)",
+            "cwd": "home/aj/AndroidStudioProjects/sdl_v2",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "profile"
+        },
+        {
+            "name": "sdl_v2 (release mode)",
+            "cwd": "home/aj/AndroidStudioProjects/sdl_v2",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "release"
+        },
+        {
+            "name": "serial_test",
+            "cwd": "home/aj/AndroidStudioProjects/serial_test",
+            "request": "launch",
+            "type": "dart"
+        },
+        {
+            "name": "serial_test (profile mode)",
+            "cwd": "home/aj/AndroidStudioProjects/serial_test",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "profile"
+        },
+        {
+            "name": "serial_test (release mode)",
+            "cwd": "home/aj/AndroidStudioProjects/serial_test",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "release"
+        },
+        {
+            "name": "task_manager",
+            "cwd": "home/aj/AndroidStudioProjects/task_manager",
+            "request": "launch",
+            "type": "dart"
+        },
+        {
+            "name": "task_manager (profile mode)",
+            "cwd": "home/aj/AndroidStudioProjects/task_manager",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "profile"
+        },
+        {
+            "name": "task_manager (release mode)",
+            "cwd": "home/aj/AndroidStudioProjects/task_manager",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "release"
+        },
+        {
+            "name": "testest",
+            "cwd": "home/aj/AndroidStudioProjects/testest",
+            "request": "launch",
+            "type": "dart"
+        },
+        {
+            "name": "testest (profile mode)",
+            "cwd": "home/aj/AndroidStudioProjects/testest",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "profile"
+        },
+        {
+            "name": "testest (release mode)",
+            "cwd": "home/aj/AndroidStudioProjects/testest",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "release"
+        },
+        {
+            "name": "twitter_clone_flutter",
+            "cwd": "home/aj/AndroidStudioProjects/twitter_clone_flutter",
+            "request": "launch",
+            "type": "dart"
+        },
+        {
+            "name": "twitter_clone_flutter (profile mode)",
+            "cwd": "home/aj/AndroidStudioProjects/twitter_clone_flutter",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "profile"
+        },
+        {
+            "name": "twitter_clone_flutter (release mode)",
+            "cwd": "home/aj/AndroidStudioProjects/twitter_clone_flutter",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "release"
+        },
+        {
+            "name": "twitter_clone_main",
+            "cwd": "home/aj/AndroidStudioProjects/twitter_clone_main",
+            "request": "launch",
+            "type": "dart"
+        },
+        {
+            "name": "twitter_clone_main (profile mode)",
+            "cwd": "home/aj/AndroidStudioProjects/twitter_clone_main",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "profile"
+        },
+        {
+            "name": "twitter_clone_main (release mode)",
+            "cwd": "home/aj/AndroidStudioProjects/twitter_clone_main",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "release"
+        },
+        {
+            "name": "zenbaba_funiture",
+            "cwd": "home/aj/AndroidStudioProjects/zenbaba_funiture",
+            "request": "launch",
+            "type": "dart"
+        },
+        {
+            "name": "zenbaba_funiture (profile mode)",
+            "cwd": "home/aj/AndroidStudioProjects/zenbaba_funiture",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "profile"
+        },
+        {
+            "name": "zenbaba_funiture (release mode)",
+            "cwd": "home/aj/AndroidStudioProjects/zenbaba_funiture",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "release"
+        },
+        {
+            "name": "TDD-Example",
+            "cwd": "home/aj/Flutter Sample Project/TDD-Example",
+            "request": "launch",
+            "type": "dart"
+        },
+        {
+            "name": "TDD-Example (profile mode)",
+            "cwd": "home/aj/Flutter Sample Project/TDD-Example",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "profile"
+        },
+        {
+            "name": "TDD-Example (release mode)",
+            "cwd": "home/aj/Flutter Sample Project/TDD-Example",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "release"
+        }
+    ]
+}
