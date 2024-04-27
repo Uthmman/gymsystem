@@ -3,14 +3,32 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:fluent_ui/fluent_ui.dart' hide Colors hide ListTile hide Tab;
 import 'package:flutter_libserialport/flutter_libserialport.dart';
-
-
+import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 
 void main() {
+  sqfliteFfiInit();
+
+  var databaseFactory = databaseFactoryFfi;
+  var db = await databaseFactory.openDatabase(inMemoryDatabasePath);
+  await db.execute('''
+  CREATE TABLE Product (
+      id INTEGER PRIMARY KEY,
+      title TEXT
+  )
+  ''');
+  await db.insert('Product', <String, Object?>{'title': 'Product 1'});
+  await db.insert('Product', <String, Object?>{'title': 'Product 1'});
+
+  var result = await db.query('Product');
+  print(result);
+  // prints [{id: 1, title: Product 1}, {id: 2, title: Product 1}]
+  await db.close();
   runApp(MyApp());
 }
 
 class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -24,6 +42,8 @@ class MyApp extends StatelessWidget {
 }
 
 class NavigationLayout extends StatefulWidget {
+  const NavigationLayout({super.key});
+
   @override
   _NavigationLayoutState createState() => _NavigationLayoutState();
 }
@@ -35,7 +55,7 @@ class _NavigationLayoutState extends State<NavigationLayout> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Gym Management'),
+        title: const Text('Gym Management'),
       ),
       body: _buildBody(),
       drawer: NavigationDrawer(onItemSelected: _onNavigationItemSelected),
@@ -55,7 +75,7 @@ class _NavigationLayoutState extends State<NavigationLayout> {
       case 1:
         return MembersPage();
       case 2: // Index for the ScorePage
-        return ScorePage();
+        return const ScorePage();
       default:
         return Container();
     }
@@ -65,8 +85,10 @@ class _NavigationLayoutState extends State<NavigationLayout> {
 class NavigationDrawer extends StatelessWidget {
   final Function(int) onItemSelected;
 
-  const NavigationDrawer({Key? key, required this.onItemSelected})
-      : super(key: key);
+  const NavigationDrawer({super.key, required this.onItemSelected});
+
+  // const NavigationDrawer({Key? key, required this.onItemSelected})
+  //     : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -74,7 +96,7 @@ class NavigationDrawer extends StatelessWidget {
       child: ListView(
         padding: EdgeInsets.zero,
         children: <Widget>[
-          DrawerHeader(
+          const DrawerHeader(
             decoration: BoxDecoration(
               color: Colors.blue,
             ),
@@ -87,21 +109,21 @@ class NavigationDrawer extends StatelessWidget {
             ),
           ),
           ListTile(
-            title: Text('Staffs'),
+            title: const Text('Staffs'),
             onTap: () {
               onItemSelected(0);
               Navigator.pop(context);
             },
           ),
           ListTile(
-            title: Text('Members'),
+            title: const Text('Members'),
             onTap: () {
               onItemSelected(1);
               Navigator.pop(context);
             },
           ),
           ListTile(
-            title: Text('Score'),
+            title: const Text('Score'),
             onTap: () {
               onItemSelected(2);
               Navigator.pop(context);
@@ -114,14 +136,16 @@ class NavigationDrawer extends StatelessWidget {
 }
 
 class StaffsPage extends StatelessWidget {
+  const StaffsPage({super.key});
+
   @override
   Widget build(BuildContext context) {
     return DefaultTabController(
       length: 3,
       child: Scaffold(
         appBar: AppBar(
-          title: Text('Staffs Page'),
-          bottom: TabBar(
+          title: const Text('Staffs Page'),
+          bottom: const TabBar(
             tabs: [
               Tab(text: 'Staff List'),
               Tab(text: 'Tab 2'),
@@ -132,8 +156,8 @@ class StaffsPage extends StatelessWidget {
         body: TabBarView(
           children: [
             StaffList(),
-            Center(child: Text('Tab 2')),
-            Center(child: Text('Tab 3')),
+            const Center(child: Text('Tab 2')),
+            const Center(child: Text('Tab 3')),
           ],
         ),
       ),
@@ -142,14 +166,16 @@ class StaffsPage extends StatelessWidget {
 }
 
 class MembersPage extends StatelessWidget {
+  const MembersPage({super.key});
+
   @override
   Widget build(BuildContext context) {
     return DefaultTabController(
       length: 3,
       child: Scaffold(
         appBar: AppBar(
-          title: Text('Members Page'),
-          bottom: TabBar(
+          title: const Text('Members Page'),
+          bottom: const TabBar(
             tabs: [
               Tab(text: 'Member List'),
               Tab(text: 'Tab 2'),
@@ -160,8 +186,8 @@ class MembersPage extends StatelessWidget {
         body: TabBarView(
           children: [
             MemberList(),
-            Center(child: Text('Tab 2')),
-            Center(child: Text('Tab 3')),
+            const Center(child: Text('Tab 2')),
+            const Center(child: Text('Tab 3')),
           ],
         ),
       ),
@@ -170,6 +196,8 @@ class MembersPage extends StatelessWidget {
 }
 
 class StaffList extends StatelessWidget {
+  const StaffList({super.key});
+
   @override
   Widget build(BuildContext context) {
     // Dummy data for demonstration
@@ -188,6 +216,8 @@ class StaffList extends StatelessWidget {
 }
 
 class MemberList extends StatelessWidget {
+  const MemberList({super.key});
+
   @override
   Widget build(BuildContext context) {
     // Dummy data for demonstration
