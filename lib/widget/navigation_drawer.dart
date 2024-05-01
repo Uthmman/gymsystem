@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 class NavDrawer extends StatefulWidget {
   final Function(int) onItemSelected;
 
-  NavDrawer({super.key, required this.onItemSelected});
+  const NavDrawer({super.key, required this.onItemSelected});
 
   @override
   State<NavDrawer> createState() => _NavDrawerState();

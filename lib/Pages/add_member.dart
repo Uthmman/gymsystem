@@ -10,7 +10,7 @@ class AddMember extends StatefulWidget {
 class _AddMemberState extends State<AddMember> {
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return const Scaffold(
       body: Column(children: [
         Text("Add Member")
       ]),

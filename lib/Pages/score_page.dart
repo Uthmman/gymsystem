@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 class ScorePage extends StatefulWidget {
-  const ScorePage({Key? key}) : super(key: key);
+  const ScorePage({super.key});
 
   @override
   State<ScorePage> createState() => _ScorePageState();
