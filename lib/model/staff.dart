@@ -60,7 +60,7 @@ class Staff {
       phone: map['phone'] as String,
       isActive: map['isActive'] as int,
       shiftType: map['shiftType'] as String,
-      rfId: map['rfId'] as int,
+      rfId: map['rfid'] as int,
     );
   }
 

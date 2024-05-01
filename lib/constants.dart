@@ -8,10 +8,9 @@ class DatabaseConst {
   static const String payments = "Payments";
 }
 
-const String dbPath = "db/GYMDB.db";
+const String dbPath = "/db/GymDb.db";
 const Color mainBgColor = Colors.white;
 const Color whiteColor = Colors.white70;
-
 
 final List<int> years = List.generate(50, (index) => 2000 + index).toList();
 
@@ -55,17 +54,12 @@ String getMonthName(int month) {
 }
 
 void myMenu(BuildContext context, List<String> items,
-    void Function(String selectedVal) onPressed) {
-  final RenderBox button = context.findRenderObject() as RenderBox;
+    void Function(String selectedVal) onPressed, TapDownDetails details) {
   final RenderBox overlay =
       Overlay.of(context).context.findRenderObject() as RenderBox;
-  final RelativeRect position = RelativeRect.fromRect(
-    Rect.fromPoints(
-      button.localToGlobal(Offset.zero, ancestor: overlay),
-      button.localToGlobal(button.size.bottomRight(Offset.zero),
-          ancestor: overlay),
-    ),
-    Offset.zero & overlay.size,
+  final RelativeRect position = RelativeRect.fromSize(
+    details.globalPosition & Size(40, 40),
+    overlay.size,
   );
 
   // Show the menu

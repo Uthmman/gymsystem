@@ -153,7 +153,9 @@ class _AddStaffState extends State<AddStaff> {
                                 role: _roleTc.text,
                                 startedWorkingFrom: _startWorkingTc.text,
                                 phone: _phoneTc.text,
-                                rfId: int.parse(_rfidTc.text), isActive: 0, shiftType: '',
+                                rfId: int.parse(_rfidTc.text), 
+                                isActive: 0, 
+                                shiftType: '',
                               ),
                             );
                             final staffs = await DatabaseHelper().getStaffs();

@@ -32,11 +32,14 @@ class DatabaseHelper {
 
     var notesDatabase = await openDatabase(
       path,
-      version: 1,
+      version: 20,
       onCreate: _createDb,
     );
     if (kDebugMode) {
-      print("db is ready");
+      notesDatabase.getVersion().then((value) {
+        print("db is version: ${value}");
+        print("db path is: ${notesDatabase.path}");
+      });
     }
     return notesDatabase;
   }
@@ -55,6 +58,7 @@ class DatabaseHelper {
     await db.execute('CREATE TABLE ${DatabaseConst.member}('
         'rfid INTEGER PRIMARY KEY,'
         'fullName TEXT,'
+        'gender TEXT,'
         'phone TEXT,'
         'lastPaymentDate TEXT,'
         'lastPaymentType TEXT,'
@@ -64,6 +68,8 @@ class DatabaseHelper {
         'rfid INTEGER PRIMARY KEY,'
         'fullName TEXT,'
         'role TEXT,'
+        'isActive INTEGER,'
+        'shiftType TEXT,'
         'startedWorkingFrom TEXT,'
         'phone TEXT'
         ')');
@@ -100,6 +106,7 @@ class DatabaseHelper {
     Database? db = await database;
 
     var result = await db!.query(DatabaseConst.staff);
+    print(result);
     List<Staff> staffs = [];
     for (var staff in result) {
       staffs.add(Staff.fromMap(staff));

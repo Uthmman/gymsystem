@@ -42,7 +42,7 @@ class _StaffAttendanceState extends State<StaffAttendance> {
 
     final DateTime lastAttendance = DateTime.parse(
         pref.getString('lastStaffAttendance') ??
-            today.subtract(const Duration(days: 500)).toString());
+            today.subtract(const Duration(days: 1)).toString());
 
     print(lastAttendance.toString());
     print("dnce: ${today.difference(lastAttendance).inDays}");
@@ -73,7 +73,7 @@ class _StaffAttendanceState extends State<StaffAttendance> {
     );
   }
 
-  onDayPressed(Attendance attendance) {
+  onDayPressed(Attendance attendance, BuildContext context, TapDownDetails details) {
     myMenu(
         context,
         AttendanceType.values
@@ -91,10 +91,11 @@ class _StaffAttendanceState extends State<StaffAttendance> {
       ));
 
       getAttendanceOfTheMonth(selectedMonth, selectedYear);
-    });
+    }, details);
   }
 
-  Widget getAttendanceString(List<Attendance> attendances) {
+  Widget getAttendanceString(
+      List<Attendance> attendances, BuildContext context) {
     TextStyle style = const TextStyle(fontSize: 10);
     if (attendances.isEmpty) {
       return Text(
@@ -106,9 +107,8 @@ class _StaffAttendanceState extends State<StaffAttendance> {
 
     if (attendance.type == AttendanceType.absent) {
       return GestureDetector(
-      
-        onTap: () {
-          onDayPressed(attendance);
+        onTapDown: (TapDownDetails details) {
+          onDayPressed(attendance, context, details);
         },
         child: Text(
           "❌",
@@ -118,8 +118,8 @@ class _StaffAttendanceState extends State<StaffAttendance> {
       );
     } else if (attendance.type == AttendanceType.present) {
       return GestureDetector(
-        onTap: () {
-          onDayPressed(attendance);
+        onTapDown: (TapDownDetails details) {
+          onDayPressed(attendance, context, details);
         },
         child: Text(
           "✅",
@@ -129,8 +129,8 @@ class _StaffAttendanceState extends State<StaffAttendance> {
       );
     } else if (attendance.type == AttendanceType.holyday) {
       return GestureDetector(
-        onTap: () {
-          onDayPressed(attendance);
+        onTapDown: (TapDownDetails details) {
+          onDayPressed(attendance, context, details);
         },
         child: Text(
           "H",
@@ -140,8 +140,8 @@ class _StaffAttendanceState extends State<StaffAttendance> {
       );
     } else if (attendance.type == AttendanceType.late) {
       return GestureDetector(
-        onTap: () {
-          onDayPressed(attendance);
+        onTapDown: (TapDownDetails details) {
+          onDayPressed(attendance, context, details);
         },
         child: Text(
           "L",
@@ -151,8 +151,8 @@ class _StaffAttendanceState extends State<StaffAttendance> {
       );
     } else if (attendance.type == AttendanceType.permission) {
       return GestureDetector(
-        onTap: () {
-          onDayPressed(attendance);
+        onTapDown: (TapDownDetails details) {
+          onDayPressed(attendance, context, details);
         },
         child: Text(
           "P",
@@ -161,10 +161,15 @@ class _StaffAttendanceState extends State<StaffAttendance> {
         ),
       );
     } else if (attendance.type == AttendanceType.weekend) {
-      return Text(
-        "W",
-        textAlign: TextAlign.center,
-        style: style,
+      return GestureDetector(
+        onTapDown: (TapDownDetails details) {
+          onDayPressed(attendance, context, details);
+        },
+        child: Text(
+          "W",
+          textAlign: TextAlign.center,
+          style: style,
+        ),
       );
     } else {
       return Text(
@@ -332,13 +337,17 @@ class _StaffAttendanceState extends State<StaffAttendance> {
                             child: SizedBox(
                               width: 14,
                               child: Padding(
-                                  padding:
-                                      const EdgeInsets.symmetric(vertical: 2),
-                                  child: getAttendanceString(myAttendance
+                                padding:
+                                    const EdgeInsets.symmetric(vertical: 2),
+                                child: getAttendanceString(
+                                  myAttendance
                                       .where((element) =>
                                           DateTime.parse(element.date).day ==
                                           index)
-                                      .toList())),
+                                      .toList(),
+                                  context,
+                                ),
+                              ),
                             ),
                           ),
                   ),
