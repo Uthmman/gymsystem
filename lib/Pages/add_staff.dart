@@ -1,10 +1,21 @@
+import 'dart:convert';
 import 'dart:math';
 
+import 'package:flutter/foundation.dart';
+import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
+import 'package:flutter_libserialport/flutter_libserialport.dart';
+import 'package:gymsystem/constants.dart';
 import 'package:gymsystem/helper/db_helper.dart';
 import 'package:gymsystem/model/staff.dart';
 import 'package:gymsystem/widget/sl_btn.dart';
 import 'package:gymsystem/widget/sl_input.dart';
+import 'package:udp/udp.dart';
+// import 'package:web_socket_channel/web_socket_channel.dart';
+// import 'package:web_socket_channel/status.dart' as status;
+
+import 'package:web_socket_channel/web_socket_channel.dart';
+import 'package:web_socket_channel/io.dart';
 
 class AddStaff extends StatefulWidget {
   const AddStaff({super.key});
@@ -23,28 +34,115 @@ class _AddStaffState extends State<AddStaff> {
 
   bool loading = false;
 
-  String generateRandom8DigitNumber() {
-    final random = Random();
-    final number = random.nextInt(90000000) + 10000000; // 10000000 - 99999999
-    return number.toString();
-  }
+  SerialPort port = SerialPort('COM5');
+  late SerialPortReader reader;
+  late UDP sender;
 
   @override
-  initState() {
+  void initState() {
     super.initState();
-    Future.delayed(const Duration(seconds: 10)).then((value) {
-      _rfidTc.text = generateRandom8DigitNumber();
-    });
+//      sender = UDP(
+//  port: Port(12346),
+//  onReceive: _onReceive,
+//  );
+//  sender.send("Hello from Flutter!", Port(remotePort: 12345));
+    testHttp();
+    // // var res = true;
+    // print('isport open; ${port.isOpen}');
+    // var res = port.openReadWrite();
+    // print('isport open; ${port.isOpen}');
+
+    // if (!res) {
+    //   print('Error opening port:${port.name}');
+    // }
+    // try {
+    //   var portConfig = SerialPortConfig();
+    //   portConfig.baudRate = 9600;
+    //   portConfig.bits = 8;
+    //   portConfig.parity = SerialPortParity.none;
+    //   portConfig.stopBits = 1;
+    //   // portConfig.xonXoff = 0;
+    //   portConfig.rts = 0;
+    //   // portConfig.cts = 0;
+    //   // portConfig.dsr = 0;
+    //   portConfig.dtr = 0;
+    //   // portConfig.dispose();
+    //   port.config = portConfig;
+    //   print('isport open; ${port.isOpen}');
+    // } catch (e) {
+    //   print('isport open; ${port.isOpen}');
+    //   print(e.toString());
+    //   // showToast(context, e.toString());
+    //   // yante ysemagnal mute aydelem
+    // }
+
+    // reader = SerialPortReader(port);
+
+    // reader.stream.listen((event) {
+    //   _rfidTc.text = utf8.decode(event).replaceAll(" ", "");
+    //   String str = '4';
+    //   Uint8List uint8list = Uint8List.fromList(str.codeUnits);
+    //   print(port.write(uint8list));
+    // }).onError((e) {
+    //   print(e.toString());
+    //   // Future.delayed(Duration(seconds: 3)).then((value) {
+    //   //   if (mounted) {
+    //   //     showToast(context, e.toString());
+    //   //   }
+    //   // });
+    // });
   }
+
+  // String generateRandom8DigitNumber() {
+  //   final random = Random();
+  //   final number = random.nextInt(90000000) + 10000000; // 10000000 - 99999999
+  //   return number.toString();
+  // }
+
+  @override
+  void dispose() {
+    // TODO: implement dispose
+    super.dispose();
+    port.close();
+  }
+
+  testHttp() async {
+    try {
+      final channel = IOWebSocketChannel.connect('ws://192.168.4.1:8080/');
+
+      channel.stream.listen(
+        (data) {
+          // Process the RFID data received from the ESP8266
+          print('RFID Data: $data');
+          _rfidTc.text = data.toString().replaceAll(" ", '');
+        },
+        onError: (error) {
+          print('Error: $error');
+        },
+        onDone: () {
+          print('WebSocket connection closed');
+        },
+      );
+    } catch (e, stackTrace) {
+      print('Error: $e');
+      print('Stack Trace: $stackTrace');
+    }
+  }
+  // @override
+  // initState() {
+  //   super.initState();
+  //   Future.delayed(const Duration(seconds: 10)).then((value) {
+  //     _rfidTc.text = generateRandom8DigitNumber();
+  //   });
+  // }
 
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: EdgeInsets.zero,
-      // symmetric(
-      //   horizontal: MediaQuery.of(context).size.width / 3,
-      //   vertical: 50,
-      // ),
+      padding: EdgeInsets.symmetric(
+        horizontal: MediaQuery.of(context).size.width / 3,
+        vertical: 50,
+      ),
       child: Scaffold(
         appBar: AppBar(
           automaticallyImplyLeading: false,
@@ -153,8 +251,8 @@ class _AddStaffState extends State<AddStaff> {
                                 role: _roleTc.text,
                                 startedWorkingFrom: _startWorkingTc.text,
                                 phone: _phoneTc.text,
-                                rfId: int.parse(_rfidTc.text), 
-                                isActive: 0, 
+                                rfId: int.parse(_rfidTc.text),
+                                isActive: 0,
                                 shiftType: '',
                               ),
                             );

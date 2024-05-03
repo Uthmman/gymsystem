@@ -35,6 +35,25 @@ int getDaysInMonth(int year, int month) {
   // return nextMonthFirstDay.difference(firstDay).inDays - 1;
 }
 
+void showToast(BuildContext context, String message) {
+  // Check if the context is null or if it's not ready yet
+  if (context == null ||
+      ModalRoute.of(context) == null ||
+      !ModalRoute.of(context)!.isCurrent) {
+    // Context is not ready yet, showToast cannot be performed
+    return;
+  }
+
+  final scaffold = ScaffoldMessenger.of(context);
+
+  scaffold.showSnackBar(
+    SnackBar(
+      content: Text(message),
+      duration: const Duration(seconds: 2),
+    ),
+  );
+}
+
 String getMonthName(int month) {
   final months = [
     "January",
