@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:gymsystem/helper/db_helper.dart';
-import 'package:sqflite_common_ffi/sqflite_ffi.dart';
+// import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 import 'Pages/nav_layout.dart';
 
 void main() async {
-  sqfliteFfiInit();
+  // sqfliteFfiInit();
 
-  databaseFactory = databaseFactoryFfi;
-  WidgetsFlutterBinding.ensureInitialized();
-  await DatabaseHelper().initializeDatabase();
+  // databaseFactory = databaseFactoryFfi;
+  // WidgetsFlutterBinding.ensureInitialized();
+  // await DatabaseHelper().initializeDatabase();
   runApp(const MyApp());
 }
 

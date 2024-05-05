@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 
 class DatabaseConst {
@@ -11,8 +13,28 @@ class DatabaseConst {
 const String dbPath = "/db/GymDb.db";
 const Color mainBgColor = Colors.white;
 const Color whiteColor = Colors.white70;
+const Color mainColor = Color(0xffeab897);
 
 final List<int> years = List.generate(50, (index) => 2000 + index).toList();
+
+int generateRandomInt() {
+  final random = Random();
+  final number = random.nextInt(90000000) + 10000000; // 10000000 - 99999999
+  return number;
+}
+
+String generateRandomString() {
+  Random random = Random();
+  String characters = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+  String randomString = '';
+
+  for (int i = 0; i < 10; i++) {
+    int randomIndex = random.nextInt(characters.length);
+    randomString += characters[randomIndex];
+  }
+
+  return randomString;
+}
 
 int getDaysInMonth(int year, int month) {
   // Get the number of days in the month

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:gymsystem/constants.dart';
 
 import '../widget/navigation_drawer.dart';
 import 'member_page.dart';
@@ -18,21 +19,13 @@ class _NavigationLayoutState extends State<NavigationLayout> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      // appBar: AppBar(
-      //   title: const Text('Gym Management'),
-      // ),
-      body: Row(
-        children: [
-          Flexible(
-            flex: 1,
-            child: NavDrawer(onItemSelected: _onNavigationItemSelected),
-          ),
-          Flexible(
-            flex: 3,
-            child: _buildBody(),
-          ),
-        ],
+      appBar: AppBar(
+        title: const Text('Gym Management'),
+        backgroundColor: mainColor,
       ),
+      drawer: NavDrawer(onItemSelected: _onNavigationItemSelected),
+      body: _buildBody(),
+
       // drawer: NavDrawer(onItemSelected: _onNavigationItemSelected),
     );
   }

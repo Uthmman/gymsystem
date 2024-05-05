@@ -4,18 +4,19 @@ import 'dart:math';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
-import 'package:flutter_libserialport/flutter_libserialport.dart';
+// import 'package:flutter_libserialport/flutter_libserialport.dart';
 import 'package:gymsystem/constants.dart';
 import 'package:gymsystem/helper/db_helper.dart';
 import 'package:gymsystem/model/staff.dart';
 import 'package:gymsystem/widget/sl_btn.dart';
 import 'package:gymsystem/widget/sl_input.dart';
-import 'package:udp/udp.dart';
+// import 'package:udp/udp.dart';
+
 // import 'package:web_socket_channel/web_socket_channel.dart';
 // import 'package:web_socket_channel/status.dart' as status;
 
-import 'package:web_socket_channel/web_socket_channel.dart';
-import 'package:web_socket_channel/io.dart';
+// import 'package:web_socket_channel/web_socket_channel.dart';
+// import 'package:web_socket_channel/io.dart';
 
 class AddStaff extends StatefulWidget {
   const AddStaff({super.key});
@@ -34,9 +35,9 @@ class _AddStaffState extends State<AddStaff> {
 
   bool loading = false;
 
-  SerialPort port = SerialPort('COM5');
-  late SerialPortReader reader;
-  late UDP sender;
+  // SerialPort port = SerialPort('COM5');
+  // late SerialPortReader reader;
+  // late UDP sender;
 
   @override
   void initState() {
@@ -93,40 +94,35 @@ class _AddStaffState extends State<AddStaff> {
     // });
   }
 
-  // String generateRandom8DigitNumber() {
-  //   final random = Random();
-  //   final number = random.nextInt(90000000) + 10000000; // 10000000 - 99999999
-  //   return number.toString();
-  // }
-
+  
   @override
   void dispose() {
     // TODO: implement dispose
     super.dispose();
-    port.close();
+    // port.close();
   }
 
   testHttp() async {
-    try {
-      final channel = IOWebSocketChannel.connect('ws://192.168.4.1:8080/');
+    // try {
+    //   final channel = IOWebSocketChannel.connect('ws://192.168.4.1:8080/');
 
-      channel.stream.listen(
-        (data) {
-          // Process the RFID data received from the ESP8266
-          print('RFID Data: $data');
-          _rfidTc.text = data.toString().replaceAll(" ", '');
-        },
-        onError: (error) {
-          print('Error: $error');
-        },
-        onDone: () {
-          print('WebSocket connection closed');
-        },
-      );
-    } catch (e, stackTrace) {
-      print('Error: $e');
-      print('Stack Trace: $stackTrace');
-    }
+    //   channel.stream.listen(
+    //     (data) {
+    //       // Process the RFID data received from the ESP8266
+    //       print('RFID Data: $data');
+    //       _rfidTc.text = data.toString().replaceAll(" ", '');
+    //     },
+    //     onError: (error) {
+    //       print('Error: $error');
+    //     },
+    //     onDone: () {
+    //       print('WebSocket connection closed');
+    //     },
+    //   );
+    // } catch (e, stackTrace) {
+    //   print('Error: $e');
+    //   print('Stack Trace: $stackTrace');
+    // }
   }
   // @override
   // initState() {
@@ -245,22 +241,22 @@ class _AddStaffState extends State<AddStaff> {
                             setState(() {
                               loading = true;
                             });
-                            await DatabaseHelper().insertStaff(
-                              Staff(
-                                fullName: _fullNameTc.text,
-                                role: _roleTc.text,
-                                startedWorkingFrom: _startWorkingTc.text,
-                                phone: _phoneTc.text,
-                                rfId: int.parse(_rfidTc.text),
-                                isActive: 0,
-                                shiftType: '',
-                              ),
-                            );
-                            final staffs = await DatabaseHelper().getStaffs();
-                            DatabaseHelper.staffs = staffs;
-                            setState(() {
-                              loading = false;
-                            });
+                            // await DatabaseHelper().insertStaff(
+                            //   Staff(
+                            //     fullName: _fullNameTc.text,
+                            //     role: _roleTc.text,
+                            //     startedWorkingFrom: _startWorkingTc.text,
+                            //     phone: _phoneTc.text,
+                            //     rfId: int.parse(_rfidTc.text),
+                            //     isActive: 0,
+                            //     shiftType: '',
+                            //   ),
+                            // );
+                            // final staffs = await DatabaseHelper().getStaffs();
+                            // DatabaseHelper.staffs = staffs;
+                            // setState(() {
+                            //   loading = false;
+                            // });
                             if (mounted) {
                               Navigator.pop(context, true);
                             }

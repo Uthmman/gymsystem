@@ -7,13 +7,14 @@ import 'package:gymsystem/model/payment.dart';
 import 'package:gymsystem/model/staff.dart';
 import 'package:path_provider/path_provider.dart';
 // import 'package:sqflite/sqflite.dart';
-import 'package:sqflite_common_ffi/sqflite_ffi.dart';
+// import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 
 import '../constants.dart';
 
 class DatabaseHelper {
+
   static DatabaseHelper? _databaseHelper;
-  static Database? _database;
+  // static Database? _database;
   static List<Member> members = [];
   static List<Staff> staffs = [];
   static List<Attendance> memberAttendance = [];
@@ -26,275 +27,275 @@ class DatabaseHelper {
     return _databaseHelper!;
   }
 
-  Future<Database> initializeDatabase() async {
-    Directory directory = await getApplicationSupportDirectory();
-    String path = '${directory.path}$dbPath';
+  // Future<Database> initializeDatabase() async {
+  //   Directory directory = await getApplicationSupportDirectory();
+  //   String path = '${directory.path}$dbPath';
 
-    var notesDatabase = await openDatabase(
-      path,
-      version: 20,
-      onCreate: _createDb,
-    );
-    if (kDebugMode) {
-      notesDatabase.getVersion().then((value) {
-        print("db is version: ${value}");
-        print("db path is: ${notesDatabase.path}");
-      });
-    }
-    return notesDatabase;
-  }
+  //   var notesDatabase = await openDatabase(
+  //     path,
+  //     version: 20,
+  //     onCreate: _createDb,
+  //   );
+  //   if (kDebugMode) {
+  //     notesDatabase.getVersion().then((value) {
+  //       print("db is version: ${value}");
+  //       print("db path is: ${notesDatabase.path}");
+  //     });
+  //   }
+  //   return notesDatabase;
+  // }
 
-  Future<Database?> get database async {
-    _database ??= await initializeDatabase();
-    return _database;
-  }
+  // Future<Database?> get database async {
+  //   _database ??= await initializeDatabase();
+  //   return _database;
+  // }
 
-  closeDb() async {
-    await _database!.close();
-  }
+  // closeDb() async {
+  //   await _database!.close();
+  // }
 
-  // creating database
-  _createDb(Database db, int newVersion) async {
-    await db.execute('CREATE TABLE ${DatabaseConst.member}('
-        'rfid INTEGER PRIMARY KEY,'
-        'fullName TEXT,'
-        'gender TEXT,'
-        'phone TEXT,'
-        'lastPaymentDate TEXT,'
-        'lastPaymentType TEXT,'
-        'registryDate TEXT'
-        ')');
-    await db.execute('CREATE TABLE ${DatabaseConst.staff}('
-        'rfid INTEGER PRIMARY KEY,'
-        'fullName TEXT,'
-        'role TEXT,'
-        'isActive INTEGER,'
-        'shiftType TEXT,'
-        'startedWorkingFrom TEXT,'
-        'phone TEXT'
-        ')');
-    await db.execute('CREATE TABLE ${DatabaseConst.membersAttendance}('
-        'id INTEGER PRIMARY KEY AUTOINCREMENT,'
-        'date TEXT,'
-        'ownerId INTEGER,'
-        'type TEXT'
-        ')');
-    await db.execute('CREATE TABLE ${DatabaseConst.staffAttendance}('
-        'id INTEGER PRIMARY KEY AUTOINCREMENT,'
-        'date TEXT,'
-        'ownerId INTEGER,'
-        'type TEXT'
-        ')');
-    await db.execute('CREATE TABLE ${DatabaseConst.payments}('
-        'id INTEGER PRIMARY KEY AUTOINCREMENT,'
-        'ownerId INTEGER,'
-        'startingDate TEXT,'
-        'endingDate TEXT'
-        ')');
-  }
+  // // creating database
+  // _createDb(Database db, int newVersion) async {
+  //   await db.execute('CREATE TABLE ${DatabaseConst.member}('
+  //       'rfid INTEGER PRIMARY KEY,'
+  //       'fullName TEXT,'
+  //       'gender TEXT,'
+  //       'phone TEXT,'
+  //       'lastPaymentDate TEXT,'
+  //       'lastPaymentType TEXT,'
+  //       'registryDate TEXT'
+  //       ')');
+  //   await db.execute('CREATE TABLE ${DatabaseConst.staff}('
+  //       'rfid INTEGER PRIMARY KEY,'
+  //       'fullName TEXT,'
+  //       'role TEXT,'
+  //       'isActive INTEGER,'
+  //       'shiftType TEXT,'
+  //       'startedWorkingFrom TEXT,'
+  //       'phone TEXT'
+  //       ')');
+  //   await db.execute('CREATE TABLE ${DatabaseConst.membersAttendance}('
+  //       'id INTEGER PRIMARY KEY AUTOINCREMENT,'
+  //       'date TEXT,'
+  //       'ownerId INTEGER,'
+  //       'type TEXT'
+  //       ')');
+  //   await db.execute('CREATE TABLE ${DatabaseConst.staffAttendance}('
+  //       'id INTEGER PRIMARY KEY AUTOINCREMENT,'
+  //       'date TEXT,'
+  //       'ownerId INTEGER,'
+  //       'type TEXT'
+  //       ')');
+  //   await db.execute('CREATE TABLE ${DatabaseConst.payments}('
+  //       'id INTEGER PRIMARY KEY AUTOINCREMENT,'
+  //       'ownerId INTEGER,'
+  //       'startingDate TEXT,'
+  //       'endingDate TEXT'
+  //       ')');
+  // }
 
-  // staff
+  // // staff
 
-  Future<int> insertStaff(Staff staff) async {
-    var db = await database;
-    var result = await db!.insert(DatabaseConst.staff, staff.toMap());
+  // Future<int> insertStaff(Staff staff) async {
+  //   var db = await database;
+  //   var result = await db!.insert(DatabaseConst.staff, staff.toMap());
 
-    return result;
-  }
+  //   return result;
+  // }
 
-  Future<List<Staff>> getStaffs() async {
-    Database? db = await database;
+  // Future<List<Staff>> getStaffs() async {
+  //   Database? db = await database;
 
-    var result = await db!.query(DatabaseConst.staff);
-    print(result);
-    List<Staff> staffs = [];
-    for (var staff in result) {
-      staffs.add(Staff.fromMap(staff));
-    }
+  //   var result = await db!.query(DatabaseConst.staff);
+  //   print(result);
+  //   List<Staff> staffs = [];
+  //   for (var staff in result) {
+  //     staffs.add(Staff.fromMap(staff));
+  //   }
 
-    return staffs;
-  }
+  //   return staffs;
+  // }
 
-  Future<List<Staff>> getStaffByRfid(String rfid) async {
-    Database? db = await database;
+  // Future<List<Staff>> getStaffByRfid(String rfid) async {
+  //   Database? db = await database;
 
-    var result = await db!
-        .query(DatabaseConst.staff, where: 'rfid = ?', whereArgs: [rfid]);
-    List<Staff> staffs = [];
-    for (var staff in result) {
-      staffs.add(Staff.fromMap(staff));
-    }
+  //   var result = await db!
+  //       .query(DatabaseConst.staff, where: 'rfid = ?', whereArgs: [rfid]);
+  //   List<Staff> staffs = [];
+  //   for (var staff in result) {
+  //     staffs.add(Staff.fromMap(staff));
+  //   }
 
-    return staffs;
-  }
+  //   return staffs;
+  // }
 
-  Future<int> updateStaff(Staff staff) async {
-    final db = await database;
-    var result = await db!.update(DatabaseConst.staff, staff.toMap());
+  // Future<int> updateStaff(Staff staff) async {
+  //   final db = await database;
+  //   var result = await db!.update(DatabaseConst.staff, staff.toMap());
 
-    return result;
-  }
+  //   return result;
+  // }
 
-  Future<int> deleteStaff(int id) async {
-    var db = await database;
-    var result = await db!
-        .rawDelete('DELETE FROM ${DatabaseConst.staff} WHERE id = $id');
+  // Future<int> deleteStaff(int id) async {
+  //   var db = await database;
+  //   var result = await db!
+  //       .rawDelete('DELETE FROM ${DatabaseConst.staff} WHERE id = $id');
 
-    return result;
-  }
+  //   return result;
+  // }
 
-  // members
+  // // members
 
-  Future<int> insertMember(Member member) async {
-    var db = await database;
-    var result = await db!.insert(DatabaseConst.member, member.toMap());
+  // Future<int> insertMember(Member member) async {
+  //   var db = await database;
+  //   var result = await db!.insert(DatabaseConst.member, member.toMap());
 
-    return result;
-  }
+  //   return result;
+  // }
 
-  Future<List<Member>> getMembers() async {
-    Database? db = await database;
+  // Future<List<Member>> getMembers() async {
+  //   Database? db = await database;
 
-    var result = await db!.query(DatabaseConst.member);
-    List<Member> members = [];
-    for (var member in result) {
-      members.add(Member.fromMap(member));
-    }
+  //   var result = await db!.query(DatabaseConst.member);
+  //   List<Member> members = [];
+  //   for (var member in result) {
+  //     members.add(Member.fromMap(member));
+  //   }
 
-    return members;
-  }
+  //   return members;
+  // }
 
-  Future<int> updateMember(Member member) async {
-    final db = await database;
-    var result = await db!.update(DatabaseConst.member, member.toMap());
+  // Future<int> updateMember(Member member) async {
+  //   final db = await database;
+  //   var result = await db!.update(DatabaseConst.member, member.toMap());
 
-    return result;
-  }
+  //   return result;
+  // }
 
-  Future<int> deleteMember(int id) async {
-    var db = await database;
-    var result = await db!
-        .rawDelete('DELETE FROM ${DatabaseConst.member} WHERE id = $id');
+  // Future<int> deleteMember(int id) async {
+  //   var db = await database;
+  //   var result = await db!
+  //       .rawDelete('DELETE FROM ${DatabaseConst.member} WHERE id = $id');
 
-    return result;
-  }
+  //   return result;
+  // }
 
-  // memberAttendance
+  // // memberAttendance
 
-  Future<int> insertMemberAttendance(Attendance attendance) async {
-    var db = await database;
-    var result =
-        await db!.insert(DatabaseConst.membersAttendance, attendance.toMap());
+  // Future<int> insertMemberAttendance(Attendance attendance) async {
+  //   var db = await database;
+  //   var result =
+  //       await db!.insert(DatabaseConst.membersAttendance, attendance.toMap());
 
-    return result;
-  }
+  //   return result;
+  // }
 
-  Future<List<Attendance>> getMembersAttendance() async {
-    Database? db = await database;
+  // Future<List<Attendance>> getMembersAttendance() async {
+  //   Database? db = await database;
 
-    var result = await db!.query(DatabaseConst.membersAttendance);
-    List<Attendance> attendances = [];
-    for (var attendance in result) {
-      attendances.add(Attendance.fromMap(attendance));
-    }
+  //   var result = await db!.query(DatabaseConst.membersAttendance);
+  //   List<Attendance> attendances = [];
+  //   for (var attendance in result) {
+  //     attendances.add(Attendance.fromMap(attendance));
+  //   }
 
-    return attendances;
-  }
+  //   return attendances;
+  // }
 
-  Future<int> updateMemberAttendance(Attendance attendance) async {
-    final db = await database;
-    var result =
-        await db!.update(DatabaseConst.membersAttendance, attendance.toMap());
+  // Future<int> updateMemberAttendance(Attendance attendance) async {
+  //   final db = await database;
+  //   var result =
+  //       await db!.update(DatabaseConst.membersAttendance, attendance.toMap());
 
-    return result;
-  }
+  //   return result;
+  // }
 
-  // staffAttendance
+  // // staffAttendance
 
-  Future<int> insertStaffAttendance(Attendance attendance) async {
-    var db = await database;
-    var result =
-        await db!.insert(DatabaseConst.staffAttendance, attendance.toMap());
+  // Future<int> insertStaffAttendance(Attendance attendance) async {
+  //   var db = await database;
+  //   var result =
+  //       await db!.insert(DatabaseConst.staffAttendance, attendance.toMap());
 
-    return result;
-  }
+  //   return result;
+  // }
 
-  Future<List<Attendance>> getStaffAttendance() async {
-    Database? db = await database;
+  // Future<List<Attendance>> getStaffAttendance() async {
+  //   Database? db = await database;
 
-    var result = await db!.query(DatabaseConst.staffAttendance);
-    List<Attendance> attendances = [];
-    for (var attendance in result) {
-      attendances.add(Attendance.fromMap(attendance));
-    }
+  //   var result = await db!.query(DatabaseConst.staffAttendance);
+  //   List<Attendance> attendances = [];
+  //   for (var attendance in result) {
+  //     attendances.add(Attendance.fromMap(attendance));
+  //   }
 
-    return attendances;
-  }
+  //   return attendances;
+  // }
 
-  Future<List<Attendance>> getStaffAttendanceOfMonth(
-      int month, int year) async {
-    Database? db = await database;
+  // Future<List<Attendance>> getStaffAttendanceOfMonth(
+  //     int month, int year) async {
+  //   Database? db = await database;
 
-    String mon = month < 10 ? "0$month" : "$month";
+  //   String mon = month < 10 ? "0$month" : "$month";
 
-    var result = await db!.query(
-      DatabaseConst.staffAttendance,
-      where: 'date LIKE ?',
-      whereArgs: ['%$year-$mon%'],
-    );
+  //   var result = await db!.query(
+  //     DatabaseConst.staffAttendance,
+  //     where: 'date LIKE ?',
+  //     whereArgs: ['%$year-$mon%'],
+  //   );
 
-    List<Attendance> attendances = [];
-    for (var attendance in result) {
-      attendances.add(Attendance.fromMap(attendance));
-    }
+  //   List<Attendance> attendances = [];
+  //   for (var attendance in result) {
+  //     attendances.add(Attendance.fromMap(attendance));
+  //   }
 
-    return attendances;
-  }
+  //   return attendances;
+  // }
 
-  Future<int> updateStaffAttendance(Attendance attendance) async {
-    final db = await database;
-    var result = await db!.update(
-        DatabaseConst.staffAttendance, attendance.toMap(),
-        where: 'id = ?', whereArgs: [attendance.id]);
+  // Future<int> updateStaffAttendance(Attendance attendance) async {
+  //   final db = await database;
+  //   var result = await db!.update(
+  //       DatabaseConst.staffAttendance, attendance.toMap(),
+  //       where: 'id = ?', whereArgs: [attendance.id]);
 
-    return result;
-  }
+  //   return result;
+  // }
 
-  // payment
+  // // payment
 
-  Future<int> insertPayment(Payment payment) async {
-    var db = await database;
-    var result = await db!.insert(DatabaseConst.payments, payment.toMap());
+  // Future<int> insertPayment(Payment payment) async {
+  //   var db = await database;
+  //   var result = await db!.insert(DatabaseConst.payments, payment.toMap());
 
-    return result;
-  }
+  //   return result;
+  // }
 
-  Future<List<Payment>> getPayments() async {
-    Database? db = await database;
+  // Future<List<Payment>> getPayments() async {
+  //   Database? db = await database;
 
-    var result = await db!.query(DatabaseConst.payments);
-    List<Payment> payments = [];
-    for (var payment in result) {
-      payments.add(Payment.fromMap(payment));
-    }
+  //   var result = await db!.query(DatabaseConst.payments);
+  //   List<Payment> payments = [];
+  //   for (var payment in result) {
+  //     payments.add(Payment.fromMap(payment));
+  //   }
 
-    return payments;
-  }
+  //   return payments;
+  // }
 
-  Future<int> updatePayment(Payment payment) async {
-    final db = await database;
-    var result = await db!.update(DatabaseConst.payments, payment.toMap());
+  // Future<int> updatePayment(Payment payment) async {
+  //   final db = await database;
+  //   var result = await db!.update(DatabaseConst.payments, payment.toMap());
 
-    return result;
-  }
+  //   return result;
+  // }
 
-  Future<int> deletePayment(int id) async {
-    var db = await database;
-    var result = await db!
-        .rawDelete('DELETE FROM ${DatabaseConst.payments} WHERE id = $id');
+  // Future<int> deletePayment(int id) async {
+  //   var db = await database;
+  //   var result = await db!
+  //       .rawDelete('DELETE FROM ${DatabaseConst.payments} WHERE id = $id');
 
-    return result;
-  }
+  //   return result;
+  // }
 }
 
 
