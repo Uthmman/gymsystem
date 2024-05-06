@@ -99,10 +99,10 @@ class SLInput extends StatelessWidget {
           focusedBorder: isOutlined
               ? OutlineInputBorder(
                   borderRadius: BorderRadius.circular(15),
-                  borderSide: const BorderSide(color: Colors.blue),
+                  borderSide: const BorderSide(color: mainBoldColor),
                 )
               : const UnderlineInputBorder(
-                  borderSide: BorderSide(color: Colors.blue),
+                  borderSide: BorderSide(color: mainBoldColor),
                 ),
           suffixIcon: sufixIcon,
           hintText: hint,

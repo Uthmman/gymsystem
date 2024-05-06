@@ -10,15 +10,10 @@ class StaffsPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      // appBar: AppBar(
-      //   title: const Text('Staffs Page'),
-      //   // bottom: const TabBar(
-      //   //   tabs: [
-      //   //     Tab(text: 'Staffs'),
-      //   //     Tab(text: 'Attendance'),
-      //   //   ],
-      //   // ),
-      // ),
+      appBar: AppBar(
+        title: const Text('Gym Management'),
+        backgroundColor: mainColor,
+      ),
       body: SingleChildScrollView(
         child: Stack(
           children: [

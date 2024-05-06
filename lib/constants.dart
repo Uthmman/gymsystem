@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 class DatabaseConst {
   static const String staff = "Staff";
@@ -14,6 +15,11 @@ const String dbPath = "/db/GymDb.db";
 const Color mainBgColor = Colors.white;
 const Color whiteColor = Colors.white70;
 const Color mainColor = Color(0xffeab897);
+const Color mainBoldColor = Color.fromARGB(255, 224, 166, 128);
+const Color redColor = Color(0xffcb0502);
+const Color yelloColor = Color(0xfff4ac02);
+const Color greenColor = Color(0xff57a38c);
+const Color textColor = Colors.black54;
 
 final List<int> years = List.generate(50, (index) => 2000 + index).toList();
 
@@ -21,6 +27,28 @@ int generateRandomInt() {
   final random = Random();
   final number = random.nextInt(90000000) + 10000000; // 10000000 - 99999999
   return number;
+}
+
+DateTime parseTimeString(String timeString) {
+  final hour = int.parse(timeString.split(":")[0]);
+  final minute = int.parse(timeString
+      .split(":")[1]
+      .replaceAll("AM", '')
+      .replaceAll("PM", '')
+      .trim());
+  final meridian = timeString.split(":")[1].contains("AM") ? "AM" : "PM";
+
+  // Handle AM/PM and 12-hour clock (similar logic as previous example)
+  int adjustedHour = hour;
+  if (meridian == 'PM' && hour != 12) {
+    adjustedHour += 12;
+  } else if (meridian == 'AM' && hour == 12) {
+    adjustedHour = 0;
+  }
+
+  final dateTime = DateTime(DateTime.now().year, DateTime.now().month,
+      DateTime.now().day, adjustedHour, minute);
+  return dateTime; // Output: 2024-05-06 08:21:00.000000000Z
 }
 
 String generateRandomString() {
@@ -37,31 +65,13 @@ String generateRandomString() {
 }
 
 int getDaysInMonth(int year, int month) {
-  // Get the number of days in the month
   int daysInMonth = DateTime(year, month + 1, 0).day;
   return daysInMonth;
-  // // Handle invalid month values (1-12)
-  // if (month < 1 || month > 12) {
-  //   throw ArgumentError(
-  //       'Invalid month value: $month. Month must be between 1 and 12.');
-  // }
-
-  // // Create a DateTime object for the first day of the desired month
-  // final firstDay = DateTime(year, month, 1);
-
-  // // Use DateTime subtraction to get the next month's first day
-  // final nextMonthFirstDay =
-  //     firstDay.add(const Duration(days: 31)); // Add 31 days (adjusted later)
-
-  // // Subtract days to get the actual number of days in the current month
-  // return nextMonthFirstDay.difference(firstDay).inDays - 1;
 }
 
-void showToast(BuildContext context, String message) {
+void showToast(BuildContext context, String message, Color bgcolor) {
   // Check if the context is null or if it's not ready yet
-  if (context == null ||
-      ModalRoute.of(context) == null ||
-      !ModalRoute.of(context)!.isCurrent) {
+  if (ModalRoute.of(context) == null || !ModalRoute.of(context)!.isCurrent) {
     // Context is not ready yet, showToast cannot be performed
     return;
   }
@@ -70,6 +80,7 @@ void showToast(BuildContext context, String message) {
 
   scaffold.showSnackBar(
     SnackBar(
+      backgroundColor: bgcolor,
       content: Text(message),
       duration: const Duration(seconds: 2),
     ),

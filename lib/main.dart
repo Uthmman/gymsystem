@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:gymsystem/helper/db_helper.dart';
+import 'package:gymsystem/constants.dart';
+// import 'package:gymsystem/helper/db_helper.dart';
 // import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 import 'Pages/nav_layout.dart';
 
@@ -22,7 +23,7 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         colorScheme: const ColorScheme.light(
-          primary: Colors.blue,
+          primary: mainBoldColor,
         ),
       ),
       home: const NavigationLayout(),

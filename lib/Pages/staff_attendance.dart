@@ -122,19 +122,18 @@ class _StaffAttendanceState extends State<StaffAttendance> {
     return List.generate(
       len,
       (index) => Container(
-        width: 6,
-        height: 1.2,
-        margin: const EdgeInsets.all(6),
+        width: 8,
+        height: 2,
+        margin: const EdgeInsets.all(4),
         decoration: BoxDecoration(
-          color: Colors.black26,
+          color: Colors.black12,
           borderRadius: BorderRadius.circular(10),
         ),
       ),
     );
   }
 
-  Widget getAttendanceString(
-      List<Attendance> attendances, BuildContext context) {
+  Widget getAttendance(List<Attendance> attendances, BuildContext context) {
     TextStyle style = const TextStyle(fontSize: 10);
     if (attendances.isEmpty) {
       return Text(
@@ -149,10 +148,30 @@ class _StaffAttendanceState extends State<StaffAttendance> {
         onTapDown: (TapDownDetails details) {
           onDayPressed(attendance, context, details);
         },
-        child: Text(
-          "❌",
-          textAlign: TextAlign.center,
-          style: style,
+        child: Container(
+          padding: const EdgeInsets.symmetric(
+            horizontal: 25,
+            vertical: 5,
+          ),
+          decoration: BoxDecoration(
+            border: Border.all(
+              color: redColor,
+              width: 1.5,
+            ),
+            borderRadius: BorderRadius.circular(7),
+          ),
+          child: SizedBox(
+            width: 10,
+            child: Text(
+              "A",
+              textAlign: TextAlign.center,
+              style: style.copyWith(
+                color: redColor,
+                fontWeight: FontWeight.bold,
+                fontSize: 17,
+              ),
+            ),
+          ),
         ),
       );
     } else if (attendance.type == AttendanceType.present) {
@@ -160,10 +179,30 @@ class _StaffAttendanceState extends State<StaffAttendance> {
         onTapDown: (TapDownDetails details) {
           onDayPressed(attendance, context, details);
         },
-        child: Text(
-          "✅",
-          textAlign: TextAlign.center,
-          style: style,
+        child: Container(
+          padding: const EdgeInsets.symmetric(
+            horizontal: 25,
+            vertical: 5,
+          ),
+          decoration: BoxDecoration(
+            border: Border.all(
+              color: greenColor,
+              width: 1.5,
+            ),
+            borderRadius: BorderRadius.circular(7),
+          ),
+          child: SizedBox(
+            width: 10,
+            child: Text(
+              "P",
+              textAlign: TextAlign.center,
+              style: style.copyWith(
+                color: greenColor,
+                fontWeight: FontWeight.bold,
+                fontSize: 17,
+              ),
+            ),
+          ),
         ),
       );
     } else if (attendance.type == AttendanceType.holyday) {
@@ -171,10 +210,30 @@ class _StaffAttendanceState extends State<StaffAttendance> {
         onTapDown: (TapDownDetails details) {
           onDayPressed(attendance, context, details);
         },
-        child: Text(
-          "H",
-          textAlign: TextAlign.center,
-          style: style,
+        child: Container(
+          padding: const EdgeInsets.symmetric(
+            horizontal: 25,
+            vertical: 5,
+          ),
+          decoration: BoxDecoration(
+            border: Border.all(
+              color: yelloColor,
+              width: 1.5,
+            ),
+            borderRadius: BorderRadius.circular(7),
+          ),
+          child: SizedBox(
+            width: 10,
+            child: Text(
+              "H",
+              textAlign: TextAlign.center,
+              style: style.copyWith(
+                color: yelloColor,
+                fontWeight: FontWeight.bold,
+                fontSize: 17,
+              ),
+            ),
+          ),
         ),
       );
     } else if (attendance.type == AttendanceType.late) {
@@ -182,10 +241,64 @@ class _StaffAttendanceState extends State<StaffAttendance> {
         onTapDown: (TapDownDetails details) {
           onDayPressed(attendance, context, details);
         },
-        child: Text(
-          "L",
-          textAlign: TextAlign.center,
-          style: style,
+        child: Tooltip(
+          message: DateFormat("H:mm a").format(DateTime.parse(attendance.date)),
+          child: Stack(
+            children: [
+              Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 25,
+                  vertical: 5,
+                ),
+                decoration: BoxDecoration(
+                  border: Border.all(
+                    color: greenColor,
+                    width: 1.5,
+                  ),
+                  borderRadius: BorderRadius.circular(7),
+                ),
+                child: SizedBox(
+                  width: 10,
+                  child: Text(
+                    "P",
+                    textAlign: TextAlign.center,
+                    style: style.copyWith(
+                      color: greenColor,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 17,
+                    ),
+                  ),
+                ),
+              ),
+              Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 1,
+                  vertical: 5,
+                ),
+                decoration: BoxDecoration(
+                  color: redColor,
+                  border: Border.all(
+                    color: redColor,
+                    width: 1.5,
+                  ),
+                  borderRadius: const BorderRadius.horizontal(
+                    left: Radius.circular(7),
+                  ),
+                ),
+                child: SizedBox(
+                  width: 10,
+                  child: Text(
+                    "L",
+                    textAlign: TextAlign.center,
+                    style: style.copyWith(
+                      color: whiteColor,
+                      fontSize: 17,
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
       );
     } else if (attendance.type == AttendanceType.permission) {
@@ -193,10 +306,30 @@ class _StaffAttendanceState extends State<StaffAttendance> {
         onTapDown: (TapDownDetails details) {
           onDayPressed(attendance, context, details);
         },
-        child: Text(
-          "P",
-          textAlign: TextAlign.center,
-          style: style,
+        child: Container(
+          padding: const EdgeInsets.symmetric(
+            horizontal: 25,
+            vertical: 5,
+          ),
+          decoration: BoxDecoration(
+            border: Border.all(
+              color: Colors.black26,
+              width: 1.5,
+            ),
+            borderRadius: BorderRadius.circular(7),
+          ),
+          child: SizedBox(
+            width: 10,
+            child: Text(
+              "-",
+              textAlign: TextAlign.center,
+              style: style.copyWith(
+                color: Colors.black26,
+                fontWeight: FontWeight.bold,
+                fontSize: 17,
+              ),
+            ),
+          ),
         ),
       );
     } else if (attendance.type == AttendanceType.weekend) {
@@ -204,10 +337,26 @@ class _StaffAttendanceState extends State<StaffAttendance> {
         onTapDown: (TapDownDetails details) {
           onDayPressed(attendance, context, details);
         },
-        child: Text(
-          "W",
-          textAlign: TextAlign.center,
-          style: style,
+        child: Container(
+          padding: const EdgeInsets.symmetric(
+            horizontal: 20,
+            vertical: 10,
+          ),
+          decoration: BoxDecoration(
+            border: Border.all(
+              color: mainColor,
+              width: 1.5,
+            ),
+            borderRadius: BorderRadius.circular(10),
+          ),
+          child: SizedBox(
+            width: 10,
+            child: Text(
+              "W",
+              textAlign: TextAlign.center,
+              style: style,
+            ),
+          ),
         ),
       );
     } else {
@@ -220,181 +369,186 @@ class _StaffAttendanceState extends State<StaffAttendance> {
 
   @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      scrollDirection: Axis.horizontal,
-      child: Padding(
-        padding: EdgeInsets.only(
-          top: MediaQuery.of(context).size.height / 11,
-        ),
-        child: SizedBox(
-          width: MediaQuery.of(context).size.width * 40 / 53,
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.start,
-            children: [
-              const SizedBox(
-                height: 10,
-              ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  IconButton(
-                    onPressed: () {
-                      if (selectedMonth > 1) {
-                        setState(() {
-                          selectedMonth--;
-                        });
-                        getAttendanceOfTheMonth(selectedMonth, selectedYear);
-                      } else if (selectedYear > 2000) {
-                        setState(() {
-                          selectedMonth = 12;
-                          selectedYear--;
-                        });
-                        getAttendanceOfTheMonth(selectedMonth, selectedYear);
-                      }
-                    },
-                    icon: const Icon(Icons.chevron_left_outlined),
+    return Padding(
+      padding: EdgeInsets.only(
+        top: MediaQuery.of(context).size.height / 11,
+      ),
+      child: SizedBox(
+        width: MediaQuery.of(context).size.width * 40 / 53,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.start,
+          children: [
+            const SizedBox(
+              height: 10,
+            ),
+            Stack(
+              children: [
+                const Positioned(
+                  top: 10,
+                  child: Text(
+                    "Attendance Records",
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
-                  Text(getMonthName(selectedMonth)),
-                  IconButton(
-                    onPressed: () {
-                      if (selectedMonth < 12) {
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    IconButton(
+                      onPressed: () {
+                        if (selectedMonth > 1) {
+                          setState(() {
+                            selectedMonth--;
+                          });
+                          getAttendanceOfTheMonth(selectedMonth, selectedYear);
+                        } else if (selectedYear > 2000) {
+                          setState(() {
+                            selectedMonth = 12;
+                            selectedYear--;
+                          });
+                          getAttendanceOfTheMonth(selectedMonth, selectedYear);
+                        }
+                      },
+                      icon: const Icon(Icons.chevron_left_outlined),
+                    ),
+                    Text(getMonthName(selectedMonth)),
+                    IconButton(
+                      onPressed: () {
+                        if (selectedMonth < 12) {
+                          setState(() {
+                            selectedMonth++;
+                          });
+                          getAttendanceOfTheMonth(selectedMonth, selectedYear);
+                        } else if (selectedYear < 2049) {
+                          setState(() {
+                            selectedMonth = 1;
+                            selectedYear++;
+                          });
+                          getAttendanceOfTheMonth(selectedMonth, selectedYear);
+                        }
+                      },
+                      icon: const Icon(Icons.chevron_right_outlined),
+                    ),
+                    DropdownButton(
+                      value: selectedYear,
+                      items: years
+                          .map((e) => DropdownMenuItem(
+                                value: e,
+                                child: Text("$e"),
+                              ))
+                          .toList(),
+                      onChanged: (value) {
                         setState(() {
-                          selectedMonth++;
+                          selectedYear = value!;
                         });
                         getAttendanceOfTheMonth(selectedMonth, selectedYear);
-                      } else if (selectedYear < 2049) {
-                        setState(() {
-                          selectedMonth = 1;
-                          selectedYear++;
-                        });
-                        getAttendanceOfTheMonth(selectedMonth, selectedYear);
-                      }
-                    },
-                    icon: const Icon(Icons.chevron_right_outlined),
-                  ),
-                  DropdownButton(
-                    value: selectedYear,
-                    items: years
-                        .map((e) => DropdownMenuItem(
-                              value: e,
-                              child: Text("$e"),
-                            ))
-                        .toList(),
-                    onChanged: (value) {
-                      setState(() {
-                        selectedYear = value!;
-                      });
-                      getAttendanceOfTheMonth(selectedMonth, selectedYear);
-                    },
-                  )
-                ],
-              ),
-              const SizedBox(
-                height: 10,
-              ),
-              SizedBox(
-                width: MediaQuery.of(context).size.width * 40 / 53,
-                child: SingleChildScrollView(
-                  scrollDirection: Axis.horizontal,
-                  physics: const BouncingScrollPhysics(),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        children: List.generate(
-                          getDaysInMonth(selectedYear, selectedMonth),
-                          (index) => Padding(
-                            padding: const EdgeInsets.symmetric(
-                              vertical: 17,
-                              horizontal: 35,
-                            ),
-                            child: SizedBox(
-                              width: 55,
-                              child: Column(
-                                children: [
-                                  Text(
-                                    DateFormat("E").format(DateTime(
-                                        selectedYear,
-                                        selectedMonth,
-                                        index + 1)),
-                                    style: const TextStyle(
-                                      fontSize: 15,
-                                      fontWeight: FontWeight.w600,
+                      },
+                    )
+                  ],
+                ),
+              ],
+            ),
+            const SizedBox(
+              height: 10,
+            ),
+            SizedBox(
+              width: MediaQuery.of(context).size.width * 40 / 53,
+              child: SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                physics: const BouncingScrollPhysics(),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: List.generate(
+                        getDaysInMonth(selectedYear, selectedMonth),
+                        (index) => Padding(
+                          padding: const EdgeInsets.symmetric(
+                            vertical: 17,
+                            horizontal: 36,
+                          ),
+                          child: SizedBox(
+                            width: 55,
+                            child: Column(
+                              children: [
+                                Text(
+                                  DateFormat("E").format(
+                                    DateTime(
+                                      selectedYear,
+                                      selectedMonth,
+                                      index + 1,
                                     ),
-                                    textAlign: TextAlign.center,
                                   ),
-                                  Text(
-                                    "${index + 1} ${DateFormat("MMM").format(DateTime(selectedYear, selectedMonth))}",
-                                    style: const TextStyle(fontSize: 15),
-                                    textAlign: TextAlign.center,
+                                  style: const TextStyle(
+                                    fontSize: 15,
+                                    fontWeight: FontWeight.w600,
                                   ),
-                                ],
-                              ),
+                                  textAlign: TextAlign.center,
+                                ),
+                                Text(
+                                  "${index + 1} ${DateFormat("MMM").format(DateTime(selectedYear, selectedMonth))}",
+                                  style: const TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w100,
+                                  ),
+                                  textAlign: TextAlign.center,
+                                ),
+                              ],
                             ),
                           ),
                         ),
                       ),
-                      ...DatabaseHelper.staffs.map((e) {
-                        List<Attendance> myAttendance = DatabaseHelper
-                            .staffAttendance
-                            .where((a) => a.ownerId == e.rfId)
-                            .toList();
-                        return Row(
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          children: List.generate(
-                            getDaysInMonth(selectedYear, selectedMonth),
-                            (index) => Container(
-                              padding: const EdgeInsets.symmetric(vertical: 15),
-                              decoration: const BoxDecoration(
-                                border: Border(
-                                  bottom: BorderSide(
-                                    color: Colors.black26,
-                                    width: .4,
-                                  ),
+                    ),
+                    const SizedBox(
+                      height: 8,
+                    ),
+                    ...DatabaseHelper.staffs.map((e) {
+                      List<Attendance> myAttendance = DatabaseHelper
+                          .staffAttendance
+                          .where((a) => a.ownerId == e.rfId)
+                          .toList();
+                      return Row(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        children: List.generate(
+                          getDaysInMonth(selectedYear, selectedMonth),
+                          (index) => Container(
+                            padding: const EdgeInsets.symmetric(
+                              vertical: 15.8,
+                            ),
+                            decoration: const BoxDecoration(
+                              border: Border(
+                                bottom: BorderSide(
+                                  color: Colors.black26,
+                                  width: .4,
                                 ),
                               ),
-                              child: Row(
-                                children: [
-                                  ...hyphens(2),
-                                  Container(
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: 20,
-                                      vertical: 10,
-                                    ),
-                                    decoration: BoxDecoration(
-                                      border: Border.all(
-                                        color: mainColor,
-                                        width: 1.5,
-                                      ),
-                                      borderRadius: BorderRadius.circular(10),
-                                    ),
-                                    child: SizedBox(
-                                      width: 10,
-                                      child: getAttendanceString(
-                                        myAttendance
-                                            .where((element) =>
-                                                DateTime.parse(element.date)
-                                                    .day ==
-                                                index + 1)
-                                            .toList(),
-                                        context,
-                                      ),
-                                    ),
-                                  ),
-                                  ...hyphens(2),
-                                ],
-                              ),
+                            ),
+                            child: Row(
+                              children: [
+                                ...hyphens(2),
+                                getAttendance(
+                                  myAttendance
+                                      .where((element) =>
+                                          DateTime.parse(element.date).day ==
+                                          index + 1)
+                                      .toList(),
+                                  context,
+                                ),
+                                ...hyphens(2),
+                              ],
                             ),
                           ),
-                        );
-                      })
-                    ],
-                  ),
+                        ),
+                      );
+                    })
+                  ],
                 ),
-              )
-            ],
-          ),
+              ),
+            )
+          ],
         ),
       ),
     );

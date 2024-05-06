@@ -2,6 +2,8 @@ import 'dart:convert';
 import 'dart:math';
 
 import 'package:flutter/foundation.dart';
+import 'package:gymsystem/model/attendance.dart';
+import 'package:gymsystem/widget/special_dropdown.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 // import 'package:flutter_libserialport/flutter_libserialport.dart';
@@ -10,6 +12,7 @@ import 'package:gymsystem/helper/db_helper.dart';
 import 'package:gymsystem/model/staff.dart';
 import 'package:gymsystem/widget/sl_btn.dart';
 import 'package:gymsystem/widget/sl_input.dart';
+import 'package:intl/intl.dart';
 // import 'package:udp/udp.dart';
 
 // import 'package:web_socket_channel/web_socket_channel.dart';
@@ -19,7 +22,11 @@ import 'package:gymsystem/widget/sl_input.dart';
 // import 'package:web_socket_channel/io.dart';
 
 class AddStaff extends StatefulWidget {
-  const AddStaff({super.key});
+  final Staff? staff;
+  const AddStaff({
+    super.key,
+    this.staff,
+  });
 
   @override
   State<AddStaff> createState() => _AddStaffState();
@@ -32,16 +39,68 @@ class _AddStaffState extends State<AddStaff> {
   final _rfidTc = TextEditingController();
   final _roleTc = TextEditingController();
   final _startWorkingTc = TextEditingController();
-
+  final _entranceTime = TextEditingController();
+  final _exitTime = TextEditingController();
   bool loading = false;
+  String selectedGender = "Male";
+  String selectedDefaultAttendance = "absent";
+  int isActive = 1;
 
+  DateTime selectedSheduleDateTime = DateTime.now();
   // SerialPort port = SerialPort('COM5');
   // late SerialPortReader reader;
   // late UDP sender;
 
+  Future<String?> timePicker(String initialTime) async {
+    final TimeOfDay? selectedTime = await showTimePicker(
+      context: context,
+      initialTime: initialTime.isEmpty
+          ? TimeOfDay.now()
+          : TimeOfDay.fromDateTime(parseTimeString(initialTime)),
+      builder: (BuildContext context, Widget? child) {
+        return MediaQuery(
+          data: MediaQuery.of(context).copyWith(
+            alwaysUse24HourFormat: false,
+          ),
+          child: child!,
+        );
+      },
+    );
+
+    if (selectedTime != null) {
+      final DateTime currentTime = DateTime.now();
+      selectedSheduleDateTime = DateTime(
+        currentTime.year,
+        currentTime.month,
+        currentTime.day,
+        selectedTime.hour,
+        selectedTime.minute,
+      );
+      return DateFormat.jm().format(selectedSheduleDateTime);
+    } else {
+      return null;
+    }
+  }
+
   @override
   void initState() {
     super.initState();
+
+    if (widget.staff != null) {
+      _phoneTc.text = widget.staff!.phone;
+      _fullNameTc.text = widget.staff!.fullName;
+      _rfidTc.text = widget.staff!.rfId.toString();
+      _roleTc.text = widget.staff!.role;
+      _startWorkingTc.text = widget.staff!.startedWorkingFrom;
+      _entranceTime.text = widget.staff!.entranceTime;
+      _exitTime.text = widget.staff!.exitTime;
+      selectedGender = widget.staff!.gender;
+      selectedDefaultAttendance = widget.staff!.defaultAttendance
+          .toString()
+          .replaceAll("AttendanceType.", '');
+      isActive = widget.staff!.isActive;
+    }
+
 //      sender = UDP(
 //  port: Port(12346),
 //  onReceive: _onReceive,
@@ -94,7 +153,6 @@ class _AddStaffState extends State<AddStaff> {
     // });
   }
 
-  
   @override
   void dispose() {
     // TODO: implement dispose
@@ -152,6 +210,15 @@ class _AddStaffState extends State<AddStaff> {
               icon: const Icon(Icons.close),
             )
           ],
+          leading: IconButton(
+            onPressed: () {
+              // TODO: delete funtionality
+            },
+            icon: const Icon(
+              Icons.delete,
+              color: redColor,
+            ),
+          ),
         ),
         body: SingleChildScrollView(
           child: Form(
@@ -205,6 +272,62 @@ class _AddStaffState extends State<AddStaff> {
                 const SizedBox(
                   height: 20,
                 ),
+                SpecialDropdown(
+                  noTitle: true,
+                  isOutLined: true,
+                  onChange: (val) {
+                    setState(() {
+                      selectedGender = val!;
+                    });
+                  },
+                  title: 'Gender',
+                  value: selectedGender,
+                  width: double.infinity,
+                  list: const ["Male", "Female"],
+                ),
+                const SizedBox(
+                  height: 20,
+                ),
+                SLInput(
+                  title: "Entrance Time",
+                  hint: '08:00 pm',
+                  inputColor: Colors.black,
+                  otherColor: Colors.black54,
+                  keyboardType: TextInputType.text,
+                  controller: _entranceTime,
+                  isOutlined: true,
+                  readOnly: true,
+                  onTap: () async {
+                    final time = await timePicker(_entranceTime.text);
+                    if (time != null) {
+                      _entranceTime.text = time;
+                    }
+                    print(time);
+                  },
+                ),
+                const SizedBox(
+                  height: 20,
+                ),
+                SLInput(
+                  title: "Exit Time",
+                  hint: '11:00 pm',
+                  inputColor: Colors.black,
+                  otherColor: Colors.black54,
+                  keyboardType: TextInputType.text,
+                  controller: _exitTime,
+                  isOutlined: true,
+                  readOnly: true,
+                  onTap: () async {
+                    final time = await timePicker(_exitTime.text);
+                    if (time != null) {
+                      _exitTime.text = time;
+                    }
+                    print(time);
+                  },
+                ),
+                const SizedBox(
+                  height: 20,
+                ),
                 SLInput(
                   title: "Started Working from",
                   hint: 'Manager',
@@ -230,6 +353,42 @@ class _AddStaffState extends State<AddStaff> {
                 const SizedBox(
                   height: 30,
                 ),
+                SpecialDropdown(
+                  noTitle: false,
+                  isOutLined: true,
+                  onChange: (val) {
+                    setState(() {
+                      selectedDefaultAttendance = val!;
+                    });
+                  },
+                  title: 'Default Attendance',
+                  value: selectedDefaultAttendance,
+                  width: double.infinity,
+                  list: AttendanceType.values
+                      .map(
+                          (e) => e.toString().replaceAll("AttendanceType.", ""))
+                      .toList(),
+                ),
+                const SizedBox(
+                  height: 20,
+                ),
+                Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 23,
+                  ),
+                  child: CheckboxListTile(
+                    title: const Text("Is Active"),
+                    value: isActive == 0 ? false : true,
+                    onChanged: (v) {
+                      setState(() {
+                        isActive = v! ? 1 : 0;
+                      });
+                    },
+                  ),
+                ),
+                const SizedBox(
+                  height: 20,
+                ),
                 loading
                     ? const Center(
                         child: CircularProgressIndicator(),
@@ -248,15 +407,25 @@ class _AddStaffState extends State<AddStaff> {
                             //     startedWorkingFrom: _startWorkingTc.text,
                             //     phone: _phoneTc.text,
                             //     rfId: int.parse(_rfidTc.text),
-                            //     isActive: 0,
-                            //     shiftType: '',
+                            //     isActive: isActive,
+                            //     entranceTime: _entranceTime.text,
+                            //     exitTime: _exitTime.text,
+                            //     lastAttendance: DateTime.now()
+                            //         .subtract(const Duration(days: 1))
+                            //         .toString(),
+                            //     gender: '',
+                            //     defaultAttendance: AttendanceType.values
+                            //         .singleWhere((element) =>
+                            //             element.toString().replaceAll(
+                            //                 "AttendanceType.", "") ==
+                            //             selectedDefaultAttendance),
                             //   ),
                             // );
                             // final staffs = await DatabaseHelper().getStaffs();
                             // DatabaseHelper.staffs = staffs;
-                            // setState(() {
-                            //   loading = false;
-                            // });
+                            setState(() {
+                              loading = false;
+                            });
                             if (mounted) {
                               Navigator.pop(context, true);
                             }

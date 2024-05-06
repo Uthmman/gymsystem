@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:gymsystem/Pages/add_staff.dart';
+import 'package:gymsystem/Pages/password_page.dart';
 import 'package:gymsystem/constants.dart';
 import 'package:gymsystem/helper/db_helper.dart';
+import 'package:gymsystem/model/attendance.dart';
 import 'package:gymsystem/model/staff.dart';
+import 'package:gymsystem/widget/sl_input.dart';
+import 'package:intl/intl.dart';
 import 'package:random_avatar/random_avatar.dart';
 
 class StaffList extends StatefulWidget {
@@ -14,6 +18,8 @@ class StaffList extends StatefulWidget {
 
 class _StaffListState extends State<StaffList> {
   bool isLoading = false;
+
+  final TextEditingController _searchTc = TextEditingController();
   @override
   void initState() {
     super.initState();
@@ -23,14 +29,20 @@ class _StaffListState extends State<StaffList> {
     for (int i = 0; i < 30; i++) {
       staffs.add(
         Staff(
-          fullName: generateRandomString(),
-          role: generateRandomString(),
-          startedWorkingFrom: generateRandomString(),
-          phone: generateRandomInt().toString(),
-          isActive: 1,
-          shiftType: "Regular",
-          rfId: generateRandomInt(),
-        ),
+            fullName: generateRandomString(),
+            role: generateRandomString(),
+            startedWorkingFrom: generateRandomString(),
+            phone: generateRandomInt().toString(),
+            isActive: 1,
+            rfId: generateRandomInt(),
+            entranceTime: DateFormat.jm().format(DateTime.now()),
+            exitTime: DateFormat.jm().format(DateTime.now()),
+            lastAttendance: DateTime.now().toString(),
+            gender: i % 2 == 0 ? "Male" : "Female",
+            defaultAttendance: AttendanceType.absent,
+            dateOfBirth: DateTime.now()
+                .subtract(Duration(days: 360 * (20 + i)))
+                .toString()),
       );
     }
     DatabaseHelper.staffs = staffs;
@@ -71,28 +83,50 @@ class _StaffListState extends State<StaffList> {
           // ),
           Column(
         children: [
-          const Padding(
-            padding: EdgeInsets.only(
-              top: 19,
-              bottom: 9,
+          Padding(
+            padding: const EdgeInsets.only(
+              top: 12,
+              bottom: 2,
               left: 20,
             ),
             child: Row(
               children: [
-                Icon(
+                const Icon(
                   Icons.people_alt_outlined,
-                  color: mainColor,
+                  color: mainBoldColor,
                 ),
-                SizedBox(
+                const SizedBox(
                   width: 10,
                 ),
-                Text(
+                const Text(
                   "Staff List",
                   style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
+                const Spacer(),
+                IconButton(
+                  tooltip: "New Staff",
+                  icon: const Icon(Icons.add),
+                  onPressed: () async {
+                    bool premission = await showDialog(
+                      context: context,
+                      builder: (context) => const PasswordPage(),
+                    );
+                    print("premission: $premission");
+                    if (mounted) {
+                      if (premission) {
+                        showToast(context, "Permission Granted", greenColor);
+                      } else {
+                        showToast(context, "Permission Denyed", redColor);
+                      }
+                    }
+                  },
+                ),
+                const SizedBox(
+                  width: 10,
+                )
               ],
             ),
           ),
@@ -100,7 +134,19 @@ class _StaffListState extends State<StaffList> {
             color: Colors.black26,
           ),
           const SizedBox(
-            height: 60,
+            height: 14.65,
+          ),
+          SLInput(
+            title: "Search Staffs",
+            hint: "",
+            keyboardType: TextInputType.text,
+            controller: _searchTc,
+            isOutlined: true,
+            inputColor: Colors.black,
+            otherColor: Colors.black26,
+          ),
+          const SizedBox(
+            height: 14.65,
           ),
           isLoading
               ? const Center(
@@ -120,9 +166,18 @@ class _StaffListState extends State<StaffList> {
                             ),
                           ),
                           child: ListTile(
-                            // contentPadding: const EdgeInsets.symmetric(
-                            //   vertical: 10,
-                            // ),
+                            onTap: () {
+                              showDialog(
+                                context: context,
+                                builder: (context) => AddStaff(
+                                  staff: DatabaseHelper.staffs[index],
+                                ),
+                              );
+                            },
+                            contentPadding: const EdgeInsets.symmetric(
+                              vertical: 2,
+                              horizontal: 15,
+                            ),
                             title: Text(DatabaseHelper.staffs[index].fullName),
                             subtitle: Text(DatabaseHelper.staffs[index].role),
                             leading: RandomAvatar(

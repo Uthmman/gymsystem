@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:gymsystem/constants.dart';
 
 class SLBtn extends StatelessWidget {
   final String text;
@@ -13,7 +14,7 @@ class SLBtn extends StatelessWidget {
         width: 200,
         height: 50,
         decoration: BoxDecoration(
-          color: Colors.blue,
+          color: mainBoldColor,
           borderRadius: BorderRadius.circular(15),
         ),
         child: Center(

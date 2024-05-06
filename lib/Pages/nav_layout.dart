@@ -19,12 +19,19 @@ class _NavigationLayoutState extends State<NavigationLayout> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Gym Management'),
-        backgroundColor: mainColor,
-      ),
       drawer: NavDrawer(onItemSelected: _onNavigationItemSelected),
-      body: _buildBody(),
+      body: Row(
+        children: [
+          Flexible(
+            flex: 1,
+            child: NavDrawer(onItemSelected: _onNavigationItemSelected),
+          ),
+          Flexible(
+            flex: 22,
+            child: _buildBody(),
+          ),
+        ],
+      ),
 
       // drawer: NavDrawer(onItemSelected: _onNavigationItemSelected),
     );
