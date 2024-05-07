@@ -15,7 +15,7 @@ class Staff {
   final String gender;
   final AttendanceType defaultAttendance;
   final int isActive;
-  final int rfId;
+  final String rfId;
   Staff(
       {required this.fullName,
       required this.role,
@@ -42,7 +42,7 @@ class Staff {
     String? gender,
     AttendanceType? defaultAttendance,
     int? isActive,
-    int? rfId,
+    String? rfId,
   }) {
     return Staff(
       dateOfBirth: dateOfBirth ?? this.dateOfBirth,
@@ -91,7 +91,7 @@ class Staff {
       defaultAttendance: AttendanceType.values
           .singleWhere((e) => e.toString() == map['defaultAttendance']),
       isActive: map['isActive'] as int,
-      rfId: map['rfId'] as int,
+      rfId: map['rfId'] as String,
     );
   }
 

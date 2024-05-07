@@ -2,6 +2,9 @@ import 'dart:convert';
 import 'dart:math';
 
 import 'package:flutter/foundation.dart';
+import 'package:get/get.dart';
+import 'package:get/get_instance/get_instance.dart';
+import 'package:gymsystem/controller/main_controller.dart';
 import 'package:gymsystem/model/attendance.dart';
 import 'package:gymsystem/widget/special_dropdown.dart';
 import 'package:http/http.dart' as http;
@@ -13,6 +16,8 @@ import 'package:gymsystem/model/staff.dart';
 import 'package:gymsystem/widget/sl_btn.dart';
 import 'package:gymsystem/widget/sl_input.dart';
 import 'package:intl/intl.dart';
+
+import 'password_page.dart';
 // import 'package:udp/udp.dart';
 
 // import 'package:web_socket_channel/web_socket_channel.dart';
@@ -40,53 +45,24 @@ class _AddStaffState extends State<AddStaff> {
   final _roleTc = TextEditingController();
   final _startWorkingTc = TextEditingController();
   final _entranceTime = TextEditingController();
+  final _birthDateTc = TextEditingController();
   final _exitTime = TextEditingController();
+  MainController mainController = Get.find<MainController>();
   bool loading = false;
   String selectedGender = "Male";
   String selectedDefaultAttendance = "absent";
   int isActive = 1;
 
-  DateTime selectedSheduleDateTime = DateTime.now();
   // SerialPort port = SerialPort('COM5');
   // late SerialPortReader reader;
   // late UDP sender;
-
-  Future<String?> timePicker(String initialTime) async {
-    final TimeOfDay? selectedTime = await showTimePicker(
-      context: context,
-      initialTime: initialTime.isEmpty
-          ? TimeOfDay.now()
-          : TimeOfDay.fromDateTime(parseTimeString(initialTime)),
-      builder: (BuildContext context, Widget? child) {
-        return MediaQuery(
-          data: MediaQuery.of(context).copyWith(
-            alwaysUse24HourFormat: false,
-          ),
-          child: child!,
-        );
-      },
-    );
-
-    if (selectedTime != null) {
-      final DateTime currentTime = DateTime.now();
-      selectedSheduleDateTime = DateTime(
-        currentTime.year,
-        currentTime.month,
-        currentTime.day,
-        selectedTime.hour,
-        selectedTime.minute,
-      );
-      return DateFormat.jm().format(selectedSheduleDateTime);
-    } else {
-      return null;
-    }
-  }
 
   @override
   void initState() {
     super.initState();
 
     if (widget.staff != null) {
+      _birthDateTc.text = widget.staff!.dateOfBirth;
       _phoneTc.text = widget.staff!.phone;
       _fullNameTc.text = widget.staff!.fullName;
       _rfidTc.text = widget.staff!.rfId.toString();
@@ -100,6 +76,10 @@ class _AddStaffState extends State<AddStaff> {
           .replaceAll("AttendanceType.", '');
       isActive = widget.staff!.isActive;
     }
+
+    Future.delayed(const Duration(seconds: 3)).then((val) {
+      _rfidTc.text = generateRandomInt().toString();
+    });
 
 //      sender = UDP(
 //  port: Port(12346),
@@ -193,10 +173,11 @@ class _AddStaffState extends State<AddStaff> {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: EdgeInsets.symmetric(
-        horizontal: MediaQuery.of(context).size.width / 3,
-        vertical: 50,
-      ),
+      padding: EdgeInsets.zero,
+      // symmetric(
+      //   horizontal: MediaQuery.of(context).size.width / 3,
+      //   vertical: 50,
+      // ),
       child: Scaffold(
         appBar: AppBar(
           automaticallyImplyLeading: false,
@@ -210,15 +191,31 @@ class _AddStaffState extends State<AddStaff> {
               icon: const Icon(Icons.close),
             )
           ],
-          leading: IconButton(
-            onPressed: () {
-              // TODO: delete funtionality
-            },
-            icon: const Icon(
-              Icons.delete,
-              color: redColor,
-            ),
-          ),
+          leading: widget.staff != null
+              ? IconButton(
+                  onPressed: () async {
+                    final permission = await showDialog(
+                      context: context,
+                      builder: (context) => const PasswordPage(),
+                    );
+                    if (permission) {
+                      await mainController.deleteStaff(widget.staff!.rfId);
+                      if (mounted) {
+                        showToast(context, "Successfully deleted.", greenColor);
+                        Navigator.pop(context);
+                      }
+                    } else {
+                      if (mounted) {
+                        showToast(context, "Permission denied.", redColor);
+                      }
+                    }
+                  },
+                  icon: const Icon(
+                    Icons.delete,
+                    color: redColor,
+                  ),
+                )
+              : const SizedBox(),
         ),
         body: SingleChildScrollView(
           child: Form(
@@ -289,6 +286,34 @@ class _AddStaffState extends State<AddStaff> {
                   height: 20,
                 ),
                 SLInput(
+                  title: "Date of Birth",
+                  hint: 'may 7/1990',
+                  inputColor: Colors.black,
+                  otherColor: Colors.black54,
+                  keyboardType: TextInputType.text,
+                  controller: _birthDateTc,
+                  isOutlined: true,
+                  readOnly: true,
+                  onTap: () async {
+                    final date = await datePicker(
+                      _birthDateTc.text.isEmpty
+                          ? ""
+                          : DateFormat("MMM dd/yyyy")
+                              .parse(_birthDateTc.text)
+                              .toString(),
+                      context,
+                    );
+                    if (date != null) {
+                      _birthDateTc.text =
+                          DateFormat("MMM dd/yyyy").format(date);
+                    }
+                    print(date);
+                  },
+                ),
+                const SizedBox(
+                  height: 20,
+                ),
+                SLInput(
                   title: "Entrance Time",
                   hint: '08:00 pm',
                   inputColor: Colors.black,
@@ -298,7 +323,7 @@ class _AddStaffState extends State<AddStaff> {
                   isOutlined: true,
                   readOnly: true,
                   onTap: () async {
-                    final time = await timePicker(_entranceTime.text);
+                    final time = await timePicker(_entranceTime.text, context);
                     if (time != null) {
                       _entranceTime.text = time;
                     }
@@ -318,7 +343,7 @@ class _AddStaffState extends State<AddStaff> {
                   isOutlined: true,
                   readOnly: true,
                   onTap: () async {
-                    final time = await timePicker(_exitTime.text);
+                    final time = await timePicker(_exitTime.text, context);
                     if (time != null) {
                       _exitTime.text = time;
                     }
@@ -329,13 +354,31 @@ class _AddStaffState extends State<AddStaff> {
                   height: 20,
                 ),
                 SLInput(
-                  title: "Started Working from",
-                  hint: 'Manager',
+                  title: "Joined",
+                  hint: 'Apr 7/2020',
                   inputColor: Colors.black,
                   otherColor: Colors.black54,
                   keyboardType: TextInputType.text,
                   controller: _startWorkingTc,
                   isOutlined: true,
+                  readOnly: true,
+                  onTap: () async {
+                    final date = await datePicker(
+                        _startWorkingTc.text.isEmpty
+                            ? ""
+                            : DateFormat("MMM dd/yyyy")
+                                .parse(_startWorkingTc.text)
+                                .toString(),
+                        context,
+                        startYear: 1950,
+                        endYear: DateTime.now().year,
+                        defaultInitial: 2010);
+                    if (date != null) {
+                      _startWorkingTc.text =
+                          DateFormat("MMM dd/yyyy").format(date);
+                    }
+                    print(date);
+                  },
                 ),
                 const SizedBox(
                   height: 20,
@@ -400,29 +443,71 @@ class _AddStaffState extends State<AddStaff> {
                             setState(() {
                               loading = true;
                             });
-                            // await DatabaseHelper().insertStaff(
-                            //   Staff(
-                            //     fullName: _fullNameTc.text,
-                            //     role: _roleTc.text,
-                            //     startedWorkingFrom: _startWorkingTc.text,
-                            //     phone: _phoneTc.text,
-                            //     rfId: int.parse(_rfidTc.text),
-                            //     isActive: isActive,
-                            //     entranceTime: _entranceTime.text,
-                            //     exitTime: _exitTime.text,
-                            //     lastAttendance: DateTime.now()
-                            //         .subtract(const Duration(days: 1))
-                            //         .toString(),
-                            //     gender: '',
-                            //     defaultAttendance: AttendanceType.values
-                            //         .singleWhere((element) =>
-                            //             element.toString().replaceAll(
-                            //                 "AttendanceType.", "") ==
-                            //             selectedDefaultAttendance),
-                            //   ),
-                            // );
-                            // final staffs = await DatabaseHelper().getStaffs();
-                            // DatabaseHelper.staffs = staffs;
+                            if (widget.staff != null) {
+                              if (selectedDefaultAttendance != 'absent' ||
+                                  isActive != 1) {
+                                final permission = await showDialog(
+                                  context: context,
+                                  builder: (context) => const PasswordPage(),
+                                );
+                                if (permission != true) {
+                                  if (mounted) {
+                                    showToast(context, "Permission denied.",
+                                        redColor);
+                                  }
+                                  setState(() {
+                                    loading = false;
+                                  });
+                                  return;
+                                }
+                              }
+                              await DatabaseHelper().updateStaff(
+                                Staff(
+                                  dateOfBirth: _birthDateTc.text,
+                                  fullName: _fullNameTc.text,
+                                  role: _roleTc.text,
+                                  startedWorkingFrom: _startWorkingTc.text,
+                                  phone: _phoneTc.text,
+                                  rfId: _rfidTc.text,
+                                  isActive: isActive,
+                                  entranceTime: _entranceTime.text,
+                                  exitTime: _exitTime.text,
+                                  lastAttendance: DateTime.now()
+                                      .subtract(const Duration(days: 1))
+                                      .toString(),
+                                  gender: selectedGender,
+                                  defaultAttendance: AttendanceType.values
+                                      .singleWhere((element) =>
+                                          element.toString().replaceAll(
+                                              "AttendanceType.", "") ==
+                                          selectedDefaultAttendance),
+                                ),
+                              );
+                            } else {
+                              await DatabaseHelper().insertStaff(
+                                Staff(
+                                  dateOfBirth: _birthDateTc.text,
+                                  fullName: _fullNameTc.text,
+                                  role: _roleTc.text,
+                                  startedWorkingFrom: _startWorkingTc.text,
+                                  phone: _phoneTc.text,
+                                  rfId: _rfidTc.text,
+                                  isActive: isActive,
+                                  entranceTime: _entranceTime.text,
+                                  exitTime: _exitTime.text,
+                                  lastAttendance: DateTime.now()
+                                      .subtract(const Duration(days: 1))
+                                      .toString(),
+                                  gender: selectedGender,
+                                  defaultAttendance: AttendanceType.values
+                                      .singleWhere((element) =>
+                                          element.toString().replaceAll(
+                                              "AttendanceType.", "") ==
+                                          selectedDefaultAttendance),
+                                ),
+                              );
+                            }
+                            mainController.getStaff();
                             setState(() {
                               loading = false;
                             });

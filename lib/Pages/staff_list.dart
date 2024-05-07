@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:get/get_instance/get_instance.dart';
 import 'package:gymsystem/Pages/add_staff.dart';
 import 'package:gymsystem/Pages/password_page.dart';
 import 'package:gymsystem/constants.dart';
+import 'package:gymsystem/controller/main_controller.dart';
 import 'package:gymsystem/helper/db_helper.dart';
 import 'package:gymsystem/model/attendance.dart';
 import 'package:gymsystem/model/staff.dart';
@@ -17,37 +20,36 @@ class StaffList extends StatefulWidget {
 }
 
 class _StaffListState extends State<StaffList> {
-  bool isLoading = false;
+  
+
+  MainController mainController = Get.find<MainController>();
 
   final TextEditingController _searchTc = TextEditingController();
   @override
   void initState() {
     super.initState();
-    isLoading = true;
-    setState(() {});
-    List<Staff> staffs = [];
-    for (int i = 0; i < 30; i++) {
-      staffs.add(
-        Staff(
-            fullName: generateRandomString(),
-            role: generateRandomString(),
-            startedWorkingFrom: generateRandomString(),
-            phone: generateRandomInt().toString(),
-            isActive: 1,
-            rfId: generateRandomInt(),
-            entranceTime: DateFormat.jm().format(DateTime.now()),
-            exitTime: DateFormat.jm().format(DateTime.now()),
-            lastAttendance: DateTime.now().toString(),
-            gender: i % 2 == 0 ? "Male" : "Female",
-            defaultAttendance: AttendanceType.absent,
-            dateOfBirth: DateTime.now()
-                .subtract(Duration(days: 360 * (20 + i)))
-                .toString()),
-      );
-    }
-    DatabaseHelper.staffs = staffs;
-    isLoading = false;
-    setState(() {});
+  
+    // List<Staff> staffs = [];
+    // for (int i = 0; i < 30; i++) {
+    //   staffs.add(
+    //     Staff(
+    //         fullName: generateRandomString(),
+    //         role: generateRandomString(),
+    //         startedWorkingFrom: generateRandomString(),
+    //         phone: generateRandomInt().toString(),
+    //         isActive: 1,
+    //         rfId: generateRandomInt(),
+    //         entranceTime: DateFormat.jm().format(DateTime.now()),
+    //         exitTime: DateFormat.jm().format(DateTime.now()),
+    //         lastAttendance: DateTime.now().toString(),
+    //         gender: i % 2 == 0 ? "Male" : "Female",
+    //         defaultAttendance: AttendanceType.absent,
+    //         dateOfBirth: DateTime.now()
+    //             .subtract(Duration(days: 360 * (20 + i)))
+    //             .toString()),
+    //   );
+    // }
+    mainController.getStaff();
   }
 
   @override
@@ -71,17 +73,7 @@ class _StaffListState extends State<StaffList> {
           ),
         ],
       ),
-      child:
-          // floatingActionButton: FloatingActionButton(
-          //   child: const Icon(Icons.add),
-          //   onPressed: () {
-          //     showDialog(context: context, builder: (context) => const AddStaff())
-          //         .then((value) {
-          //       setState(() {});
-          //     });
-          //   },
-          // ),
-          Column(
+      child: Column(
         children: [
           Padding(
             padding: const EdgeInsets.only(
@@ -91,9 +83,11 @@ class _StaffListState extends State<StaffList> {
             ),
             child: Row(
               children: [
-                const Icon(
-                  Icons.people_alt_outlined,
+                Image.asset(
+                  'assets/employee.png',
                   color: mainBoldColor,
+                  width: 30,
+                  height: 30,
                 ),
                 const SizedBox(
                   width: 10,
@@ -110,18 +104,10 @@ class _StaffListState extends State<StaffList> {
                   tooltip: "New Staff",
                   icon: const Icon(Icons.add),
                   onPressed: () async {
-                    bool premission = await showDialog(
+                    await showDialog(
                       context: context,
-                      builder: (context) => const PasswordPage(),
+                      builder: (context) => const AddStaff(),
                     );
-                    print("premission: $premission");
-                    if (mounted) {
-                      if (premission) {
-                        showToast(context, "Permission Granted", greenColor);
-                      } else {
-                        showToast(context, "Permission Denyed", redColor);
-                      }
-                    }
                   },
                 ),
                 const SizedBox(
@@ -148,49 +134,49 @@ class _StaffListState extends State<StaffList> {
           const SizedBox(
             height: 14.65,
           ),
-          isLoading
-              ? const Center(
-                  child: Text("Loading..."),
-                )
-              : DatabaseHelper.staffs.isEmpty
-                  ? const Center(child: Text("Empty Staff"))
-                  : Column(
-                      children: List.generate(
-                        DatabaseHelper.staffs.length,
-                        (index) => Container(
-                          decoration: const BoxDecoration(
-                            border: Border(
-                              bottom: BorderSide(
-                                color: Colors.black12,
+          Obx(() {
+            return  mainController.staffs.isEmpty
+                    ? const Center(child: Text("Empty Staff"))
+                    : Column(
+                        children: List.generate(
+                          mainController.staffs.length,
+                          (index) => Container(
+                            decoration: const BoxDecoration(
+                              border: Border(
+                                bottom: BorderSide(
+                                  color: Colors.black12,
+                                ),
                               ),
                             ),
-                          ),
-                          child: ListTile(
-                            onTap: () {
-                              showDialog(
-                                context: context,
-                                builder: (context) => AddStaff(
-                                  staff: DatabaseHelper.staffs[index],
-                                ),
-                              );
-                            },
-                            contentPadding: const EdgeInsets.symmetric(
-                              vertical: 2,
-                              horizontal: 15,
+                            child: ListTile(
+                              onTap: () {
+                                showDialog(
+                                  context: context,
+                                  builder: (context) => AddStaff(
+                                    staff: mainController.staffs[index],
+                                  ),
+                                );
+                              },
+                              contentPadding: const EdgeInsets.symmetric(
+                                vertical: 2,
+                                horizontal: 15,
+                              ),
+                              title:
+                                  Text(mainController.staffs[index].fullName),
+                              subtitle: Text(mainController.staffs[index].role),
+                              leading: RandomAvatar(
+                                mainController.staffs[index].fullName,
+                                height: 50,
+                                width: 50,
+                              ),
+                              trailing:
+                                  Text(mainController.staffs[index].phone),
+                              // Add more details about each staff member here
                             ),
-                            title: Text(DatabaseHelper.staffs[index].fullName),
-                            subtitle: Text(DatabaseHelper.staffs[index].role),
-                            leading: RandomAvatar(
-                              DatabaseHelper.staffs[index].fullName,
-                              height: 50,
-                              width: 50,
-                            ),
-                            trailing: Text(DatabaseHelper.staffs[index].phone),
-                            // Add more details about each staff member here
                           ),
                         ),
-                      ),
-                    )
+                      );
+          })
 
           // Expanded(
           //     child: ListView.builder(

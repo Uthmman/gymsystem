@@ -35,10 +35,11 @@ class _PasswordPageState extends State<PasswordPage> {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: EdgeInsets.symmetric(
-        horizontal: MediaQuery.of(context).size.width / 3,
-        vertical: 200,
-      ),
+      padding: EdgeInsets.zero,
+      // .symmetric(
+      //   horizontal: MediaQuery.of(context).size.width / 3,
+      //   vertical: 200,
+      // ),
       child: Dialog(
         child: Form(
           key: _formKey,

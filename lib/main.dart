@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:gymsystem/constants.dart';
+import 'package:gymsystem/controller/main_controller.dart';
 // import 'package:gymsystem/helper/db_helper.dart';
 // import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 import 'Pages/nav_layout.dart';
@@ -18,7 +20,8 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    return GetMaterialApp(
+      initialBinding: GetBindings(),
       title: 'Gym Management',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
@@ -28,5 +31,12 @@ class MyApp extends StatelessWidget {
       ),
       home: const NavigationLayout(),
     );
+  }
+}
+
+class GetBindings extends Bindings {
+  @override
+  void dependencies() {
+    Get.lazyPut(() => MainController());
   }
 }

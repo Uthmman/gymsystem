@@ -19,7 +19,7 @@ class _NavigationLayoutState extends State<NavigationLayout> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      drawer: NavDrawer(onItemSelected: _onNavigationItemSelected),
+      // drawer: NavDrawer(onItemSelected: _onNavigationItemSelected),
       body: Row(
         children: [
           Flexible(

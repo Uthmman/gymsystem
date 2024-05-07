@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:get/get_instance/get_instance.dart';
+import 'package:gymsystem/Pages/password_page.dart';
 import 'package:gymsystem/constants.dart';
+import 'package:gymsystem/controller/main_controller.dart';
 import 'package:gymsystem/helper/db_helper.dart';
 import 'package:gymsystem/model/attendance.dart';
 import 'package:gymsystem/model/staff.dart';
@@ -18,6 +22,8 @@ class _StaffAttendanceState extends State<StaffAttendance> {
   int selectedMonth = DateTime.now().month;
   int selectedYear = DateTime.now().year;
 
+  MainController mainController = Get.find<MainController>();
+
   @override
   void initState() {
     super.initState();
@@ -30,32 +36,30 @@ class _StaffAttendanceState extends State<StaffAttendance> {
 
   getAttendanceOfTheMonth(int month, int year) async {
     // TODO: Temporary
-    List<Attendance> attendances = [];
-    for (int i = 0; i < 30; i++) {
-      for (Staff staff in DatabaseHelper.staffs) {
-        int ran = i % 10;
-        attendances.add(
-          Attendance(
-            id: i,
-            date: DateTime.now().subtract(Duration(days: i)).toString(),
-            ownerId: staff.rfId,
-            type: ran < 2
-                ? AttendanceType.present
-                : ran < 4
-                    ? AttendanceType.absent
-                    : ran < 6
-                        ? AttendanceType.late
-                        : ran < 8
-                            ? AttendanceType.permission
-                            : AttendanceType.holyday,
-          ),
-        );
-      }
-    }
-    // await DatabaseHelper().getStaffAttendanceOfMonth(month, year);
-    DatabaseHelper.staffAttendance = attendances;
-    print("len: ${DatabaseHelper.staffAttendance.length}");
-    print(DatabaseHelper.staffAttendance);
+    // for (int i = 0; i < 30; i++) {
+    //   for (Staff staff in DatabaseHelper.staffs) {
+    //     int ran = i % 10;
+    //     attendances.add(
+    //       Attendance(
+    //         id: i,
+    //         date: DateTime.now().subtract(Duration(days: i)).toString(),
+    //         ownerId: staff.rfId,
+    //         type: ran < 2
+    //             ? AttendanceType.present
+    //             : ran < 4
+    //                 ? AttendanceType.absent
+    //                 : ran < 6
+    //                     ? AttendanceType.late
+    //                     : ran < 8
+    //                         ? AttendanceType.permission
+    //                         : AttendanceType.holyday,
+    //       ),
+    //     );
+    //   }
+    // }
+    mainController.getStaffAttendanceOfMonth(month, year);
+    // print("len: ${DatabaseHelper.staffAttendance.length}");
+    // print(DatabaseHelper.staffAttendance);
 
     setState(() {});
   }
@@ -98,24 +102,35 @@ class _StaffAttendanceState extends State<StaffAttendance> {
 
   onDayPressed(
       Attendance attendance, BuildContext context, TapDownDetails details) {
-    // myMenu(
-    //     context,
-    //     AttendanceType.values
-    //         .map((e) => e.toString().replaceAll("AttendanceType.", ""))
-    //         .toList(), (attendanceType) {
-    //   AttendanceType type = AttendanceType.absent;
-    //   for (var att in AttendanceType.values) {
-    //     if (att.toString().contains(attendanceType)) {
-    //       type = att;
-    //     }
-    //   }
-    //   print(attendance.toString());
-    //   DatabaseHelper().updateStaffAttendance(attendance.copyWith(
-    //     type: type,
-    //   ));
+    myMenu(
+        context,
+        AttendanceType.values
+            .map((e) => e.toString().replaceAll("AttendanceType.", ""))
+            .toList(), (attendanceType) async {
+      AttendanceType type = AttendanceType.absent;
+      for (var att in AttendanceType.values) {
+        if (att.toString().contains(attendanceType)) {
+          type = att;
+        }
+      }
+      print(attendance.toString());
+      final permission = await showDialog(
+        context: context,
+        builder: (context) => const PasswordPage(),
+      );
+      if (permission) {
+        DatabaseHelper().updateStaffAttendance(attendance.copyWith(
+          type: type,
+        ));
 
-    //   getAttendanceOfTheMonth(selectedMonth, selectedYear);
-    // }, details);
+        getAttendanceOfTheMonth(selectedMonth, selectedYear);
+      } else {
+        if (mounted) {
+          showToast(context, "Permission Denied.", redColor);
+        }
+        return;
+      }
+    }, details);
   }
 
   List<Widget> hyphens(int len) {
@@ -505,8 +520,8 @@ class _StaffAttendanceState extends State<StaffAttendance> {
                     const SizedBox(
                       height: 8,
                     ),
-                    ...DatabaseHelper.staffs.map((e) {
-                      List<Attendance> myAttendance = DatabaseHelper
+                    ...mainController.staffs.map((e) {
+                      List<Attendance> myAttendance = mainController
                           .staffAttendance
                           .where((a) => a.ownerId == e.rfId)
                           .toList();

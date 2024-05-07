@@ -11,7 +11,7 @@ class DatabaseConst {
   static const String payments = "Payments";
 }
 
-const String dbPath = "/db/GymDb.db";
+const String dbPath = "/db/GymAttendance.db";
 const Color mainBgColor = Colors.white;
 const Color whiteColor = Colors.white70;
 const Color mainColor = Color(0xffeab897);
@@ -131,4 +131,62 @@ void myMenu(BuildContext context, List<String> items,
       onPressed(value);
     }
   });
+}
+
+Future<String?> timePicker(String initialTime, BuildContext context) async {
+  final TimeOfDay? selectedTime = await showTimePicker(
+    context: context,
+    initialTime: initialTime.isEmpty
+        ? TimeOfDay.now()
+        : TimeOfDay.fromDateTime(parseTimeString(initialTime)),
+    builder: (BuildContext context, Widget? child) {
+      return MediaQuery(
+        data: MediaQuery.of(context).copyWith(
+          alwaysUse24HourFormat: false,
+        ),
+        child: child!,
+      );
+    },
+  );
+
+  if (selectedTime != null) {
+    final DateTime currentTime = DateTime.now();
+    DateTime selectedSheduleDateTime = DateTime(
+      currentTime.year,
+      currentTime.month,
+      currentTime.day,
+      selectedTime.hour,
+      selectedTime.minute,
+    );
+    return DateFormat.jm().format(selectedSheduleDateTime);
+  } else {
+    return null;
+  }
+}
+
+Future<DateTime?> datePicker(String initialDate, BuildContext context,
+    {int startYear = 1950,
+    int endYear = 2020,
+    int defaultInitial = 2000}) async {
+  print('initialDate:$initialDate');
+  final DateTime? selectedDate = await showDatePicker(
+    context: context,
+    initialDate: initialDate.isEmpty
+        ? DateTime(defaultInitial)
+        : DateTime.parse(initialDate),
+    // initialTime: initialTime.isEmpty
+
+    // builder: (BuildContext context, Widget? child) {
+    //   return MediaQuery(
+    //     data: MediaQuery.of(context).copyWith(
+    //       alwaysUse24HourFormat: false,
+    //     ),
+    //     child: child!,
+    //   );
+    // },
+    firstDate: DateTime(startYear),
+    lastDate: DateTime(endYear),
+  );
+
+  return selectedDate;
 }

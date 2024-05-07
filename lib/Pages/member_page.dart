@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:gymsystem/Pages/member_attendance.dart';
-import 'package:gymsystem/Pages/member_payment.dart';
 
+import '../constants.dart';
 import 'member_list.dart';
 
 class MembersPage extends StatelessWidget {
@@ -9,25 +9,35 @@ class MembersPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return DefaultTabController(
-      length: 3,
-      child: Scaffold(
-        appBar: AppBar(
-          title: const Text('Members Page'),
-          bottom: const TabBar(
-            tabs: [
-              Tab(text: 'Members'),
-              Tab(text: 'Attendance'),
-              Tab(text: "Payments")
-              // Tab(text: 'Tab 3'),
-            ],
-          ),
-        ),
-        body: const TabBarView(
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Gym Management'),
+        backgroundColor: mainColor,
+      ),
+      body: SingleChildScrollView(
+        child: Stack(
           children: [
-            MemberList(),
-            MemberAttendance(),
-            MemberPayment(),
+            Container(
+              width: MediaQuery.of(context).size.width,
+              height: MediaQuery.of(context).size.height / 6.5,
+              color: mainColor,
+              child: const Row(
+                children: [],
+              ),
+            ),
+            const Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Flexible(
+                  flex: 13,
+                  child: MemberList(),
+                ),
+                Flexible(
+                  flex: 40,
+                  child: MemberAttendance(),
+                ),
+              ],
+            ),
           ],
         ),
       ),
