@@ -78,7 +78,7 @@ class DatabaseHelper {
     await db.execute('CREATE TABLE ${DatabaseConst.membersAttendance}('
         'id INTEGER PRIMARY KEY AUTOINCREMENT,'
         'date TEXT,'
-        'ownerId INTEGER,'
+        'ownerId TEXT,'
         'type TEXT'
         ')');
     await db.execute('CREATE TABLE ${DatabaseConst.staffAttendance}('
@@ -117,6 +117,24 @@ class DatabaseHelper {
     return staffs;
   }
 
+  Future<List<Staff>> searchStaffs(String query) async {
+    Database? db = await database;
+
+    var result = await db!.query(
+      DatabaseConst.staff,
+      where: 'fullName LIKE ?',
+      whereArgs: ['%$query%'],
+    );
+
+    List<Staff> staffs = [];
+    for (var staff in result) {
+      staffs.add(Staff.fromMap(staff));
+    }
+    print('search staffs: $staffs');
+
+    return staffs;
+  }
+
   Future<List<Staff>> getStaffByRfid(String rfid) async {
     Database? db = await database;
 
@@ -132,7 +150,12 @@ class DatabaseHelper {
 
   Future<int> updateStaff(Staff staff) async {
     final db = await database;
-    var result = await db!.update(DatabaseConst.staff, staff.toMap());
+    var result = await db!.update(
+      DatabaseConst.staff,
+      staff.toMap(),
+      where: 'rfid = ?',
+      whereArgs: [staff.rfId],
+    );
 
     return result;
   }
@@ -154,6 +177,37 @@ class DatabaseHelper {
     var result = await db!.insert(DatabaseConst.member, member.toMap());
 
     return result;
+  }
+
+  Future<List<Member>> searchMembers(String query) async {
+    Database? db = await database;
+
+    var result = await db!.query(
+      DatabaseConst.member,
+      where: 'fullName LIKE ?',
+      whereArgs: ['%$query%'],
+    );
+
+    List<Member> members = [];
+    for (var member in result) {
+      members.add(Member.fromMap(member));
+    }
+    print('search members: $members');
+
+    return members;
+  }
+
+  Future<List<Member>> getMemberByRfid(String rfid) async {
+    Database? db = await database;
+
+    var result = await db!
+        .query(DatabaseConst.member, where: 'rfid = ?', whereArgs: [rfid]);
+    List<Member> members = [];
+    for (var member in result) {
+      members.add(Member.fromMap(member));
+    }
+
+    return members;
   }
 
   Future<List<Member>> getMembers() async {
@@ -205,6 +259,29 @@ class DatabaseHelper {
     return attendances;
   }
 
+  Future<List<Attendance>> getMembersAttendanceOfMonth(
+      int month, int year) async {
+    Database? db = await database;
+
+    String mon = month < 10 ? "0$month" : "$month";
+
+    print("%$year-$mon%");
+
+    var result = await db!.query(
+      DatabaseConst.membersAttendance,
+      where: 'date LIKE ?',
+      whereArgs: ['%$year-$mon%'],
+    );
+
+    List<Attendance> attendances = [];
+    for (var attendance in result) {
+      attendances.add(Attendance.fromMap(attendance));
+    }
+    print(attendances);
+
+    return attendances;
+  }
+
   Future<int> updateMemberAttendance(Attendance attendance) async {
     final db = await database;
     var result =
@@ -241,6 +318,8 @@ class DatabaseHelper {
 
     String mon = month < 10 ? "0$month" : "$month";
 
+    print("%$year-$mon%");
+
     var result = await db!.query(
       DatabaseConst.staffAttendance,
       where: 'date LIKE ?',
@@ -251,6 +330,7 @@ class DatabaseHelper {
     for (var attendance in result) {
       attendances.add(Attendance.fromMap(attendance));
     }
+    print(attendances);
 
     return attendances;
   }

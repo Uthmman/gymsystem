@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get/get_instance/get_instance.dart';
@@ -24,18 +26,29 @@ class _StaffAttendanceState extends State<StaffAttendance> {
 
   MainController mainController = Get.find<MainController>();
 
+  StreamSubscription? mainSub;
+
+  @override
+  void dispose() {
+    super.dispose();
+    mainSub?.cancel();
+  }
+
   @override
   void initState() {
     super.initState();
 
     // DatabaseHelper.staffs
-    addAttendancesUntilToday().then((value) {
-      getAttendanceOfTheMonth(today.month, today.year);
+
+    mainSub = mainController.staffs.listen((v) {
+      print("staffs updated");
+      addAttendancesUntilToday().then((value) {
+        getAttendanceOfTheMonth(today.month, today.year);
+      });
     });
   }
 
   getAttendanceOfTheMonth(int month, int year) async {
-    // TODO: Temporary
     // for (int i = 0; i < 30; i++) {
     //   for (Staff staff in DatabaseHelper.staffs) {
     //     int ran = i % 10;
@@ -57,7 +70,8 @@ class _StaffAttendanceState extends State<StaffAttendance> {
     //     );
     //   }
     // }
-    mainController.getStaffAttendanceOfMonth(month, year);
+    await mainController.getStaffAttendanceOfMonth(month, year);
+    print("staffAttendance: ${mainController.staffAttendance.length}");
     // print("len: ${DatabaseHelper.staffAttendance.length}");
     // print(DatabaseHelper.staffAttendance);
 
@@ -65,34 +79,36 @@ class _StaffAttendanceState extends State<StaffAttendance> {
   }
 
   Future<void> addAttendancesUntilToday() async {
-    // SharedPreferences pref = await SharedPreferences.getInstance();
+    for (Staff staff in mainController.staffs) {
+      final lastAttendance = DateTime.parse(staff.lastAttendance);
+      if (staff.isActive == 1) {
+        bool attendanceAdded = false;
+        for (var i = 1; i <= today.difference(lastAttendance).inDays; i++) {
+          print("itemration: $i");
 
-    // final DateTime lastAttendance = DateTime.parse(
-    //     pref.getString('lastStaffAttendance') ??
-    //         today.subtract(const Duration(days: 1)).toString());
-
-    // print(lastAttendance.toString());
-    // print("dnce: ${today.difference(lastAttendance).inDays}");
-    // print("compare: ${lastAttendance.compareTo(today)}");
-
-    // if (lastAttendance.compareTo(today) != 0) {
-    //   for (var i = 1; i <= today.difference(lastAttendance).inDays; i++) {
-    //     for (Staff staff in DatabaseHelper.staffs) {
-    //       print("day: $i, rfid: ${staff.rfId}");
-    //       final savedDate = lastAttendance.add(Duration(days: i));
-    //       DatabaseHelper().insertStaffAttendance(
-    //         Attendance(
-    //           id: null,
-    //           date: savedDate.toString(),
-    //           ownerId: staff.rfId,
-    //           type: savedDate.weekday == 6 || savedDate.weekday == 7
-    //               ? AttendanceType.weekend
-    //               : AttendanceType.absent,
-    //         ),
-    //       );
-    //     }
-    // }
-    // }
+          if (lastAttendance.compareTo(today) != 0) {
+            print("day: $i, rfid: ${staff.rfId}");
+            final savedDate = lastAttendance.add(Duration(days: i));
+            attendanceAdded = true;
+            await DatabaseHelper().insertStaffAttendance(
+              Attendance(
+                id: null,
+                date: savedDate.toString(),
+                ownerId: staff.rfId,
+                type: AttendanceType.absent,
+              ),
+            );
+          }
+        }
+        if (attendanceAdded) {
+          await DatabaseHelper().updateStaff(
+            staff.copyWith(
+              lastAttendance: today.toString(),
+            ),
+          );
+        }
+      }
+    }
 
     // pref.setString(
     //   "lastStaffAttendance",
@@ -133,7 +149,7 @@ class _StaffAttendanceState extends State<StaffAttendance> {
     }, details);
   }
 
-  List<Widget> hyphens(int len) {
+  List<Widget> hyphens(int len, {bool isColored = false}) {
     return List.generate(
       len,
       (index) => Container(
@@ -141,7 +157,7 @@ class _StaffAttendanceState extends State<StaffAttendance> {
         height: 2,
         margin: const EdgeInsets.all(4),
         decoration: BoxDecoration(
-          color: Colors.black12,
+          color: isColored ? greenColor : Colors.black12,
           borderRadius: BorderRadius.circular(10),
         ),
       ),
@@ -150,10 +166,32 @@ class _StaffAttendanceState extends State<StaffAttendance> {
 
   Widget getAttendance(List<Attendance> attendances, BuildContext context) {
     TextStyle style = const TextStyle(fontSize: 10);
+    print('attendances: $attendances');
     if (attendances.isEmpty) {
-      return Text(
-        "",
-        style: style,
+      return Container(
+        padding: const EdgeInsets.symmetric(
+          horizontal: 25,
+          vertical: 5,
+        ),
+        decoration: BoxDecoration(
+          border: Border.all(
+            color: Colors.black26,
+            width: 1.5,
+          ),
+          borderRadius: BorderRadius.circular(7),
+        ),
+        child: SizedBox(
+          width: 10,
+          child: Text(
+            " ",
+            textAlign: TextAlign.center,
+            style: style.copyWith(
+              color: Colors.black26,
+              fontWeight: FontWeight.bold,
+              fontSize: 17,
+            ),
+          ),
+        ),
       );
     }
     Attendance attendance = attendances[0];
@@ -468,101 +506,103 @@ class _StaffAttendanceState extends State<StaffAttendance> {
             const SizedBox(
               height: 10,
             ),
-            SizedBox(
-              width: MediaQuery.of(context).size.width * 40 / 53,
-              child: SingleChildScrollView(
-                scrollDirection: Axis.horizontal,
-                physics: const BouncingScrollPhysics(),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      children: List.generate(
-                        getDaysInMonth(selectedYear, selectedMonth),
-                        (index) => Padding(
-                          padding: const EdgeInsets.symmetric(
-                            vertical: 17,
-                            horizontal: 36,
-                          ),
-                          child: SizedBox(
-                            width: 55,
-                            child: Column(
-                              children: [
-                                Text(
-                                  DateFormat("E").format(
-                                    DateTime(
-                                      selectedYear,
-                                      selectedMonth,
-                                      index + 1,
+            Obx(() {
+              return SizedBox(
+                width: MediaQuery.of(context).size.width * 40 / 53,
+                child: SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  physics: const BouncingScrollPhysics(),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        children: List.generate(
+                          getDaysInMonth(selectedYear, selectedMonth),
+                          (index) => Padding(
+                            padding: const EdgeInsets.symmetric(
+                              vertical: 17,
+                              horizontal: 36,
+                            ),
+                            child: SizedBox(
+                              width: 55,
+                              child: Column(
+                                children: [
+                                  Text(
+                                    DateFormat("E").format(
+                                      DateTime(
+                                        selectedYear,
+                                        selectedMonth,
+                                        index + 1,
+                                      ),
                                     ),
+                                    style: const TextStyle(
+                                      fontSize: 15,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                    textAlign: TextAlign.center,
                                   ),
-                                  style: const TextStyle(
-                                    fontSize: 15,
-                                    fontWeight: FontWeight.w600,
+                                  Text(
+                                    "${index + 1} ${DateFormat("MMM").format(DateTime(selectedYear, selectedMonth))}",
+                                    style: const TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w100,
+                                    ),
+                                    textAlign: TextAlign.center,
                                   ),
-                                  textAlign: TextAlign.center,
-                                ),
-                                Text(
-                                  "${index + 1} ${DateFormat("MMM").format(DateTime(selectedYear, selectedMonth))}",
-                                  style: const TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.w100,
-                                  ),
-                                  textAlign: TextAlign.center,
-                                ),
-                              ],
+                                ],
+                              ),
                             ),
                           ),
                         ),
                       ),
-                    ),
-                    const SizedBox(
-                      height: 8,
-                    ),
-                    ...mainController.staffs.map((e) {
-                      List<Attendance> myAttendance = mainController
-                          .staffAttendance
-                          .where((a) => a.ownerId == e.rfId)
-                          .toList();
-                      return Row(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        children: List.generate(
-                          getDaysInMonth(selectedYear, selectedMonth),
-                          (index) => Container(
-                            padding: const EdgeInsets.symmetric(
-                              vertical: 15.8,
-                            ),
-                            decoration: const BoxDecoration(
-                              border: Border(
-                                bottom: BorderSide(
-                                  color: Colors.black26,
-                                  width: .4,
+                      const SizedBox(
+                        height: 8,
+                      ),
+                      ...mainController.staffs.map((e) {
+                        List<Attendance> myAttendance = mainController
+                            .staffAttendance
+                            .where((a) => a.ownerId == e.rfId)
+                            .toList();
+                        return Row(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          children: List.generate(
+                            getDaysInMonth(selectedYear, selectedMonth),
+                            (index) => Container(
+                              padding: const EdgeInsets.symmetric(
+                                vertical: 15.8,
+                              ),
+                              decoration: const BoxDecoration(
+                                border: Border(
+                                  bottom: BorderSide(
+                                    color: Colors.black26,
+                                    width: .4,
+                                  ),
                                 ),
                               ),
-                            ),
-                            child: Row(
-                              children: [
-                                ...hyphens(2),
-                                getAttendance(
-                                  myAttendance
-                                      .where((element) =>
-                                          DateTime.parse(element.date).day ==
-                                          index + 1)
-                                      .toList(),
-                                  context,
-                                ),
-                                ...hyphens(2),
-                              ],
+                              child: Row(
+                                children: [
+                                  ...hyphens(2),
+                                  getAttendance(
+                                    myAttendance
+                                        .where((element) =>
+                                            DateTime.parse(element.date).day ==
+                                            index + 1)
+                                        .toList(),
+                                    context,
+                                  ),
+                                  ...hyphens(2),
+                                ],
+                              ),
                             ),
                           ),
-                        ),
-                      );
-                    })
-                  ],
+                        );
+                      })
+                    ],
+                  ),
                 ),
-              ),
-            )
+              );
+            })
           ],
         ),
       ),

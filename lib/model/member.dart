@@ -36,7 +36,7 @@ class Member {
   final String fullName;
   final String gender;
   final String phone;
-  final int rfid;
+  final String rfid;
   final String lastPaymentDate;
   final String lastPaymentType;
   final String registryDate;
@@ -56,7 +56,7 @@ class Member {
     String? fullName,
     String? gender,
     String? phone,
-    int? rfid,
+    String? rfid,
     String? lastPaymentDate,
     String? lastPaymentType,
     String? registryDate,
@@ -92,7 +92,7 @@ class Member {
       fullName: map['fullName'] as String,
       gender: map['gender'] as String,
       phone: map['phone'] as String,
-      rfid: map['rfid'] as int,
+      rfid: map['rfid'] as String,
       lastPaymentDate: map['lastPaymentDate'] as String,
       lastPaymentType: map['lastPaymentType'] as String,
       registryDate: map['registryDate'] as String,

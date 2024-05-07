@@ -41,150 +41,158 @@ class _PasswordPageState extends State<PasswordPage> {
       //   vertical: 200,
       // ),
       child: Dialog(
-        child: Form(
-          key: _formKey,
-          child: Column(
-            children: [
-              const SizedBox(
-                height: 10,
-              ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  newPasswordRegistering
-                      ? IconButton(
-                          onPressed: () {
+        child: SingleChildScrollView(
+          child: Form(
+            key: _formKey,
+            child: Column(
+              children: [
+                const SizedBox(
+                  height: 10,
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    newPasswordRegistering
+                        ? IconButton(
+                            onPressed: () {
+                              _passwordTc.text = "";
+                              _confirmPasswordTc.text = "";
+                              _previousPasswordTc.text = "";
+                              setState(() {
+                                newPasswordRegistering = false;
+                              });
+                            },
+                            icon: const Icon(Icons.keyboard_backspace_outlined),
+                          )
+                        : const SizedBox(
+                            width: 60,
+                          ),
+                    Text(
+                      newPasswordRegistering
+                          ? "Changing Password"
+                          : "Password Confirmation",
+                      style: const TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(
+                      width: 60,
+                    )
+                  ],
+                ),
+                const SizedBox(
+                  height: 20,
+                ),
+                newPasswordRegistering
+                    ? SLInput(
+                        title: "Previous Password",
+                        hint: "********",
+                        keyboardType: TextInputType.text,
+                        isObscure: true,
+                        controller: _previousPasswordTc,
+                        isOutlined: true,
+                        inputColor: Colors.black,
+                        otherColor: Colors.black26,
+                      )
+                    : const SizedBox(),
+                const SizedBox(
+                  height: 20,
+                ),
+                SLInput(
+                  title: newPasswordRegistering ? "New Password" : "Password",
+                  hint: "********",
+                  keyboardType: TextInputType.text,
+                  isObscure: true,
+                  controller: _passwordTc,
+                  isOutlined: true,
+                  inputColor: Colors.black,
+                  otherColor: Colors.black26,
+                ),
+                const SizedBox(
+                  height: 20,
+                ),
+                newPasswordRegistering
+                    ? SLInput(
+                        title: "Password Confirmation",
+                        hint: "********",
+                        keyboardType: TextInputType.text,
+                        isObscure: true,
+                        controller: _confirmPasswordTc,
+                        isOutlined: true,
+                        inputColor: Colors.black,
+                        otherColor: Colors.black26,
+                      )
+                    : const SizedBox(),
+                newPasswordRegistering
+                    ? const SizedBox(
+                        height: 20,
+                      )
+                    : const SizedBox(),
+                !newPasswordRegistering
+                    ? Align(
+                        alignment: Alignment.centerRight,
+                        child: Padding(
+                          padding: const EdgeInsets.only(
+                            right: 15,
+                          ),
+                          child: TextButton(
+                            onPressed: () {
+                              setState(() {
+                                newPasswordRegistering = true;
+                              });
+                            },
+                            child: const Text("Change Password"),
+                          ),
+                        ),
+                      )
+                    : const SizedBox(),
+                SLBtn(
+                  text: newPasswordRegistering ? "Change Password" : "Continue",
+                  onTap: () async {
+                    if (_formKey.currentState!.validate()) {
+                      if (newPasswordRegistering) {
+                        if (_passwordTc.text.length < 8) {
+                          showToast(context, "Password less than 8 digits.",
+                              redColor);
+                        } else if (_previousPasswordTc.text != password) {
+                          showToast(context, "Password incorrect.", redColor);
+                        } else if (_passwordTc.text !=
+                            _confirmPasswordTc.text) {
+                          showToast(context, "Your Password did not match.",
+                              redColor);
+                        } else {
+                          final pref = await SharedPreferences.getInstance();
+                          await pref.setString(
+                              'password', _confirmPasswordTc.text);
+                          if (mounted) {
+                            showToast(
+                                context,
+                                "Your Password changed successfully.",
+                                redColor);
                             _passwordTc.text = "";
                             _confirmPasswordTc.text = "";
                             _previousPasswordTc.text = "";
                             setState(() {
                               newPasswordRegistering = false;
                             });
-                          },
-                          icon: const Icon(Icons.keyboard_backspace_outlined),
-                        )
-                      : const SizedBox(
-                          width: 60,
-                        ),
-                  Text(
-                    newPasswordRegistering
-                        ? "Changing Password"
-                        : "Password Confirmation",
-                    style: const TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  const SizedBox(
-                    width: 60,
-                  )
-                ],
-              ),
-              const SizedBox(
-                height: 20,
-              ),
-              newPasswordRegistering
-                  ? SLInput(
-                      title: "Previous Password",
-                      hint: "********",
-                      keyboardType: TextInputType.text,
-                      isObscure: true,
-                      controller: _previousPasswordTc,
-                      isOutlined: true,
-                      inputColor: Colors.black,
-                      otherColor: Colors.black26,
-                    )
-                  : const SizedBox(),
-              const SizedBox(
-                height: 20,
-              ),
-              SLInput(
-                title: newPasswordRegistering ? "New Password" : "Password",
-                hint: "********",
-                keyboardType: TextInputType.text,
-                isObscure: true,
-                controller: _passwordTc,
-                isOutlined: true,
-                inputColor: Colors.black,
-                otherColor: Colors.black26,
-              ),
-              const SizedBox(
-                height: 20,
-              ),
-              newPasswordRegistering
-                  ? SLInput(
-                      title: "Password Confirmation",
-                      hint: "********",
-                      keyboardType: TextInputType.text,
-                      isObscure: true,
-                      controller: _confirmPasswordTc,
-                      isOutlined: true,
-                      inputColor: Colors.black,
-                      otherColor: Colors.black26,
-                    )
-                  : const SizedBox(),
-              newPasswordRegistering
-                  ? const SizedBox(
-                      height: 20,
-                    )
-                  : const SizedBox(),
-              !newPasswordRegistering
-                  ? Align(
-                      alignment: Alignment.centerRight,
-                      child: Padding(
-                        padding: const EdgeInsets.only(
-                          right: 15,
-                        ),
-                        child: TextButton(
-                          onPressed: () {
-                            setState(() {
-                              newPasswordRegistering = true;
-                            });
-                          },
-                          child: const Text("Change Password"),
-                        ),
-                      ),
-                    )
-                  : const SizedBox(),
-              SLBtn(
-                text: newPasswordRegistering ? "Change Password" : "Continue",
-                onTap: () async {
-                  if (_formKey.currentState!.validate()) {
-                    if (newPasswordRegistering) {
-                      if (_passwordTc.text.length < 8) {
-                        showToast(
-                            context, "Password less than 8 digits.", redColor);
-                      } else if (_previousPasswordTc.text != password) {
-                        showToast(context, "Password incorrect.", redColor);
-                      } else if (_passwordTc.text != _confirmPasswordTc.text) {
-                        showToast(
-                            context, "Your Password did not match.", redColor);
+                          }
+                        }
                       } else {
-                        final pref = await SharedPreferences.getInstance();
-                        await pref.setString(
-                            'password', _confirmPasswordTc.text);
-                        if (mounted) {
-                          showToast(context,
-                              "Your Password changed successfully.", redColor);
-                          _passwordTc.text = "";
-                          _confirmPasswordTc.text = "";
-                          _previousPasswordTc.text = "";
-                          setState(() {
-                            newPasswordRegistering = false;
-                          });
+                        if (password == _passwordTc.text) {
+                          Navigator.pop(context, true);
+                        } else {
+                          Navigator.pop(context, false);
                         }
                       }
-                    } else {
-                      if (password == _passwordTc.text) {
-                        Navigator.pop(context, true);
-                      } else {
-                        Navigator.pop(context, false);
-                      }
                     }
-                  }
-                },
-              )
-            ],
+                  },
+                ),
+                const SizedBox(
+                  height: 20,
+                )
+              ],
+            ),
           ),
         ),
       ),

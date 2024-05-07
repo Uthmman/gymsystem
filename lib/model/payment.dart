@@ -3,7 +3,7 @@ import 'dart:convert';
 
 class Payment {
   final int id;
-  final int ownerId;
+  final String ownerId;
   final String startingDate;
   final String endingDate;
   Payment({
@@ -15,7 +15,7 @@ class Payment {
 
   Payment copyWith({
     int? id,
-    int? ownerId,
+    String? ownerId,
     String? startingDate,
     String? endingDate,
   }) {
@@ -39,7 +39,7 @@ class Payment {
   factory Payment.fromMap(Map<String, dynamic> map) {
     return Payment(
       id: map['id'] as int,
-      ownerId: map['ownerId'] as int,
+      ownerId: map['ownerId'] as String,
       startingDate: map['startingDate'] as String,
       endingDate: map['endingDate'] as String,
     );

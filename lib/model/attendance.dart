@@ -14,7 +14,7 @@ enum AttendanceType{
 class Attendance {
   final int? id;
   final String date;
-  final int ownerId;
+  final String ownerId;
   final AttendanceType type;
   Attendance({
     required this.id,
@@ -26,7 +26,7 @@ class Attendance {
   Attendance copyWith({
     int? id,
     String? date,
-    int? ownerId,
+    String? ownerId,
     AttendanceType? type, 
   }) {
     return Attendance(
@@ -50,7 +50,7 @@ class Attendance {
     return Attendance(
       id: map['id'] as int,
       date: map['date'] as String,
-      ownerId: map['ownerId'] as int,
+      ownerId: map['ownerId'] as String,
       type: AttendanceType.values.singleWhere((e) => e.toString() == map['type']),
     );
   }

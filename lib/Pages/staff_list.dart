@@ -1,15 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:get/get_instance/get_instance.dart';
 import 'package:gymsystem/Pages/add_staff.dart';
-import 'package:gymsystem/Pages/password_page.dart';
 import 'package:gymsystem/constants.dart';
 import 'package:gymsystem/controller/main_controller.dart';
-import 'package:gymsystem/helper/db_helper.dart';
-import 'package:gymsystem/model/attendance.dart';
-import 'package:gymsystem/model/staff.dart';
 import 'package:gymsystem/widget/sl_input.dart';
-import 'package:intl/intl.dart';
 import 'package:random_avatar/random_avatar.dart';
 
 class StaffList extends StatefulWidget {
@@ -20,15 +14,17 @@ class StaffList extends StatefulWidget {
 }
 
 class _StaffListState extends State<StaffList> {
-  
-
   MainController mainController = Get.find<MainController>();
 
   final TextEditingController _searchTc = TextEditingController();
+
+  final FocusNode _searchFocus = FocusNode();
+
+  bool isSearching = false;
   @override
   void initState() {
     super.initState();
-  
+
     // List<Staff> staffs = [];
     // for (int i = 0; i < 30; i++) {
     //   staffs.add(
@@ -125,57 +121,76 @@ class _StaffListState extends State<StaffList> {
           SLInput(
             title: "Search Staffs",
             hint: "",
+            focusNode: _searchFocus,
             keyboardType: TextInputType.text,
             controller: _searchTc,
             isOutlined: true,
             inputColor: Colors.black,
             otherColor: Colors.black26,
+            sufixIcon: isSearching
+                ? GestureDetector(
+                    onTap: () {
+                      _searchTc.text = "";
+                      isSearching = false;
+                      _searchFocus.unfocus();
+                      mainController.getStaff();
+                      setState(() {});
+                    },
+                    child: const Icon(Icons.close),
+                  )
+                : null,
+            onChanged: (val) {
+              if (isSearching == false && val.isNotEmpty) {
+                setState(() {
+                  isSearching = true;
+                });
+              }
+              mainController.searchStaff(val);
+            },
           ),
           const SizedBox(
             height: 14.65,
           ),
           Obx(() {
-            return  mainController.staffs.isEmpty
-                    ? const Center(child: Text("Empty Staff"))
-                    : Column(
-                        children: List.generate(
-                          mainController.staffs.length,
-                          (index) => Container(
-                            decoration: const BoxDecoration(
-                              border: Border(
-                                bottom: BorderSide(
-                                  color: Colors.black12,
-                                ),
-                              ),
-                            ),
-                            child: ListTile(
-                              onTap: () {
-                                showDialog(
-                                  context: context,
-                                  builder: (context) => AddStaff(
-                                    staff: mainController.staffs[index],
-                                  ),
-                                );
-                              },
-                              contentPadding: const EdgeInsets.symmetric(
-                                vertical: 2,
-                                horizontal: 15,
-                              ),
-                              title:
-                                  Text(mainController.staffs[index].fullName),
-                              subtitle: Text(mainController.staffs[index].role),
-                              leading: RandomAvatar(
-                                mainController.staffs[index].fullName,
-                                height: 50,
-                                width: 50,
-                              ),
-                              trailing:
-                                  Text(mainController.staffs[index].phone),
-                              // Add more details about each staff member here
+            return mainController.staffs.isEmpty
+                ? const Center(child: Text("Empty Staff"))
+                : Column(
+                    children: List.generate(
+                      mainController.staffs.length,
+                      (index) => Container(
+                        decoration: const BoxDecoration(
+                          border: Border(
+                            bottom: BorderSide(
+                              color: Colors.black12,
                             ),
                           ),
                         ),
-                      );
+                        child: ListTile(
+                          onTap: () {
+                            showDialog(
+                              context: context,
+                              builder: (context) => AddStaff(
+                                staff: mainController.staffs[index],
+                              ),
+                            );
+                          },
+                          contentPadding: const EdgeInsets.symmetric(
+                            vertical: 2,
+                            horizontal: 15,
+                          ),
+                          title: Text(mainController.staffs[index].fullName),
+                          subtitle: Text(mainController.staffs[index].role),
+                          leading: RandomAvatar(
+                            mainController.staffs[index].fullName,
+                            height: 50,
+                            width: 50,
+                          ),
+                          trailing: Text(mainController.staffs[index].phone),
+                          // Add more details about each staff member here
+                        ),
+                      ),
+                    ),
+                  );
           })
 
           // Expanded(

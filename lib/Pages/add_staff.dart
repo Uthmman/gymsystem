@@ -1,13 +1,7 @@
-import 'dart:convert';
-import 'dart:math';
-
-import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
-import 'package:get/get_instance/get_instance.dart';
 import 'package:gymsystem/controller/main_controller.dart';
 import 'package:gymsystem/model/attendance.dart';
 import 'package:gymsystem/widget/special_dropdown.dart';
-import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 // import 'package:flutter_libserialport/flutter_libserialport.dart';
 import 'package:gymsystem/constants.dart';
@@ -52,6 +46,7 @@ class _AddStaffState extends State<AddStaff> {
   String selectedGender = "Male";
   String selectedDefaultAttendance = "absent";
   int isActive = 1;
+  Staff? staff;
 
   // SerialPort port = SerialPort('COM5');
   // late SerialPortReader reader;
@@ -62,24 +57,14 @@ class _AddStaffState extends State<AddStaff> {
     super.initState();
 
     if (widget.staff != null) {
-      _birthDateTc.text = widget.staff!.dateOfBirth;
-      _phoneTc.text = widget.staff!.phone;
-      _fullNameTc.text = widget.staff!.fullName;
-      _rfidTc.text = widget.staff!.rfId.toString();
-      _roleTc.text = widget.staff!.role;
-      _startWorkingTc.text = widget.staff!.startedWorkingFrom;
-      _entranceTime.text = widget.staff!.entranceTime;
-      _exitTime.text = widget.staff!.exitTime;
-      selectedGender = widget.staff!.gender;
-      selectedDefaultAttendance = widget.staff!.defaultAttendance
-          .toString()
-          .replaceAll("AttendanceType.", '');
-      isActive = widget.staff!.isActive;
+      populateFeilds();
     }
 
-    Future.delayed(const Duration(seconds: 3)).then((val) {
-      _rfidTc.text = generateRandomInt().toString();
-    });
+    if (widget.staff == null) {
+      Future.delayed(const Duration(seconds: 3)).then((val) {
+        _rfidTc.text = generateRandomInt().toString();
+      });
+    }
 
 //      sender = UDP(
 //  port: Port(12346),
@@ -131,6 +116,24 @@ class _AddStaffState extends State<AddStaff> {
     //   //   }
     //   // });
     // });
+  }
+
+  populateFeilds() async {
+    staff = (await DatabaseHelper().getStaffByRfid(widget.staff!.rfId))[0];
+    _birthDateTc.text = widget.staff!.dateOfBirth;
+    _phoneTc.text = widget.staff!.phone;
+    _fullNameTc.text = widget.staff!.fullName;
+    _rfidTc.text = widget.staff!.rfId.toString();
+    _roleTc.text = widget.staff!.role;
+    _startWorkingTc.text = widget.staff!.startedWorkingFrom;
+    _entranceTime.text = widget.staff!.entranceTime;
+    _exitTime.text = widget.staff!.exitTime;
+    selectedGender = widget.staff!.gender;
+    selectedDefaultAttendance = widget.staff!.defaultAttendance
+        .toString()
+        .replaceAll("AttendanceType.", '');
+    isActive = widget.staff!.isActive;
+    setState(() {});
   }
 
   @override
@@ -354,7 +357,7 @@ class _AddStaffState extends State<AddStaff> {
                   height: 20,
                 ),
                 SLInput(
-                  title: "Joined",
+                  title: "Joined from",
                   hint: 'Apr 7/2020',
                   inputColor: Colors.black,
                   otherColor: Colors.black54,
@@ -392,6 +395,12 @@ class _AddStaffState extends State<AddStaff> {
                   controller: _rfidTc,
                   isOutlined: true,
                   readOnly: true,
+                  validation: (val) {
+                    if (val!.isEmpty) {
+                      return "Please scan the card.";
+                    }
+                    return null;
+                  },
                 ),
                 const SizedBox(
                   height: 30,
@@ -439,6 +448,8 @@ class _AddStaffState extends State<AddStaff> {
                     : SLBtn(
                         text: "Save",
                         onTap: () async {
+                          DateTime today = DateTime.parse(
+                              DateTime.now().toString().split(" ")[0]);
                           if (_addStaffKey.currentState!.validate()) {
                             setState(() {
                               loading = true;
@@ -472,9 +483,7 @@ class _AddStaffState extends State<AddStaff> {
                                   isActive: isActive,
                                   entranceTime: _entranceTime.text,
                                   exitTime: _exitTime.text,
-                                  lastAttendance: DateTime.now()
-                                      .subtract(const Duration(days: 1))
-                                      .toString(),
+                                  lastAttendance: staff!.lastAttendance,
                                   gender: selectedGender,
                                   defaultAttendance: AttendanceType.values
                                       .singleWhere((element) =>
@@ -495,7 +504,7 @@ class _AddStaffState extends State<AddStaff> {
                                   isActive: isActive,
                                   entranceTime: _entranceTime.text,
                                   exitTime: _exitTime.text,
-                                  lastAttendance: DateTime.now()
+                                  lastAttendance: today
                                       .subtract(const Duration(days: 1))
                                       .toString(),
                                   gender: selectedGender,

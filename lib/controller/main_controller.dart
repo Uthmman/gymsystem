@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:get/get.dart';
 import 'package:gymsystem/helper/db_helper.dart';
 import 'package:gymsystem/model/staff.dart';
@@ -12,6 +14,7 @@ class MainController extends GetxController {
   RxList<Attendance> memberAttendance = <Attendance>[].obs;
   RxList<Attendance> staffAttendance = <Attendance>[].obs;
   RxList<Payment> payments = <Payment>[].obs;
+  Timer? timmer;
 
   // staff
 
@@ -24,6 +27,17 @@ class MainController extends GetxController {
         await DatabaseHelper().getStaffAttendanceOfMonth(month, year);
   }
 
+  searchStaff(String query) {
+    if (timmer != null) {
+      timmer!.cancel();
+    }
+    timmer = Timer(const Duration(seconds: 3), () {
+      DatabaseHelper().searchStaffs(query).then((value) {
+        staffs.value = value;
+      });
+    });
+  }
+
   deleteStaff(rfid) async {
     await DatabaseHelper().deleteStaff(rfid);
     await getStaff();
@@ -33,5 +47,26 @@ class MainController extends GetxController {
 
   getMembers() async {
     members.value = await DatabaseHelper().getMembers();
+  }
+
+  getMembersAttendanceOfMonth(int month, int year) async {
+    memberAttendance.value =
+        await DatabaseHelper().getMembersAttendanceOfMonth(month, year);
+  }
+
+  searchMembers(String query) {
+    if (timmer != null) {
+      timmer!.cancel();
+    }
+    timmer = Timer(const Duration(seconds: 3), () {
+      DatabaseHelper().searchMembers(query).then((value) {
+        members.value = value;
+      });
+    });
+  }
+
+  deleteMember(rfid) async {
+    await DatabaseHelper().deleteMember(rfid);
+    await getMembers();
   }
 }
