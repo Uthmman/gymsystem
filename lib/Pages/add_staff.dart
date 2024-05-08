@@ -1,3 +1,6 @@
+import 'dart:async';
+import 'dart:typed_data';
+
 import 'package:get/get.dart';
 import 'package:gymsystem/controller/main_controller.dart';
 import 'package:gymsystem/model/attendance.dart';
@@ -10,6 +13,7 @@ import 'package:gymsystem/model/staff.dart';
 import 'package:gymsystem/widget/sl_btn.dart';
 import 'package:gymsystem/widget/sl_input.dart';
 import 'package:intl/intl.dart';
+import 'package:web_socket_channel/io.dart';
 
 import 'password_page.dart';
 // import 'package:udp/udp.dart';
@@ -48,6 +52,8 @@ class _AddStaffState extends State<AddStaff> {
   int isActive = 1;
   Staff? staff;
 
+  StreamSubscription? listener;
+
   // SerialPort port = SerialPort('COM5');
   // late SerialPortReader reader;
   // late UDP sender;
@@ -60,11 +66,11 @@ class _AddStaffState extends State<AddStaff> {
       populateFeilds();
     }
 
-    if (widget.staff == null) {
-      Future.delayed(const Duration(seconds: 3)).then((val) {
-        _rfidTc.text = generateRandomInt().toString();
-      });
-    }
+    // if (widget.staff == null) {
+    //   Future.delayed(const Duration(seconds: 3)).then((val) {
+    //     _rfidTc.text = generateRandomInt().toString();
+    //   });
+    // }
 
 //      sender = UDP(
 //  port: Port(12346),
@@ -140,30 +146,30 @@ class _AddStaffState extends State<AddStaff> {
   void dispose() {
     // TODO: implement dispose
     super.dispose();
-    // port.close();
+    listener?.cancel();
   }
 
   testHttp() async {
-    // try {
-    //   final channel = IOWebSocketChannel.connect('ws://192.168.4.1:8080/');
+    try {
+      final channel = IOWebSocketChannel.connect('ws://192.168.4.1:8080/');
 
-    //   channel.stream.listen(
-    //     (data) {
-    //       // Process the RFID data received from the ESP8266
-    //       print('RFID Data: $data');
-    //       _rfidTc.text = data.toString().replaceAll(" ", '');
-    //     },
-    //     onError: (error) {
-    //       print('Error: $error');
-    //     },
-    //     onDone: () {
-    //       print('WebSocket connection closed');
-    //     },
-    //   );
-    // } catch (e, stackTrace) {
-    //   print('Error: $e');
-    //   print('Stack Trace: $stackTrace');
-    // }
+      listener = channel.stream.listen(
+        (data) {
+          // Process the RFID data received from the ESP8266
+          print('RFID Data: $data');
+          _rfidTc.text = data.toString().replaceAll(" ", '');
+        },
+        onError: (error) {
+          print('Error: $error');
+        },
+        onDone: () {
+          print('WebSocket connection closed');
+        },
+      );
+    } catch (e, stackTrace) {
+      print('Error: $e');
+      print('Stack Trace: $stackTrace');
+    }
   }
   // @override
   // initState() {

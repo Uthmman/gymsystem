@@ -2,8 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:gymsystem/Pages/add_member.dart';
 import 'package:gymsystem/controller/main_controller.dart';
-import 'package:random_avatar/random_avatar.dart';
-
 import '../constants.dart';
 import '../widget/sl_input.dart';
 

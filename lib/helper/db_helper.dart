@@ -6,8 +6,8 @@ import 'package:gymsystem/model/member.dart';
 import 'package:gymsystem/model/payment.dart';
 import 'package:gymsystem/model/staff.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:sqflite/sqflite.dart';
-// import 'package:sqflite_common_ffi/sqflite_ffi.dart';
+// import 'package:sqflite/sqflite.dart';
+import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 
 import '../constants.dart';
 
@@ -25,10 +25,12 @@ class DatabaseHelper {
     Directory directory = await getApplicationSupportDirectory();
     String path = '${directory.path}$dbPath';
 
-    var notesDatabase = await openDatabase(
+    var notesDatabase = await databaseFactoryFfi.openDatabase(
       path,
-      version: 10,
-      onCreate: _createDb,
+      options: OpenDatabaseOptions(
+        version: 10,
+        onCreate: _createDb,
+      ),
     );
     if (kDebugMode) {
       notesDatabase.getVersion().then((value) {
@@ -361,7 +363,6 @@ class DatabaseHelper {
   //   }
   //   print(attendances);
 
-    
   // }
 
   Future<int> updateStaffAttendance(Attendance attendance) async {

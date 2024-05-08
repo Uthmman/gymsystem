@@ -4,7 +4,6 @@ import 'package:gymsystem/Pages/add_staff.dart';
 import 'package:gymsystem/constants.dart';
 import 'package:gymsystem/controller/main_controller.dart';
 import 'package:gymsystem/widget/sl_input.dart';
-import 'package:random_avatar/random_avatar.dart';
 
 class StaffList extends StatefulWidget {
   const StaffList({super.key});
