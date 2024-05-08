@@ -3,6 +3,7 @@ import 'dart:typed_data';
 
 import 'package:get/get.dart';
 import 'package:gymsystem/controller/main_controller.dart';
+import 'package:gymsystem/main.dart';
 import 'package:gymsystem/model/attendance.dart';
 import 'package:gymsystem/widget/special_dropdown.dart';
 import 'package:flutter/material.dart';
@@ -72,56 +73,7 @@ class _AddStaffState extends State<AddStaff> {
     //   });
     // }
 
-//      sender = UDP(
-//  port: Port(12346),
-//  onReceive: _onReceive,
-//  );
-//  sender.send("Hello from Flutter!", Port(remotePort: 12345));
     testHttp();
-    // // var res = true;
-    // print('isport open; ${port.isOpen}');
-    // var res = port.openReadWrite();
-    // print('isport open; ${port.isOpen}');
-
-    // if (!res) {
-    //   print('Error opening port:${port.name}');
-    // }
-    // try {
-    //   var portConfig = SerialPortConfig();
-    //   portConfig.baudRate = 9600;
-    //   portConfig.bits = 8;
-    //   portConfig.parity = SerialPortParity.none;
-    //   portConfig.stopBits = 1;
-    //   // portConfig.xonXoff = 0;
-    //   portConfig.rts = 0;
-    //   // portConfig.cts = 0;
-    //   // portConfig.dsr = 0;
-    //   portConfig.dtr = 0;
-    //   // portConfig.dispose();
-    //   port.config = portConfig;
-    //   print('isport open; ${port.isOpen}');
-    // } catch (e) {
-    //   print('isport open; ${port.isOpen}');
-    //   print(e.toString());
-    //   // showToast(context, e.toString());
-    //   // yante ysemagnal mute aydelem
-    // }
-
-    // reader = SerialPortReader(port);
-
-    // reader.stream.listen((event) {
-    //   _rfidTc.text = utf8.decode(event).replaceAll(" ", "");
-    //   String str = '4';
-    //   Uint8List uint8list = Uint8List.fromList(str.codeUnits);
-    //   print(port.write(uint8list));
-    // }).onError((e) {
-    //   print(e.toString());
-    //   // Future.delayed(Duration(seconds: 3)).then((value) {
-    //   //   if (mounted) {
-    //   //     showToast(context, e.toString());
-    //   //   }
-    //   // });
-    // });
   }
 
   populateFeilds() async {
@@ -147,11 +99,14 @@ class _AddStaffState extends State<AddStaff> {
     // TODO: implement dispose
     super.dispose();
     listener?.cancel();
+    startListeningCard(mainController);
   }
 
   testHttp() async {
     try {
-      final channel = IOWebSocketChannel.connect('ws://192.168.4.1:8080/');
+      final channel = IOWebSocketChannel.connect(
+          'ws://192.168.137.41:8080/'); //('ws://192.168.4.1:8080/');
+      mainController.mainStream?.cancel();
 
       listener = channel.stream.listen(
         (data) {

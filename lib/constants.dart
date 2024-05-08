@@ -1,7 +1,9 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:gymsystem/controller/main_controller.dart';
 import 'package:intl/intl.dart';
+import 'package:web_socket_channel/io.dart';
 
 class DatabaseConst {
   static const String staff = "Staff";
@@ -189,4 +191,27 @@ Future<DateTime?> datePicker(String initialDate, BuildContext context,
   );
 
   return selectedDate;
+}
+
+startListeningCard(MainController mainController) {
+  try {
+    final channel = IOWebSocketChannel.connect('ws://192.168.137.41:8080/');
+
+    mainController.mainStream = channel.stream.listen(
+      (data) {
+        // Process the RFID data received from the ESP8266
+        print('RFID from main: $data');
+        // TODO: search and fill the attendance
+      },
+      onError: (error) {
+        print('Error: $error');
+      },
+      onDone: () {
+        print('WebSocket connection closed');
+      },
+    );
+  } catch (e, stackTrace) {
+    print('Error: $e');
+    print('Stack Trace: $stackTrace');
+  }
 }

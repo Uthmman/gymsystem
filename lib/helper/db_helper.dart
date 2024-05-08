@@ -346,6 +346,56 @@ class DatabaseHelper {
     return attendances;
   }
 
+  Future<List<Attendance>> getStaffAttendanceOfDay(DateTime date) async {
+    Database? db = await database;
+
+    final day = date.toString().split(" ")[0];
+    var result = await db!.query(
+      DatabaseConst.staffAttendance,
+      where: 'date LIKE ?',
+      whereArgs: ['%$day%'],
+    );
+
+    List<Attendance> attendnces = [];
+    for (var attendance in result) {
+      attendnces.add(Attendance.fromMap(attendance));
+    }
+
+    return attendnces;
+  }
+
+  Future<void> updateStaffAttendancesOnADay(
+      DateTime dateTime, AttendanceType type) async {
+    final attendances = await getStaffAttendanceOfDay(dateTime);
+
+    for (Attendance attendance in attendances) {
+      await updateStaffAttendance(attendance.copyWith(type: type));
+    }
+  }
+
+  Future<int?> scanStaffAttendance(String rfId) async {
+    final staff = (await getStaffByRfid(rfId))[0];
+
+    final entranceTime = parseTimeString(staff.entranceTime);
+
+    final isLate = entranceTime.compareTo(DateTime.now()) < 0;
+
+    final attendances = await getStaffAttendanceOfDay(DateTime.now());
+
+    for (Attendance attendance in attendances) {
+      if (attendance.ownerId == rfId) {
+        final res = await updateStaffAttendance(
+          attendance.copyWith(
+            type: isLate ? AttendanceType.late : AttendanceType.present,
+            date: DateTime.now().toString(),
+          ),
+        );
+        return res;
+      }
+    }
+    return null;
+  }
+
   // Future<int> scanStaffAttendance(Attendance attendance) async {
   //   Database? db = await database;
 

@@ -15,6 +15,7 @@ class MainController extends GetxController {
   RxList<Attendance> staffAttendance = <Attendance>[].obs;
   RxList<Payment> payments = <Payment>[].obs;
   Timer? timmer;
+  StreamSubscription? mainStream;
 
   // staff
 

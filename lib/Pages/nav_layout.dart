@@ -1,4 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:gymsystem/constants.dart';
+import 'package:gymsystem/controller/main_controller.dart';
+import 'package:web_socket_channel/io.dart';
 
 import '../widget/navigation_drawer.dart';
 import 'member_page.dart';
@@ -14,6 +18,15 @@ class NavigationLayout extends StatefulWidget {
 
 class _NavigationLayoutState extends State<NavigationLayout> {
   int _selectedIndex = 0;
+  MainController mainController = Get.find<MainController>();
+
+  @override
+  void initState() {
+    super.initState();
+    startListeningCard(mainController);
+  }
+
+  
 
   @override
   Widget build(BuildContext context) {
