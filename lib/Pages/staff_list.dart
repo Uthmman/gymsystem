@@ -153,7 +153,12 @@ class _StaffListState extends State<StaffList> {
           ),
           Obx(() {
             return mainController.staffs.isEmpty
-                ? const Center(child: Text("Empty Staff"))
+                ? const Center(
+                    child: Padding(
+                      padding: EdgeInsets.all(50),
+                      child: Text("Empty Staff"),
+                    ),
+                  )
                 : Column(
                     children: List.generate(
                       mainController.staffs.length,

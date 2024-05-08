@@ -2,7 +2,7 @@
 import 'dart:convert';
 
 class Payment {
-  final int id;
+  final int? id;
   final String ownerId;
   final String startingDate;
   final String endingDate;

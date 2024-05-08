@@ -11,7 +11,7 @@ class DatabaseConst {
   static const String payments = "Payments";
 }
 
-const String dbPath = "/Database/Gym.Data.db";
+const String dbPath = "/Database/Gym.Database.db";
 const Color mainBgColor = Colors.white;
 const Color whiteColor = Colors.white70;
 const Color mainColor = Color(0xffeab897);

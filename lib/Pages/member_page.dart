@@ -29,7 +29,7 @@ class MembersPage extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Flexible(
-                  flex: 13,
+                  flex: 35,
                   child: MemberList(),
                 ),
                 Flexible(

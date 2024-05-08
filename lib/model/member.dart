@@ -1,34 +1,60 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'dart:convert';
 
-import 'package:gymsystem/constants.dart';
-
 class PaymentType {
+  static String testing = "testing";
   static String monthly = "Monthly";
   static String a3Months = "3 Months";
   static String a6Months = "6 Months";
   static String annual = 'Annual';
 
+  static List<String> list = [monthly, a3Months, a6Months, annual, testing];
+
+  static bool checkPaymentStatus(
+      String lastPaymentDate, String lastPaymentType) {
+    DateTime startDate = DateTime.parse(lastPaymentDate);
+    DateTime endDate = PaymentType().getEndDate(
+      lastPaymentType,
+      startDate,
+    );
+    print("start Date: $startDate");
+    print("end date: $endDate");
+    int dnc1 = DateTime.now().compareTo(endDate);
+    int dnc2 = DateTime.now().compareTo(startDate);
+
+    return dnc1 <= 0 && dnc2 >= 0;
+  }
+
   DateTime getEndDate(String type, [DateTime? startFrom]) {
     startFrom = startFrom ?? DateTime.now();
-    return DateTime.now();
-    // if (type == monthly) {
-    //   late DateTime endDate;
-    //   if (startFrom.day < 12) {
-    //   } else {}
-    //   startDays = getDaysInMonth(startFrom.year, startFrom.month);
-    //   endDays = getDaysInMonth(startFrom.year, startFrom.month);
-    //   return DateTime(
-    //     startFrom.year,
-    //     startFrom.month + 1,
-    //   );
-    // } else if (type == a3Months) {
-    //   return 90;
-    // } else if (type == a6Months) {
-    //   return 180;
-    // } else {
-    //   return 364;
-    // }
+    // return DateTime.now();
+    if (type == monthly) {
+      int year = startFrom.year;
+      int month = startFrom.month + 1;
+      int day = startFrom.day;
+
+      return DateTime(year, month, day).subtract(const Duration(days: 1));
+    } else if (type == a3Months) {
+      int year = startFrom.year;
+      int month = startFrom.month + 3;
+      int day = startFrom.day;
+
+      return DateTime(year, month, day).subtract(const Duration(days: 1));
+    } else if (type == a6Months) {
+      int year = startFrom.year;
+      int month = startFrom.month + 6;
+      int day = startFrom.day;
+
+      return DateTime(year, month, day).subtract(const Duration(days: 1));
+    } else if (type == annual) {
+      int year = startFrom.year;
+      int month = startFrom.month + 12;
+      int day = startFrom.day;
+
+      return DateTime(year, month, day).subtract(const Duration(days: 1));
+    } else {
+      return startFrom.add(const Duration(minutes: 2));
+    }
   }
 }
 

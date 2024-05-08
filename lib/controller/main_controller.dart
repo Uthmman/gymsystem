@@ -65,8 +65,13 @@ class MainController extends GetxController {
     });
   }
 
-  deleteMember(rfid) async {
+  deleteMember(String rfid) async {
     await DatabaseHelper().deleteMember(rfid);
     await getMembers();
+  }
+
+  //Payment
+  getPayments() async {
+    payments.value = await DatabaseHelper().getPayments();
   }
 }

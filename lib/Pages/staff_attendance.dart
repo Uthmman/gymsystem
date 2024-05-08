@@ -2,7 +2,6 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:get/get_instance/get_instance.dart';
 import 'package:gymsystem/Pages/password_page.dart';
 import 'package:gymsystem/constants.dart';
 import 'package:gymsystem/controller/main_controller.dart';
@@ -10,7 +9,6 @@ import 'package:gymsystem/helper/db_helper.dart';
 import 'package:gymsystem/model/attendance.dart';
 import 'package:gymsystem/model/staff.dart';
 import 'package:intl/intl.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 class StaffAttendance extends StatefulWidget {
   const StaffAttendance({super.key});
@@ -166,7 +164,7 @@ class _StaffAttendanceState extends State<StaffAttendance> {
 
   Widget getAttendance(List<Attendance> attendances, BuildContext context) {
     TextStyle style = const TextStyle(fontSize: 10);
-    print('attendances: $attendances');
+
     if (attendances.isEmpty) {
       return Container(
         padding: const EdgeInsets.symmetric(

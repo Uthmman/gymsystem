@@ -164,7 +164,7 @@ class DatabaseHelper {
     var db = await database;
     var result = await db!.rawDelete(
         'DELETE FROM ${DatabaseConst.staffAttendance} WHERE ownerId = $rfid');
-    var result1 = await db!
+    var result1 = await db
         .rawDelete('DELETE FROM ${DatabaseConst.staff} WHERE rfid = $rfid');
 
     return result;
@@ -224,15 +224,24 @@ class DatabaseHelper {
 
   Future<int> updateMember(Member member) async {
     final db = await database;
-    var result = await db!.update(DatabaseConst.member, member.toMap());
+    var result = await db!.update(
+      DatabaseConst.member,
+      member.toMap(),
+      where: 'rfid = ?',
+      whereArgs: [member.rfid],
+    );
 
     return result;
   }
 
-  Future<int> deleteMember(int id) async {
+  Future<int> deleteMember(String id) async {
     var db = await database;
     var result = await db!
-        .rawDelete('DELETE FROM ${DatabaseConst.member} WHERE id = $id');
+        .rawDelete('DELETE FROM ${DatabaseConst.member} WHERE rfid = $id');
+    await db
+        .rawDelete('DELETE FROM ${DatabaseConst.payments} WHERE ownerId = $id');
+    await db.rawDelete(
+        'DELETE FROM ${DatabaseConst.membersAttendance} WHERE ownerId = $id');
 
     return result;
   }
@@ -357,6 +366,23 @@ class DatabaseHelper {
     Database? db = await database;
 
     var result = await db!.query(DatabaseConst.payments);
+    List<Payment> payments = [];
+    for (var payment in result) {
+      payments.add(Payment.fromMap(payment));
+    }
+
+    return payments;
+  }
+
+  Future<List<Payment>> getPaymentsOfaMember(String rfId) async {
+    Database? db = await database;
+
+    var result = await db!.query(
+      DatabaseConst.payments,
+      where: 'ownerId = ?',
+      whereArgs: [rfId],
+    );
+
     List<Payment> payments = [];
     for (var payment in result) {
       payments.add(Payment.fromMap(payment));
