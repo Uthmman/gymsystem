@@ -165,10 +165,19 @@ class _MemberListState extends State<MemberList> {
                           title: Text(mainController.members[index].fullName),
                           subtitle: Text(
                               mainController.members[index].lastPaymentType),
-                          leading: RandomAvatar(
-                            mainController.members[index].fullName,
+                          leading: Container(
                             height: 50,
                             width: 50,
+                            decoration: BoxDecoration(
+                              image: DecorationImage(
+                                image: mainController.members[index].gender ==
+                                        'Male'
+                                    ? const AssetImage(
+                                        'assets/male.jpg',
+                                      )
+                                    : const AssetImage('assets/female.jpg'),
+                              ),
+                            ),
                           ),
                           trailing: Text(mainController.members[index].phone),
                           // Add more details about each staff member here

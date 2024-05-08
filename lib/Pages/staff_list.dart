@@ -185,10 +185,19 @@ class _StaffListState extends State<StaffList> {
                           ),
                           title: Text(mainController.staffs[index].fullName),
                           subtitle: Text(mainController.staffs[index].role),
-                          leading: RandomAvatar(
-                            mainController.staffs[index].fullName,
+                          leading: Container(
                             height: 50,
                             width: 50,
+                            decoration: BoxDecoration(
+                              image: DecorationImage(
+                                image: mainController.staffs[index].gender ==
+                                        'Male'
+                                    ? const AssetImage(
+                                        'assets/male.jpg',
+                                      )
+                                    : const AssetImage('assets/female.jpg'),
+                              ),
+                            ),
                           ),
                           trailing: Text(mainController.staffs[index].phone),
                           // Add more details about each staff member here
