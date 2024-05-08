@@ -344,6 +344,26 @@ class DatabaseHelper {
     return attendances;
   }
 
+  // Future<int> scanStaffAttendance(Attendance attendance) async {
+  //   Database? db = await database;
+
+  //   String today = DateTime.now().toString().split(' ')[0];
+
+  //   var result = await db!.query(
+  //     DatabaseConst.staffAttendance,
+  //     where: 'date LIKE ?',
+  //     whereArgs: ['%$today%'],
+  //   );
+
+  //   List<Attendance> attendances = [];
+  //   for (var attendance in result) {
+  //     attendances.add(Attendance.fromMap(attendance));
+  //   }
+  //   print(attendances);
+
+    
+  // }
+
   Future<int> updateStaffAttendance(Attendance attendance) async {
     final db = await database;
     var result = await db!.update(
