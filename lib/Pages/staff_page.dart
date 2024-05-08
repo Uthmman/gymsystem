@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:gymsystem/Pages/staff_attendance.dart';
 import 'package:gymsystem/constants.dart';
+import 'package:gymsystem/controller/main_controller.dart';
 
 import 'staff_list.dart';
 
@@ -13,6 +15,15 @@ class StaffsPage extends StatelessWidget {
       appBar: AppBar(
         title: const Text('Gym Management'),
         backgroundColor: mainColor,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.refresh),
+            onPressed: () {
+              Get.find<MainController>().mainStream?.cancel();
+              startListeningCard(Get.find<MainController>(), context);
+            },
+          )
+        ],
       ),
       body: SingleChildScrollView(
         child: Stack(

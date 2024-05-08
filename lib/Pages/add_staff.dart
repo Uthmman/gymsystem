@@ -137,11 +137,10 @@ class _AddStaffState extends State<AddStaff> {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: EdgeInsets.zero,
-      // symmetric(
-      //   horizontal: MediaQuery.of(context).size.width / 3,
-      //   vertical: 50,
-      // ),
+      padding: EdgeInsets.symmetric(
+        horizontal: MediaQuery.of(context).size.width / 3,
+        vertical: 50,
+      ),
       child: Scaffold(
         appBar: AppBar(
           automaticallyImplyLeading: false,

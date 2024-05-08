@@ -23,10 +23,8 @@ class _NavigationLayoutState extends State<NavigationLayout> {
   @override
   void initState() {
     super.initState();
-    startListeningCard(mainController);
+    startListeningCard(mainController, context);
   }
-
-  
 
   @override
   Widget build(BuildContext context) {

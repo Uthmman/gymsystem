@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:gymsystem/controller/main_controller.dart';
 import 'package:intl/intl.dart';
 import 'package:web_socket_channel/io.dart';
@@ -77,7 +78,11 @@ void showToast(BuildContext context, String message, Color bgcolor) {
     // Context is not ready yet, showToast cannot be performed
     return;
   }
-
+  Get.showSnackbar(GetSnackBar(
+    backgroundColor: bgcolor,
+    content: Text(message),
+    duration: const Duration(seconds: 2),
+  ));
   final scaffold = ScaffoldMessenger.of(context);
 
   scaffold.showSnackBar(
@@ -204,7 +209,7 @@ startListeningCard(MainController mainController) {
         // TODO: search and fill the attendance
       },
       onError: (error) {
-        print('Error: $error');
+        showToast(context, 'Error: $error', redColor);
       },
       onDone: () {
         print('WebSocket connection closed');
