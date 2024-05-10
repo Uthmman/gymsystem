@@ -6,7 +6,7 @@ import 'package:gymsystem/controller/main_controller.dart';
 import 'package:gymsystem/widget/sl_input.dart';
 
 class StaffList extends StatefulWidget {
-  const StaffList({super.key});
+  const StaffList({super.key,});
 
   @override
   State<StaffList> createState() => _StaffListState();
@@ -55,6 +55,9 @@ class _StaffListState extends State<StaffList> {
         right: 30,
         left: 30,
       ),
+      constraints: BoxConstraints(
+        minHeight: MediaQuery.of(context).size.height,
+      ),
       decoration: const BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.vertical(
@@ -101,7 +104,7 @@ class _StaffListState extends State<StaffList> {
                   onPressed: () async {
                     await showDialog(
                       context: context,
-                      builder: (context) => const AddStaff(),
+                      builder: (context) =>  const AddStaff(),
                     );
                   },
                 ),
@@ -175,6 +178,7 @@ class _StaffListState extends State<StaffList> {
                               context: context,
                               builder: (context) => AddStaff(
                                 staff: mainController.staffs[index],
+                               
                               ),
                             );
                           },

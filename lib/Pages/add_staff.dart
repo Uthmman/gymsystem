@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:typed_data';
 
+import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
 import 'package:gymsystem/controller/main_controller.dart';
 import 'package:gymsystem/main.dart';
@@ -15,6 +16,7 @@ import 'package:gymsystem/widget/sl_btn.dart';
 import 'package:gymsystem/widget/sl_input.dart';
 import 'package:intl/intl.dart';
 import 'package:web_socket_channel/io.dart';
+import 'package:http/http.dart' as http;
 
 import 'password_page.dart';
 // import 'package:udp/udp.dart';
@@ -40,7 +42,7 @@ class _AddStaffState extends State<AddStaff> {
   final _addStaffKey = GlobalKey<FormState>();
   final _phoneTc = TextEditingController();
   final _fullNameTc = TextEditingController();
-  final _rfidTc = TextEditingController();
+  TextEditingController _rfidTc = TextEditingController();
   final _roleTc = TextEditingController();
   final _startWorkingTc = TextEditingController();
   final _entranceTime = TextEditingController();
@@ -62,6 +64,8 @@ class _AddStaffState extends State<AddStaff> {
   @override
   void initState() {
     super.initState();
+    mainController.location = Location.add;
+    _rfidTc = mainController.rfid;
 
     if (widget.staff != null) {
       populateFeilds();
@@ -73,7 +77,7 @@ class _AddStaffState extends State<AddStaff> {
     //   });
     // }
 
-    testHttp();
+    // testHttp();
   }
 
   populateFeilds() async {
@@ -96,36 +100,36 @@ class _AddStaffState extends State<AddStaff> {
 
   @override
   void dispose() {
-    // TODO: implement dispose
     super.dispose();
-    listener?.cancel();
-    startListeningCard(mainController);
+    // listener?.cancel();
+    // startListeningCard(mainController);
+    mainController.location = Location.main;
   }
 
-  testHttp() async {
-    try {
-      final channel = IOWebSocketChannel.connect(
-          'ws://192.168.137.41:8080/'); //('ws://192.168.4.1:8080/');
-      mainController.mainStream?.cancel();
+  // testHttp() async {
+  //   try {
+  //     final channel = IOWebSocketChannel.connect('ws://192.168.4.1:8080/');
+  //     mainController.mainStream?.cancel();
 
-      listener = channel.stream.listen(
-        (data) {
-          // Process the RFID data received from the ESP8266
-          print('RFID Data: $data');
-          _rfidTc.text = data.toString().replaceAll(" ", '');
-        },
-        onError: (error) {
-          print('Error: $error');
-        },
-        onDone: () {
-          print('WebSocket connection closed');
-        },
-      );
-    } catch (e, stackTrace) {
-      print('Error: $e');
-      print('Stack Trace: $stackTrace');
-    }
-  }
+  //     listener = channel.stream.listen(
+  //       (data) {
+  //         // Process the RFID data received from the ESP8266
+  //         print('RFID Data: $data');
+  //         _rfidTc.text = data.toString().replaceAll(" ", '');
+  //         http.get(Uri.parse('http://192.168.4.1/on'));
+  //       },
+  //       onError: (error) {
+  //         print('Error: $error');
+  //       },
+  //       onDone: () {
+  //         print('WebSocket connection closed');
+  //       },
+  //     );
+  //   } catch (e, stackTrace) {
+  //     print('Error: $e');
+  //     print('Stack Trace: $stackTrace');
+  //   }
+  // }
   // @override
   // initState() {
   //   super.initState();
@@ -164,12 +168,12 @@ class _AddStaffState extends State<AddStaff> {
                     if (permission) {
                       await mainController.deleteStaff(widget.staff!.rfId);
                       if (mounted) {
-                        showToast(context, "Successfully deleted.", greenColor);
+                        showToast("Successfully deleted.", greenColor);
                         Navigator.pop(context);
                       }
                     } else {
                       if (mounted) {
-                        showToast(context, "Permission denied.", redColor);
+                        showToast("Permission denied.", redColor);
                       }
                     }
                   },
@@ -408,81 +412,98 @@ class _AddStaffState extends State<AddStaff> {
                     : SLBtn(
                         text: "Save",
                         onTap: () async {
-                          DateTime today = DateTime.parse(
-                              DateTime.now().toString().split(" ")[0]);
-                          if (_addStaffKey.currentState!.validate()) {
-                            setState(() {
-                              loading = true;
-                            });
-                            if (widget.staff != null) {
-                              if (selectedDefaultAttendance != 'absent' ||
-                                  isActive != 1) {
-                                final permission = await showDialog(
-                                  context: context,
-                                  builder: (context) => const PasswordPage(),
-                                );
-                                if (permission != true) {
-                                  if (mounted) {
-                                    showToast(context, "Permission denied.",
-                                        redColor);
+                          try {
+                            DateTime today = DateTime.parse(
+                                DateTime.now().toString().split(" ")[0]);
+                            if (_addStaffKey.currentState!.validate()) {
+                              setState(() {
+                                loading = true;
+                              });
+                              if (widget.staff != null) {
+                                if (selectedDefaultAttendance != 'absent' ||
+                                    isActive != 1) {
+                                  final permission = await showDialog(
+                                    context: context,
+                                    builder: (context) => const PasswordPage(),
+                                  );
+                                  if (permission != true) {
+                                    if (mounted) {
+                                      showToast("Permission denied.", redColor);
+                                    }
+                                    setState(() {
+                                      loading = false;
+                                    });
+                                    return;
                                   }
-                                  setState(() {
-                                    loading = false;
-                                  });
-                                  return;
                                 }
+                                await DatabaseHelper().updateStaff(
+                                  Staff(
+                                    dateOfBirth: _birthDateTc.text,
+                                    fullName: _fullNameTc.text,
+                                    role: _roleTc.text,
+                                    startedWorkingFrom: _startWorkingTc.text,
+                                    phone: _phoneTc.text,
+                                    rfId: _rfidTc.text,
+                                    isActive: isActive,
+                                    entranceTime: _entranceTime.text,
+                                    exitTime: _exitTime.text,
+                                    lastAttendance: staff!.lastAttendance,
+                                    gender: selectedGender,
+                                    defaultAttendance: AttendanceType.values
+                                        .singleWhere((element) =>
+                                            element.toString().replaceAll(
+                                                "AttendanceType.", "") ==
+                                            selectedDefaultAttendance),
+                                  ),
+                                  staff!.rfId,
+                                );
+                              } else {
+                                await DatabaseHelper().insertStaff(
+                                  Staff(
+                                    dateOfBirth: _birthDateTc.text,
+                                    fullName: _fullNameTc.text,
+                                    role: _roleTc.text,
+                                    startedWorkingFrom: _startWorkingTc.text,
+                                    phone: _phoneTc.text,
+                                    rfId: _rfidTc.text,
+                                    isActive: isActive,
+                                    entranceTime: _entranceTime.text,
+                                    exitTime: _exitTime.text,
+                                    lastAttendance: today
+                                        .subtract(const Duration(days: 1))
+                                        .toString(),
+                                    gender: selectedGender,
+                                    defaultAttendance: AttendanceType.values
+                                        .singleWhere((element) =>
+                                            element.toString().replaceAll(
+                                                "AttendanceType.", "") ==
+                                            selectedDefaultAttendance),
+                                  ),
+                                );
                               }
-                              await DatabaseHelper().updateStaff(
-                                Staff(
-                                  dateOfBirth: _birthDateTc.text,
-                                  fullName: _fullNameTc.text,
-                                  role: _roleTc.text,
-                                  startedWorkingFrom: _startWorkingTc.text,
-                                  phone: _phoneTc.text,
-                                  rfId: _rfidTc.text,
-                                  isActive: isActive,
-                                  entranceTime: _entranceTime.text,
-                                  exitTime: _exitTime.text,
-                                  lastAttendance: staff!.lastAttendance,
-                                  gender: selectedGender,
-                                  defaultAttendance: AttendanceType.values
-                                      .singleWhere((element) =>
-                                          element.toString().replaceAll(
-                                              "AttendanceType.", "") ==
-                                          selectedDefaultAttendance),
-                                ),
-                              );
-                            } else {
-                              await DatabaseHelper().insertStaff(
-                                Staff(
-                                  dateOfBirth: _birthDateTc.text,
-                                  fullName: _fullNameTc.text,
-                                  role: _roleTc.text,
-                                  startedWorkingFrom: _startWorkingTc.text,
-                                  phone: _phoneTc.text,
-                                  rfId: _rfidTc.text,
-                                  isActive: isActive,
-                                  entranceTime: _entranceTime.text,
-                                  exitTime: _exitTime.text,
-                                  lastAttendance: today
-                                      .subtract(const Duration(days: 1))
-                                      .toString(),
-                                  gender: selectedGender,
-                                  defaultAttendance: AttendanceType.values
-                                      .singleWhere((element) =>
-                                          element.toString().replaceAll(
-                                              "AttendanceType.", "") ==
-                                          selectedDefaultAttendance),
-                                ),
-                              );
+                              await Future.delayed(
+                                  const Duration(milliseconds: 500));
+                              mainController.getStaff();
+
+                              setState(() {
+                                loading = false;
+                              });
+                              if (mounted) {
+                                Navigator.pop(context, true);
+                              }
                             }
-                            mainController.getStaff();
+                          } catch (e) {
                             setState(() {
                               loading = false;
                             });
-                            if (mounted) {
-                              Navigator.pop(context, true);
+                            if (e
+                                .toString()
+                                .contains("UNIQUE constraint failed")) {
+                              showToast("The card is already used.", redColor);
+                            } else {
+                              showToast("error: ${e.toString()}", redColor);
                             }
+                            print("error: ${e.toString()}");
                           }
                         },
                       ),

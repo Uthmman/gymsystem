@@ -3,8 +3,11 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:gymsystem/controller/main_controller.dart';
+import 'package:gymsystem/helper/db_helper.dart';
+import 'package:gymsystem/model/member.dart';
 import 'package:intl/intl.dart';
 import 'package:web_socket_channel/io.dart';
+import 'package:http/http.dart' as http;
 
 class DatabaseConst {
   static const String staff = "Staff";
@@ -14,7 +17,7 @@ class DatabaseConst {
   static const String payments = "Payments";
 }
 
-const String dbPath = "/Database/Gym.Database.db";
+const String dbPath = "/Database/GymData.db";
 const Color mainBgColor = Colors.white;
 const Color whiteColor = Colors.white70;
 const Color mainColor = Color(0xffeab897);
@@ -33,7 +36,8 @@ int generateRandomInt() {
 }
 
 DateTime parseTimeString(String timeString) {
-  final hour = int.parse(timeString.split(":")[0]);
+  print('realtime $timeString');
+  int hour = int.parse(timeString.split(":")[0]);
   final minute = int.parse(timeString
       .split(":")[1]
       .replaceAll("AM", '')
@@ -41,17 +45,17 @@ DateTime parseTimeString(String timeString) {
       .trim());
   final meridian = timeString.split(":")[1].contains("AM") ? "AM" : "PM";
 
-  // Handle AM/PM and 12-hour clock (similar logic as previous example)
-  int adjustedHour = hour;
+  print('median $meridian');
+
   if (meridian == 'PM' && hour != 12) {
-    adjustedHour += 12;
+    hour += 12;
   } else if (meridian == 'AM' && hour == 12) {
-    adjustedHour = 0;
+    hour = 0;
   }
 
-  final dateTime = DateTime(DateTime.now().year, DateTime.now().month,
-      DateTime.now().day, adjustedHour, minute);
-  return dateTime; // Output: 2024-05-06 08:21:00.000000000Z
+  // Return a DateTime object representing the time in 24-hour format
+  return DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day,
+      hour, minute);
 }
 
 String generateRandomString() {
@@ -72,26 +76,30 @@ int getDaysInMonth(int year, int month) {
   return daysInMonth;
 }
 
-void showToast(BuildContext context, String message, Color bgcolor) {
+void showToast(String message, Color bgcolor) {
   // Check if the context is null or if it's not ready yet
-  if (ModalRoute.of(context) == null || !ModalRoute.of(context)!.isCurrent) {
-    // Context is not ready yet, showToast cannot be performed
-    return;
-  }
-  Get.showSnackbar(GetSnackBar(
-    backgroundColor: bgcolor,
-    content: Text(message),
-    duration: const Duration(seconds: 2),
-  ));
-  final scaffold = ScaffoldMessenger.of(context);
-
-  scaffold.showSnackBar(
-    SnackBar(
+  Future.delayed(const Duration(milliseconds: 500)).then((value) {
+    Get.showSnackbar(GetSnackBar(
       backgroundColor: bgcolor,
-      content: Text(message),
+      message: message,
       duration: const Duration(seconds: 2),
-    ),
-  );
+    ));
+  });
+  // .snackbar(
+  //   "",
+  // message,
+  // backgroundColor: bgcolor,
+  // duration: const Duration(seconds: 2),
+  // );
+  // final scaffold = ScaffoldMessenger.of(context);
+
+  // scaffold.showSnackBar(
+  //   SnackBar(
+  //     backgroundColor: bgcolor,
+  //     content: Text(message),
+  //     duration: const Duration(seconds: 2),
+  //   ),
+  // );
 }
 
 String getMonthName(int month) {
@@ -117,7 +125,7 @@ void myMenu(BuildContext context, List<String> items,
   final RenderBox overlay =
       Overlay.of(context).context.findRenderObject() as RenderBox;
   final RelativeRect position = RelativeRect.fromSize(
-    details.globalPosition & Size(40, 40),
+    details.globalPosition & const Size(40, 40),
     overlay.size,
   );
 
@@ -200,18 +208,55 @@ Future<DateTime?> datePicker(String initialDate, BuildContext context,
 
 startListeningCard(MainController mainController) {
   try {
-    final channel = IOWebSocketChannel.connect('ws://192.168.137.41:8080/');
+    final channel = IOWebSocketChannel.connect('ws://192.168.4.1:8080/');
+    channel.ready.then((value) {
+      showToast('Connected succuessfully.', greenColor);
+    });
 
     mainController.mainStream = channel.stream.listen(
-      (data) {
+      (data) async {
         // Process the RFID data received from the ESP8266
-        print('RFID from main: $data');
+        if (mainController.location == Location.add) {
+          mainController.rfid.text = data.toString();
+          http.get(Uri.parse('http://192.168.4.1/on'));
+        } else {
+          print('RFID from main: $data');
+          final staff = await DatabaseHelper().scanStaffAttendance(data);
+          print(mainController.location);
+
+          if (staff != null) {
+            showToast("${staff.fullName}'s card is deteced.", greenColor);
+            http.get(Uri.parse('http://192.168.4.1/on'));
+            mainController.getStaff();
+          } else {
+            final member = await DatabaseHelper().scanMembersAttendance(data);
+            if (member != null) {
+              final hasPayed = PaymentType.checkPaymentStatus(
+                  member.lastPaymentDate, member.lastPaymentType);
+              if (hasPayed) {
+                showToast("${member.fullName}'s card is deteced.", greenColor);
+                http.get(Uri.parse('http://192.168.4.1/on'));
+                mainController.getMembers();
+              } else {
+                showToast(
+                    "${member.fullName}'s payment subscription has ended.",
+                    redColor);
+                http.get(Uri.parse('http://192.168.4.1/off'));
+              }
+            } else {
+              showToast("Unknown Card.", redColor);
+              http.get(Uri.parse('http://192.168.4.1/off'));
+            }
+          }
+        }
+
         // TODO: search and fill the attendance
       },
       onError: (error) {
-        showToast(context, 'Error: $error', redColor);
+        showToast('Error: $error', redColor);
       },
       onDone: () {
+        showToast('Device is disconnected.', redColor);
         print('WebSocket connection closed');
       },
     );

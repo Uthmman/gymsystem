@@ -6,9 +6,15 @@ import 'package:gymsystem/controller/main_controller.dart';
 
 import 'staff_list.dart';
 
-class StaffsPage extends StatelessWidget {
-  const StaffsPage({super.key});
+class StaffsPage extends StatefulWidget {
+ 
+  const StaffsPage({super.key,});
 
+  @override
+  State<StaffsPage> createState() => _StaffsPageState();
+}
+
+class _StaffsPageState extends State<StaffsPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -20,7 +26,9 @@ class StaffsPage extends StatelessWidget {
             icon: const Icon(Icons.refresh),
             onPressed: () {
               Get.find<MainController>().mainStream?.cancel();
-              startListeningCard(Get.find<MainController>(), context);
+              startListeningCard(
+                Get.find<MainController>(),
+              );
             },
           )
         ],
@@ -30,17 +38,17 @@ class StaffsPage extends StatelessWidget {
           children: [
             Container(
               width: MediaQuery.of(context).size.width,
-              height: MediaQuery.of(context).size.height / 6.5,
+              height: (MediaQuery.of(context).size.height / 11) + 63,
               color: mainColor,
               child: const Row(
                 children: [],
               ),
             ),
-            const Row(
+             const Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Flexible(
-                  flex: 35,
+                  flex: 25,
                   child: StaffList(),
                 ),
                 Flexible(

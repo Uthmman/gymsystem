@@ -1,4 +1,7 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
 import 'package:gymsystem/Pages/add_payment.dart';
 import 'package:gymsystem/controller/main_controller.dart';
@@ -7,12 +10,14 @@ import 'package:gymsystem/model/payment.dart';
 import 'package:gymsystem/widget/payment_item.dart';
 import 'package:gymsystem/widget/sl_btn.dart';
 import 'package:intl/intl.dart';
+import 'package:web_socket_channel/io.dart';
 
 import '../constants.dart';
 import '../helper/db_helper.dart';
 import '../widget/sl_input.dart';
 import '../widget/special_dropdown.dart';
 import 'password_page.dart';
+import 'package:http/http.dart' as http;
 
 class AddMember extends StatefulWidget {
   final Member? member;
@@ -25,7 +30,7 @@ class AddMember extends StatefulWidget {
 class _AddMemberState extends State<AddMember> {
   String selectedGender = "Male";
   final _fullNameTc = TextEditingController();
-  final _rfidTc = TextEditingController();
+  TextEditingController _rfidTc = TextEditingController();
 
   final _addMemberKey = GlobalKey<FormState>();
 
@@ -36,21 +41,58 @@ class _AddMemberState extends State<AddMember> {
   Member? member;
 
   List<Payment> payments = [];
+  StreamSubscription? listener;
+
+  bool isLoading = false;
 
   @override
   void initState() {
     super.initState();
-
-    if (widget.member == null) {
-      Future.delayed(const Duration(seconds: 3)).then((value) {
-        _rfidTc.text = generateRandomInt().toString();
-      });
-    }
+    mainController.location = Location.add;
+    _rfidTc = mainController.rfid;
+    // if (widget.member == null) {
+    //   Future.delayed(const Duration(seconds: 3)).then((value) {
+    //     _rfidTc.text = generateRandomInt().toString();
+    //   });
+    // }
 
     if (widget.member != null) {
       populateFeilds();
     }
   }
+
+  @override
+  void dispose() {
+    super.dispose();
+    // listener?.cancel();
+    // startListeningCard(mainController);
+    mainController.location = Location.main;
+  }
+
+  // testHttp() async {
+  //   try {
+  //     final channel = IOWebSocketChannel.connect('ws://192.168.4.1:8080/');
+  //     mainController.mainStream?.cancel();
+
+  //     listener = channel.stream.listen(
+  //       (data) {
+  //         // Process the RFID data received from the ESP8266
+  //         print('RFID Data: $data');
+  //         _rfidTc.text = data.toString().replaceAll(" ", '');
+  //         http.get(Uri.parse('http://192.168.4.1/on'));
+  //       },
+  //       onError: (error) {
+  //         print('Error: $error');
+  //       },
+  //       onDone: () {
+  //         print('WebSocket connection closed');
+  //       },
+  //     );
+  //   } catch (e, stackTrace) {
+  //     print('Error: $e');
+  //     print('Stack Trace: $stackTrace');
+  //   }
+  // }
 
   populateFeilds() async {
     member = (await DatabaseHelper().getMemberByRfid(widget.member!.rfid))[0];
@@ -67,11 +109,10 @@ class _AddMemberState extends State<AddMember> {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: EdgeInsets.zero,
-      // symmetric(
-      //   horizontal: MediaQuery.of(context).size.width / 3,
-      //   vertical: 50,
-      // ),
+      padding: EdgeInsets.symmetric(
+        horizontal: MediaQuery.of(context).size.width / 3,
+        vertical: 50,
+      ),
       child: Scaffold(
         appBar: AppBar(
           automaticallyImplyLeading: false,
@@ -95,12 +136,12 @@ class _AddMemberState extends State<AddMember> {
                     if (permission) {
                       await mainController.deleteMember(widget.member!.rfid);
                       if (mounted) {
-                        showToast(context, "Successfully deleted.", greenColor);
+                        showToast("Successfully deleted.", greenColor);
                         Navigator.pop(context);
                       }
                     } else {
                       if (mounted) {
-                        showToast(context, "Permission denied.", redColor);
+                        showToast("Permission denied.", redColor);
                       }
                     }
                   },
@@ -220,129 +261,151 @@ class _AddMemberState extends State<AddMember> {
                 const SizedBox(
                   height: 30,
                 ),
-                SLBtn(
-                  text: "Save",
-                  onTap: () async {
-                    DateTime today =
-                        DateTime.parse(DateTime.now().toString().split(" ")[0]);
-                    if (_addMemberKey.currentState!.validate()) {
-                      if (widget.member != null) {
-                        // DateTime startDate =
-                        //     DateTime.parse(member!.lastPaymentDate);
-                        // DateTime endDate = PaymentType().getEndDate(
-                        //   member!.lastPaymentType,
-                        //   startDate,
-                        // );
-                        if (!PaymentType.checkPaymentStatus(
-                            member!.lastPaymentDate, member!.lastPaymentType)) {
-                          final List<String>? datas = await showDialog(
-                            context: context,
-                            builder: (context) => const AddPayment(),
-                          );
-                          if (datas == null) {
-                            if (mounted) {
-                              showToast(
-                                context,
-                                "Please add payment fot the member.",
-                                redColor,
-                              );
+                isLoading
+                    ? const CircularProgressIndicator()
+                    : SLBtn(
+                        text: "Save",
+                        onTap: () async {
+                          try {
+                            setState(() {
+                              isLoading = true;
+                            });
+                            DateTime today = DateTime.parse(
+                                DateTime.now().toString().split(" ")[0]);
+                            if (_addMemberKey.currentState!.validate()) {
+                              if (widget.member != null) {
+                                // DateTime startDate =
+                                //     DateTime.parse(member!.lastPaymentDate);
+                                // DateTime endDate = PaymentType().getEndDate(
+                                //   member!.lastPaymentType,
+                                //   startDate,
+                                // );
+                                if (!PaymentType.checkPaymentStatus(
+                                    member!.lastPaymentDate,
+                                    member!.lastPaymentType)) {
+                                  final List<String>? datas = await showDialog(
+                                    context: context,
+                                    builder: (context) => const AddPayment(),
+                                  );
+                                  if (datas == null) {
+                                    if (mounted) {
+                                      showToast(
+                                        "Please add payment fot the member.",
+                                        redColor,
+                                      );
+                                    }
+                                    return;
+                                  }
+                                  DateTime startDate =
+                                      DateFormat("MMM dd/yyyy").parse(datas[0]);
+                                  DateTime endDate = PaymentType().getEndDate(
+                                    datas[1],
+                                    startDate,
+                                  );
+
+                                  await DatabaseHelper().insertPayment(
+                                    Payment(
+                                      id: null,
+                                      ownerId: _rfidTc.text,
+                                      startingDate: startDate.toString(),
+                                      endingDate: endDate.toString(),
+                                    ),
+                                  );
+
+                                  await DatabaseHelper().updateMember(
+                                    Member(
+                                      fullName: _fullNameTc.text,
+                                      gender: selectedGender,
+                                      phone: _phoneTc.text,
+                                      rfid: _rfidTc.text,
+                                      lastPaymentDate: startDate.toString(),
+                                      lastPaymentType: datas[1],
+                                      registryDate: member!.registryDate,
+                                      lastAttendance: member!.lastAttendance,
+                                    ),
+                                    member!.rfid,
+                                  );
+                                } else {
+                                  await DatabaseHelper().updateMember(
+                                    Member(
+                                      fullName: _fullNameTc.text,
+                                      gender: selectedGender,
+                                      phone: _phoneTc.text,
+                                      rfid: _rfidTc.text,
+                                      lastPaymentDate: member!.lastPaymentDate,
+                                      lastPaymentType: member!.lastPaymentType,
+                                      registryDate: member!.registryDate,
+                                      lastAttendance: member!.lastAttendance,
+                                    ),
+                                    member!.rfid,
+                                  );
+                                }
+                              } else {
+                                final List<String>? datas = await showDialog(
+                                  context: context,
+                                  builder: (context) => const AddPayment(),
+                                );
+                                if (datas == null) {
+                                  if (mounted) {
+                                    showToast(
+                                      "Please add payment fot the member.",
+                                      redColor,
+                                    );
+                                  }
+                                  return;
+                                }
+                                DateTime startDate =
+                                    DateFormat("MMM dd/yyyy").parse(datas[0]);
+                                DateTime endDate = PaymentType().getEndDate(
+                                  datas[1],
+                                  startDate,
+                                );
+                                await DatabaseHelper().insertPayment(
+                                  Payment(
+                                    id: null,
+                                    ownerId: _rfidTc.text,
+                                    startingDate: startDate.toString(),
+                                    endingDate: endDate.toString(),
+                                  ),
+                                );
+                                await DatabaseHelper().insertMember(
+                                  Member(
+                                    fullName: _fullNameTc.text,
+                                    gender: selectedGender,
+                                    phone: _phoneTc.text,
+                                    rfid: _rfidTc.text,
+                                    lastPaymentDate: startDate.toString(),
+                                    lastPaymentType: datas[1],
+                                    registryDate: today.toString(),
+                                    lastAttendance: today
+                                        .subtract(const Duration(days: 1))
+                                        .toString(),
+                                  ),
+                                );
+                              }
+                              await Future.delayed(
+                                  const Duration(milliseconds: 500));
+                              await mainController.getPayments();
+                              await mainController.getMembers();
+                              setState(() {
+                                isLoading = true;
+                              });
+                              if (mounted) {
+                                Navigator.pop(context, true);
+                              }
                             }
-                            return;
+                          } catch (e) {
+                            if (e
+                                .toString()
+                                .contains("UNIQUE constraint failed")) {
+                              showToast("The card is already used.", redColor);
+                            } else {
+                              showToast("error: ${e.toString()}", redColor);
+                            }
+                            print("error: ${e.toString()}");
                           }
-                          DateTime startDate =
-                              DateFormat("MMM dd/yyyy").parse(datas[0]);
-                          DateTime endDate = PaymentType().getEndDate(
-                            datas[1],
-                            startDate,
-                          );
-
-                          await DatabaseHelper().insertPayment(
-                            Payment(
-                              id: null,
-                              ownerId: _rfidTc.text,
-                              startingDate: startDate.toString(),
-                              endingDate: endDate.toString(),
-                            ),
-                          );
-
-                          await DatabaseHelper().updateMember(
-                            Member(
-                              fullName: _fullNameTc.text,
-                              gender: selectedGender,
-                              phone: _phoneTc.text,
-                              rfid: _rfidTc.text,
-                              lastPaymentDate: member!.lastPaymentDate,
-                              lastPaymentType: member!.lastPaymentType,
-                              registryDate: member!.registryDate,
-                              lastAttendance: member!.lastAttendance,
-                            ),
-                          );
-                        } else {
-                          await DatabaseHelper().updateMember(
-                            Member(
-                              fullName: _fullNameTc.text,
-                              gender: selectedGender,
-                              phone: _phoneTc.text,
-                              rfid: _rfidTc.text,
-                              lastPaymentDate: member!.lastPaymentDate,
-                              lastPaymentType: member!.lastPaymentType,
-                              registryDate: member!.registryDate,
-                              lastAttendance: member!.lastAttendance,
-                            ),
-                          );
-                        }
-                      } else {
-                        final List<String>? datas = await showDialog(
-                          context: context,
-                          builder: (context) => const AddPayment(),
-                        );
-                        if (datas == null) {
-                          if (mounted) {
-                            showToast(
-                              context,
-                              "Please add payment fot the member.",
-                              redColor,
-                            );
-                          }
-                          return;
-                        }
-                        DateTime startDate =
-                            DateFormat("MMM dd/yyyy").parse(datas[0]);
-                        DateTime endDate = PaymentType().getEndDate(
-                          datas[1],
-                          startDate,
-                        );
-                        await DatabaseHelper().insertPayment(
-                          Payment(
-                            id: null,
-                            ownerId: _rfidTc.text,
-                            startingDate: startDate.toString(),
-                            endingDate: endDate.toString(),
-                          ),
-                        );
-                        await DatabaseHelper().insertMember(
-                          Member(
-                            fullName: _fullNameTc.text,
-                            gender: selectedGender,
-                            phone: _phoneTc.text,
-                            rfid: _rfidTc.text,
-                            lastPaymentDate: startDate.toString(),
-                            lastPaymentType: datas[1],
-                            registryDate: today.toString(),
-                            lastAttendance: today
-                                .subtract(const Duration(days: 1))
-                                .toString(),
-                          ),
-                        );
-                      }
-                      await mainController.getMembers();
-                      await mainController.getPayments();
-                      if (mounted) {
-                        Navigator.pop(context, true);
-                      }
-                    }
-                  },
-                ),
+                        },
+                      ),
                 const SizedBox(
                   height: 20,
                 ),

@@ -1,6 +1,11 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'dart:convert';
 
+enum PaymentState{
+  payed,
+  notPayed,
+}
+
 class PaymentType {
   static String testing = "testing";
   static String monthly = "Monthly";
@@ -53,7 +58,7 @@ class PaymentType {
 
       return DateTime(year, month, day).subtract(const Duration(days: 1));
     } else {
-      return startFrom.add(const Duration(minutes: 2));
+      return startFrom.add(const Duration(hours: 15, minutes: 40));
     }
   }
 }

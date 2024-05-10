@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:gymsystem/helper/db_helper.dart';
 import 'package:gymsystem/model/staff.dart';
@@ -7,6 +8,11 @@ import 'package:gymsystem/model/staff.dart';
 import '../model/attendance.dart';
 import '../model/member.dart';
 import '../model/payment.dart';
+
+enum Location {
+  main,
+  add,
+}
 
 class MainController extends GetxController {
   RxList<Member> members = <Member>[].obs;
@@ -16,6 +22,8 @@ class MainController extends GetxController {
   RxList<Payment> payments = <Payment>[].obs;
   Timer? timmer;
   StreamSubscription? mainStream;
+  Location location = Location.main;
+  TextEditingController rfid = TextEditingController();
 
   // staff
 
@@ -39,7 +47,7 @@ class MainController extends GetxController {
     });
   }
 
-  deleteStaff(rfid) async {
+  deleteStaff(String rfid) async {
     await DatabaseHelper().deleteStaff(rfid);
     await getStaff();
   }

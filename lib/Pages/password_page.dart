@@ -35,11 +35,9 @@ class _PasswordPageState extends State<PasswordPage> {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: EdgeInsets.zero,
-      // .symmetric(
-      //   horizontal: MediaQuery.of(context).size.width / 3,
-      //   vertical: 200,
-      // ),
+      padding: EdgeInsets.symmetric(
+        horizontal: MediaQuery.of(context).size.width / 3,
+      ),
       child: Dialog(
         child: SingleChildScrollView(
           child: Form(
@@ -153,23 +151,19 @@ class _PasswordPageState extends State<PasswordPage> {
                     if (_formKey.currentState!.validate()) {
                       if (newPasswordRegistering) {
                         if (_passwordTc.text.length < 8) {
-                          showToast(context, "Password less than 8 digits.",
-                              redColor);
+                          showToast("Password less than 8 digits.", redColor);
                         } else if (_previousPasswordTc.text != password) {
-                          showToast(context, "Password incorrect.", redColor);
+                          showToast("Password incorrect.", redColor);
                         } else if (_passwordTc.text !=
                             _confirmPasswordTc.text) {
-                          showToast(context, "Your Password did not match.",
-                              redColor);
+                          showToast("Your Password did not match.", redColor);
                         } else {
                           final pref = await SharedPreferences.getInstance();
                           await pref.setString(
                               'password', _confirmPasswordTc.text);
                           if (mounted) {
-                            showToast(
-                                context,
-                                "Your Password changed successfully.",
-                                redColor);
+                            showToast("Your Password changed successfully.",
+                                greenColor);
                             _passwordTc.text = "";
                             _confirmPasswordTc.text = "";
                             _previousPasswordTc.text = "";

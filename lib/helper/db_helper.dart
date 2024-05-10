@@ -150,24 +150,41 @@ class DatabaseHelper {
     return staffs;
   }
 
-  Future<int> updateStaff(Staff staff) async {
-    final db = await database;
-    var result = await db!.update(
-      DatabaseConst.staff,
-      staff.toMap(),
-      where: 'rfid = ?',
-      whereArgs: [staff.rfId],
-    );
-
-    return result;
+  Future<int?> updateStaff(Staff staff, String? oldRfid) async {
+    if (oldRfid != null && staff.rfId != oldRfid) {
+      updateStaffWithRfId(staff, oldRfid);
+      return null;
+    } else {
+      final db = await database;
+      var result = await db!.update(
+        DatabaseConst.staff,
+        staff.toMap(),
+        where: 'rfid = ?',
+        whereArgs: [staff.rfId],
+      );
+      return result;
+    }
   }
 
-  Future<int> deleteStaff(int rfid) async {
+  Future<void> updateStaffWithRfId(Staff staff, String rfid) async {
+    await insertStaff(staff);
+    await updateStaffsThing(rfid, staff.rfId);
+    await deleteStaff(rfid);
+  }
+
+  Future<int> deleteStaff(String id) async {
     var db = await database;
-    var result = await db!.rawDelete(
-        'DELETE FROM ${DatabaseConst.staffAttendance} WHERE ownerId = $rfid');
-    var result1 = await db
-        .rawDelete('DELETE FROM ${DatabaseConst.staff} WHERE rfid = $rfid');
+
+    var result = await db!.delete(
+      DatabaseConst.staff,
+      where: 'rfid = ?',
+      whereArgs: [id],
+    );
+    await db.delete(
+      DatabaseConst.staffAttendance,
+      where: 'ownerId = ?',
+      whereArgs: [id],
+    );
 
     return result;
   }
@@ -224,26 +241,51 @@ class DatabaseHelper {
     return members;
   }
 
-  Future<int> updateMember(Member member) async {
-    final db = await database;
-    var result = await db!.update(
-      DatabaseConst.member,
-      member.toMap(),
-      where: 'rfid = ?',
-      whereArgs: [member.rfid],
-    );
+  Future<int?> updateMember(Member member, String? oldRfid) async {
+    if (oldRfid != null && member.rfid != oldRfid) {
+      updateMemberWithRfId(member, oldRfid);
+      return null;
+    } else {
+      final db = await database;
+      var result = await db!.update(
+        DatabaseConst.member,
+        member.toMap(),
+        where: 'rfid = ?',
+        whereArgs: [member.rfid],
+      );
+      return result;
+    }
+  }
 
-    return result;
+  Future<void> updateMemberWithRfId(Member member, String rfid) async {
+    await insertMember(member);
+    await updateMembersThing(rfid, member.rfid);
+    await deleteMember(rfid);
   }
 
   Future<int> deleteMember(String id) async {
     var db = await database;
-    var result = await db!
-        .rawDelete('DELETE FROM ${DatabaseConst.member} WHERE rfid = $id');
-    await db
-        .rawDelete('DELETE FROM ${DatabaseConst.payments} WHERE ownerId = $id');
-    await db.rawDelete(
-        'DELETE FROM ${DatabaseConst.membersAttendance} WHERE ownerId = $id');
+    var result = await db!.delete(
+      DatabaseConst.member,
+      where: 'rfid = ?',
+      whereArgs: [id],
+    );
+    await db.delete(
+      DatabaseConst.payments,
+      where: 'ownerId = ?',
+      whereArgs: [id],
+    );
+    await db.delete(
+      DatabaseConst.membersAttendance,
+      where: 'ownerId = ?',
+      whereArgs: [id],
+    );
+    // var result = await db!
+    //     .rawDelete('DELETE FROM ${DatabaseConst.member} WHERE rfid = $id');
+    // await db
+    //     .rawDelete('DELETE FROM ${DatabaseConst.payments} WHERE ownerId = $id');
+    // await db.rawDelete(
+    //     'DELETE FROM ${DatabaseConst.membersAttendance} WHERE ownerId = $id');
 
     return result;
   }
@@ -293,10 +335,83 @@ class DatabaseHelper {
     return attendances;
   }
 
+  Future<List<Attendance>> getMembersAttendanceOfDay(DateTime date) async {
+    Database? db = await database;
+
+    final day = date.toString().split(" ")[0];
+    var result = await db!.query(
+      DatabaseConst.membersAttendance,
+      where: 'date LIKE ?',
+      whereArgs: ['%$day%'],
+    );
+
+    List<Attendance> attendnces = [];
+    for (var attendance in result) {
+      attendnces.add(Attendance.fromMap(attendance));
+    }
+
+    return attendnces;
+  }
+
+  Future<void> updateMembersAttendancesOnADay(
+      DateTime dateTime, AttendanceType type) async {
+    final attendances = await getMembersAttendanceOfDay(dateTime);
+
+    for (Attendance attendance in attendances) {
+      await updateMemberAttendance(attendance.copyWith(type: type));
+    }
+  }
+
+  Future<void> updateMembersThing(String oldRfid, String newRfid) async {
+    Database? db = await database;
+    await db!.update(
+      DatabaseConst.membersAttendance,
+      {'ownerId': newRfid},
+      where: 'ownerId = ?',
+      whereArgs: [oldRfid],
+    );
+    await db.update(
+      DatabaseConst.payments,
+      {'ownerId': newRfid},
+      where: 'ownerId = ?',
+      whereArgs: [oldRfid],
+    );
+  }
+
+  Future<Member?> scanMembersAttendance(String rfId) async {
+    final members = await getMemberByRfid(rfId);
+
+    if (members.isEmpty) {
+      return null;
+    }
+
+    final member = members[0];
+
+    final attendances = await getMembersAttendanceOfDay(DateTime.now());
+
+    for (Attendance attendance in attendances) {
+      if (attendance.ownerId == rfId) {
+        final res = await updateMemberAttendance(
+          attendance.copyWith(
+            type: AttendanceType.present,
+            date: DateTime.now().toString(),
+          ),
+        );
+        print("here");
+        return member;
+      }
+    }
+    return member;
+  }
+
   Future<int> updateMemberAttendance(Attendance attendance) async {
     final db = await database;
-    var result =
-        await db!.update(DatabaseConst.membersAttendance, attendance.toMap());
+    var result = await db!.update(
+      DatabaseConst.membersAttendance,
+      attendance.toMap(),
+      where: 'id = ?',
+      whereArgs: [attendance.id],
+    );
 
     return result;
   }
@@ -364,6 +479,16 @@ class DatabaseHelper {
     return attendnces;
   }
 
+  Future<void> updateStaffsThing(String oldRfid, String newRfid) async {
+    Database? db = await database;
+    await db!.update(
+      DatabaseConst.staffAttendance,
+      {'ownerId': newRfid},
+      where: 'ownerId = ?',
+      whereArgs: [oldRfid],
+    );
+  }
+
   Future<void> updateStaffAttendancesOnADay(
       DateTime dateTime, AttendanceType type) async {
     final attendances = await getStaffAttendanceOfDay(dateTime);
@@ -373,10 +498,18 @@ class DatabaseHelper {
     }
   }
 
-  Future<int?> scanStaffAttendance(String rfId) async {
-    final staff = (await getStaffByRfid(rfId))[0];
+  Future<Staff?> scanStaffAttendance(String rfId) async {
+    final staffs = await getStaffByRfid(rfId);
+
+    if (staffs.isEmpty) {
+      return null;
+    }
+
+    final staff = staffs[0];
 
     final entranceTime = parseTimeString(staff.entranceTime);
+    print('entranceTime: $entranceTime');
+    print("now: ${DateTime.now()}");
 
     final isLate = entranceTime.compareTo(DateTime.now()) < 0;
 
@@ -390,7 +523,7 @@ class DatabaseHelper {
             date: DateTime.now().toString(),
           ),
         );
-        return res;
+        return staff;
       }
     }
     return null;
@@ -477,296 +610,3 @@ class DatabaseHelper {
     return result;
   }
 }
-
-
-
-  // 'pdfPage DOUBLE,'
-  // 'pdfNum DOUBLE,'
-  // 'totalDuration INTEGER,'
-  // 'audioSizes TEXT,'
-  // 'isCompleted INTEGER'
-  //check
-  // Future<int?> isCourseAvailable(String courseId) async {
-  //   Database? db = await database;
-  //   try {
-  //     var result = await db!.query(DatabaseConst.savedCourses,
-  //         where: 'courseId = ?', whereArgs: [courseId]);
-  //     return result.isNotEmpty ? int.parse(result[0]['id'].toString()) : null;
-  //   } catch (e) {
-  //     return null;
-  //   }
-  // }
-
-  // Future<int?> isFAQAvailable(String question) async {
-  //   Database? db = await database;
-  //   try {
-  //     var result = await db!.query(DatabaseConst.faq,
-  //         where: 'question = ?', whereArgs: [question]);
-  //     return result.isNotEmpty ? int.parse(result[0]['id'].toString()) : null;
-  //   } catch (e) {
-  //     return null;
-  //   }
-  // }
-
-  // Future<int> countColumnsInTable(String table) async {
-  //   final db = await database;
-
-  //   final List<Map<String, dynamic>> tableInfo = await db!.rawQuery(
-  //     'PRAGMA table_info($table)',
-  //   );
-
-  //   final columnCount = tableInfo.length;
-
-  //   return columnCount;
-  // }
-
-  // Future<List<CourseModel>> searchCourses(String val) async {
-  //   final db = await database;
-  //   final searchQuery = '%$val%';
-
-  //   const String query = '''
-  //     SELECT * FROM courses
-  //     WHERE title LIKE ?
-  //     ORDER BY title
-  //   ''';
-
-  //   final List<Map<String, dynamic>> result =
-  //       await db!.rawQuery(query, [searchQuery]);
-
-  //   List<CourseModel> courses = [];
-  //   for (var d in result) {
-  //     courses.add(CourseModel.fromMap(d, d["courseId"]));
-  //   }
-
-  //   return courses;
-  // }
-
-  // //geting data
-  // Future<List<CourseModel>> getCourseHistories() async {
-  //   Database? db = await database;
-
-  //   var result = await db!.query(
-  //     DatabaseConst.savedCourses,
-  //     orderBy: 'lastViewed DESC',
-  //     // limit: 10,
-  //   );
-  //   List<CourseModel> courses = [];
-  //   for (var courseDb in result) {
-  //     courses
-  //         .add(CourseModel.fromMap(courseDb, courseDb['courseId'] as String));
-  //   }
-  //   return courses;
-  // }
-
-  // Future<List<CourseModel>> getSavedCourses() async {
-  //   Database? db = await database;
-
-  //   var result =
-  //       await db!.query(DatabaseConst.savedCourses, orderBy: 'lastViewed DESC');
-  //   List<CourseModel> courses = [];
-  //   for (var courseDb in result) {
-  //     courses
-  //         .add(CourseModel.fromMap(courseDb, courseDb['courseId'] as String));
-  //   }
-  //   return courses;
-  // }
-
-  // Future<CourseModel?> getSingleCourse(String courseId) async {
-  //   Database? db = await database;
-
-  //   var result = await db!.query(DatabaseConst.savedCourses,
-  //       where: 'courseId = ?', whereArgs: [courseId]);
-  //   List<CourseModel> courses = [];
-  //   for (var courseDb in result) {
-  //     courses
-  //         .add(CourseModel.fromMap(courseDb, courseDb['courseId'] as String));
-  //   }
-  //   return courses.isEmpty ? null : courses.first;
-  // }
-
-  // Future<List<Map<String, dynamic>>> getCouses(
-  //     String? key, dynamic val, SortingMethod method, int offset) async {
-  //   final orderByColumn =
-  //       method == SortingMethod.dateDSC ? 'dateTime' : 'title';
-  //   final orderByDescending = method == SortingMethod.dateDSC ? 1 : 0;
-
-  //   final db = await database;
-
-  //   String query = "";
-  //   List<Map<String, dynamic>> result = [];
-
-  //   if (key == null) {
-  //     query = '''
-  //     SELECT * FROM ${DatabaseConst.savedCourses}
-  //     ORDER BY $orderByColumn ${orderByDescending == 1 ? 'DESC' : 'ASC'}
-  //     LIMIT $numOfDoc OFFSET $offset
-  //     ''';
-  //     result = await db!.rawQuery(query);
-  //   } else {
-  //     query = '''
-  //     SELECT * FROM ${DatabaseConst.savedCourses}
-  //     WHERE $key = ?
-  //     ORDER BY $orderByColumn ${orderByDescending == 1 ? 'DESC' : 'ASC'}
-  //     LIMIT $numOfDoc OFFSET $offset
-  //     ''';
-  //     result = await db!.rawQuery(query, [val]);
-  //   }
-
-  //   return result;
-  // }
-
-  // Future<List<String>> getCategories() async {
-  //   Database? db = await database;
-
-  //   var result = await db!.query(DatabaseConst.cateogry);
-  //   List<String> categories = [];
-  //   for (var cat in result) {
-  //     categories.add(cat['name'].toString());
-  //   }
-
-  //   return categories;
-  // }
-
-  // Future<int> insertCategory(String category) async {
-  //   Database? db = await database;
-  //   var result = await db!.insert(DatabaseConst.cateogry, {'name': category});
-
-  //   return result;
-  // }
-
-  // Future<int> insertContent(String content) async {
-  //   Database? db = await database;
-  //   var result = await db!.insert(DatabaseConst.content, {'name': content});
-
-  //   return result;
-  // }
-
-  // Future<int> insertUstaz(String ustaz) async {
-  //   Database? db = await database;
-  //   var result = await db!.insert(DatabaseConst.ustaz, {'name': ustaz});
-
-  //   return result;
-  // }
-
-  // Future<int> insertFaq(FAQModel faq) async {
-  //   final db = await database;
-  //   var result = await db!.insert(DatabaseConst.faq, faq.toMap());
-
-  //   return result;
-  // }
-
-  // Future<int> updateFaq(FAQModel faq) async {
-  //   final db = await database;
-  //   var result = await db!.update(DatabaseConst.faq, faq.toMap());
-
-  //   return result;
-  // }
-
-  // Future<List<String>> getUstazs() async {
-  //   Database? db = await database;
-
-  //   var result = await db!.query(DatabaseConst.ustaz);
-  //   List<String> categories = [];
-  //   for (var cat in result) {
-  //     categories.add(cat['name'].toString());
-  //   }
-
-  //   return categories;
-  // }
-
-  // Future<List<String>> getContent() async {
-  //   Database? db = await database;
-
-  //   var result = await db!.query(DatabaseConst.content, orderBy: "name");
-  //   List<String> contents = [];
-  //   for (var cat in result) {
-  //     contents.add(cat['name'].toString());
-  //   }
-
-  //   return contents;
-  // }
-
-  // Future<List<FAQModel>> getFaqs() async {
-  //   Database? db = await database;
-
-  //   var result = await db!.query(DatabaseConst.faq);
-  //   List<FAQModel> categories = [];
-  //   for (var d in result) {
-  //     categories.add(FAQModel.fromMap(d, ""));
-  //   }
-
-  //   return categories;
-  // }
-
-  // Future<List<CourseModel>> getStartedCourses() async {
-  //   Database? db = await database;
-
-  //   var result = await db!.query(DatabaseConst.savedCourses,
-  //       orderBy: 'lastViewed DESC', where: 'isStarted = ?', whereArgs: [1]);
-  //   List<CourseModel> courses = [];
-  //   for (var courseDb in result) {
-  //     courses
-  //         .add(CourseModel.fromMap(courseDb, courseDb['courseId'] as String));
-  //   }
-  //   courses.sort((a, b) => b.lastViewed.compareTo(a.lastViewed));
-  //   return courses;
-  // }
-
-  // Future<List<CourseModel>> getFavCourses() async {
-  //   Database? db = await database;
-
-  //   var result = await db!.query(DatabaseConst.savedCourses,
-  //       orderBy: 'lastViewed ASC', where: 'isFav = ?', whereArgs: [1]);
-
-  //   List<CourseModel> tasks = [];
-  //   for (var taskDb in result) {
-  //     tasks.add(CourseModel.fromMap(taskDb, taskDb['courseId'] as String));
-  //   }
-  //   return tasks;
-  // }
-
-  // //inserting data
-  // // Future<int> insertCourse(CourseModel courseModel) async {
-  // //   Database? db = await database;
-  // //   var result =
-  // //       await db!.insert(DatabaseConst.savedCourses, courseModel.toMap());
-
-  // //   return result;
-  // // }
-
-  // //update data
-  // Future<int> updateCourse(CourseModel courseModel) async {
-  //   var db = await database;
-  //   var result = await db!.update(
-  //       DatabaseConst.savedCourses, courseModel.toMap(),
-  //       where: 'id = ?', whereArgs: [courseModel.id]);
-
-  //   return result;
-  // }
-
-  // Future<int> updateCourseFromCloud(CourseModel courseModel) async {
-  //   var db = await database;
-  //   var result = await db!.update(
-  //       DatabaseConst.savedCourses, courseModel.toOriginalMap(),
-  //       where: 'courseId = ?', whereArgs: [courseModel.courseId]);
-
-  //   return result;
-  // }
-
-  // Future<int> insertCourse(CourseModel courseModel) async {
-  //   var db = await database;
-  //   var result =
-  //       await db!.insert(DatabaseConst.savedCourses, courseModel.toMap());
-
-  //   return result;
-  // }
-
-  // //deleta data
-  // Future<int> deleteCourse(int id) async {
-  //   var db = await database;
-  //   var result = await db!
-  //       .rawDelete('DELETE FROM ${DatabaseConst.savedCourses} WHERE id = $id');
-
-  //   return result;
-  // }
-// }

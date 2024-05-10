@@ -10,7 +10,6 @@ import '../helper/db_helper.dart';
 import '../model/attendance.dart';
 import '../model/member.dart';
 import '../model/payment.dart';
-import '../model/staff.dart';
 import 'password_page.dart';
 
 class MemberAttendance extends StatefulWidget {
@@ -109,6 +108,7 @@ class _MemberAttendanceState extends State<MemberAttendance> {
             member.copyWith(
               lastAttendance: today.toString(),
             ),
+            null,
           );
         }
       }
@@ -125,6 +125,7 @@ class _MemberAttendanceState extends State<MemberAttendance> {
     myMenu(
         context,
         AttendanceType.values
+            .sublist(0, 2)
             .map((e) => e.toString().replaceAll("AttendanceType.", ""))
             .toList(), (attendanceType) async {
       AttendanceType type = AttendanceType.absent;
@@ -134,22 +135,12 @@ class _MemberAttendanceState extends State<MemberAttendance> {
         }
       }
       print(attendance.toString());
-      final permission = await showDialog(
-        context: context,
-        builder: (context) => const PasswordPage(),
-      );
-      if (permission) {
-        DatabaseHelper().updateMemberAttendance(attendance.copyWith(
-          type: type,
-        ));
 
-        getAttendanceOfTheMonth(selectedMonth, selectedYear);
-      } else {
-        if (mounted) {
-          showToast(context, "Permission Denied.", redColor);
-        }
-        return;
-      }
+      DatabaseHelper().updateMemberAttendance(attendance.copyWith(
+        type: type,
+      ));
+
+      getAttendanceOfTheMonth(selectedMonth, selectedYear);
     }, details);
   }
 

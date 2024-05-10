@@ -23,7 +23,7 @@ class _NavigationLayoutState extends State<NavigationLayout> {
   @override
   void initState() {
     super.initState();
-    startListeningCard(mainController, context);
+    startListeningCard(mainController);
   }
 
   @override

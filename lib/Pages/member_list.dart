@@ -35,6 +35,8 @@ class _MemberListState extends State<MemberList> {
         right: 30,
         left: 30,
       ),
+      constraints:
+          BoxConstraints(minHeight: MediaQuery.of(context).size.height,),
       decoration: const BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.vertical(

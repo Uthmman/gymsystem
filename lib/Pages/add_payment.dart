@@ -33,11 +33,9 @@ class _AddPaymentState extends State<AddPayment> {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: EdgeInsets.zero,
-      // .symmetric(
-      //   horizontal: MediaQuery.of(context).size.width / 3,
-      //   vertical: 200,
-      // ),
+      padding: EdgeInsets.symmetric(
+        horizontal: MediaQuery.of(context).size.width / 3,
+      ),
       child: Dialog(
         child: SingleChildScrollView(
           child: Form(
@@ -123,7 +121,6 @@ class _AddPaymentState extends State<AddPayment> {
                   onTap: () async {
                     if (_formKey.currentState!.validate()) {
                       if (mounted) {
-                        
                         Navigator.pop(
                             context, [_startsFromTc.text, selectedPaymentType]);
                       }

@@ -103,6 +103,7 @@ class _StaffAttendanceState extends State<StaffAttendance> {
             staff.copyWith(
               lastAttendance: today.toString(),
             ),
+            null,
           );
         }
       }
@@ -140,7 +141,38 @@ class _StaffAttendanceState extends State<StaffAttendance> {
         getAttendanceOfTheMonth(selectedMonth, selectedYear);
       } else {
         if (mounted) {
-          showToast(context, "Permission Denied.", redColor);
+          showToast("Permission Denied.", redColor);
+        }
+        return;
+      }
+    }, details);
+  }
+
+  onDatePressed(
+      DateTime dateTime, BuildContext context, TapDownDetails details) {
+    myMenu(
+        context,
+        AttendanceType.values
+            .map((e) => e.toString().replaceAll("AttendanceType.", ""))
+            .toList(), (attendanceType) async {
+      AttendanceType type = AttendanceType.absent;
+      for (var att in AttendanceType.values) {
+        if (att.toString().contains(attendanceType)) {
+          type = att;
+        }
+      }
+      print(dateTime.toString());
+      final permission = await showDialog(
+        context: context,
+        builder: (context) => const PasswordPage(),
+      );
+      if (permission) {
+        await DatabaseHelper().updateStaffAttendancesOnADay(dateTime, type);
+
+        getAttendanceOfTheMonth(selectedMonth, selectedYear);
+      } else {
+        if (mounted) {
+          showToast("Permission Denied.", redColor);
         }
         return;
       }
@@ -230,27 +262,30 @@ class _StaffAttendanceState extends State<StaffAttendance> {
         onTapDown: (TapDownDetails details) {
           onDayPressed(attendance, context, details);
         },
-        child: Container(
-          padding: const EdgeInsets.symmetric(
-            horizontal: 25,
-            vertical: 5,
-          ),
-          decoration: BoxDecoration(
-            border: Border.all(
-              color: greenColor,
-              width: 1.5,
+        child: Tooltip(
+          message: DateFormat("h:mm a").format(DateTime.parse(attendance.date)),
+          child: Container(
+            padding: const EdgeInsets.symmetric(
+              horizontal: 25,
+              vertical: 5,
             ),
-            borderRadius: BorderRadius.circular(7),
-          ),
-          child: SizedBox(
-            width: 10,
-            child: Text(
-              "P",
-              textAlign: TextAlign.center,
-              style: style.copyWith(
+            decoration: BoxDecoration(
+              border: Border.all(
                 color: greenColor,
-                fontWeight: FontWeight.bold,
-                fontSize: 17,
+                width: 1.5,
+              ),
+              borderRadius: BorderRadius.circular(7),
+            ),
+            child: SizedBox(
+              width: 10,
+              child: Text(
+                "P",
+                textAlign: TextAlign.center,
+                style: style.copyWith(
+                  color: greenColor,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 17,
+                ),
               ),
             ),
           ),
@@ -293,7 +328,7 @@ class _StaffAttendanceState extends State<StaffAttendance> {
           onDayPressed(attendance, context, details);
         },
         child: Tooltip(
-          message: DateFormat("H:mm a").format(DateTime.parse(attendance.date)),
+          message: DateFormat("h:mm a").format(DateTime.parse(attendance.date)),
           child: Stack(
             children: [
               Container(
@@ -357,30 +392,61 @@ class _StaffAttendanceState extends State<StaffAttendance> {
         onTapDown: (TapDownDetails details) {
           onDayPressed(attendance, context, details);
         },
-        child: Container(
-          padding: const EdgeInsets.symmetric(
-            horizontal: 25,
-            vertical: 5,
-          ),
-          decoration: BoxDecoration(
-            border: Border.all(
-              color: Colors.black26,
-              width: 1.5,
-            ),
-            borderRadius: BorderRadius.circular(7),
-          ),
-          child: SizedBox(
-            width: 10,
-            child: Text(
-              "-",
-              textAlign: TextAlign.center,
-              style: style.copyWith(
-                color: Colors.black26,
-                fontWeight: FontWeight.bold,
-                fontSize: 17,
+        child: Stack(
+          children: [
+            Container(
+              padding: const EdgeInsets.symmetric(
+                horizontal: 25,
+                vertical: 5,
+              ),
+              decoration: BoxDecoration(
+                border: Border.all(
+                  color: redColor,
+                  width: 1.5,
+                ),
+                borderRadius: BorderRadius.circular(7),
+              ),
+              child: SizedBox(
+                width: 10,
+                child: Text(
+                  "A",
+                  textAlign: TextAlign.center,
+                  style: style.copyWith(
+                    color: redColor,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 17,
+                  ),
+                ),
               ),
             ),
-          ),
+            Container(
+              padding: const EdgeInsets.symmetric(
+                horizontal: 1,
+                vertical: 5,
+              ),
+              decoration: BoxDecoration(
+                color: greenColor,
+                border: Border.all(
+                  color: greenColor,
+                  width: 1.5,
+                ),
+                borderRadius: const BorderRadius.horizontal(
+                  left: Radius.circular(7),
+                ),
+              ),
+              child: SizedBox(
+                width: 10,
+                child: Text(
+                  "P",
+                  textAlign: TextAlign.center,
+                  style: style.copyWith(
+                    color: whiteColor,
+                    fontSize: 17,
+                  ),
+                ),
+              ),
+            ),
+          ],
         ),
       );
     } else if (attendance.type == AttendanceType.weekend) {
@@ -522,33 +588,46 @@ class _StaffAttendanceState extends State<StaffAttendance> {
                               vertical: 17,
                               horizontal: 36,
                             ),
-                            child: SizedBox(
-                              width: 55,
-                              child: Column(
-                                children: [
-                                  Text(
-                                    DateFormat("E").format(
-                                      DateTime(
-                                        selectedYear,
-                                        selectedMonth,
-                                        index + 1,
+                            child: GestureDetector(
+                              onTapDown: (details) {
+                                onDatePressed(
+                                  DateTime(
+                                    selectedYear,
+                                    selectedMonth,
+                                    index + 1,
+                                  ),
+                                  context,
+                                  details,
+                                );
+                              },
+                              child: SizedBox(
+                                width: 55,
+                                child: Column(
+                                  children: [
+                                    Text(
+                                      DateFormat("E").format(
+                                        DateTime(
+                                          selectedYear,
+                                          selectedMonth,
+                                          index + 1,
+                                        ),
                                       ),
+                                      style: const TextStyle(
+                                        fontSize: 15,
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                      textAlign: TextAlign.center,
                                     ),
-                                    style: const TextStyle(
-                                      fontSize: 15,
-                                      fontWeight: FontWeight.w600,
+                                    Text(
+                                      "${index + 1} ${DateFormat("MMM").format(DateTime(selectedYear, selectedMonth))}",
+                                      style: const TextStyle(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.w100,
+                                      ),
+                                      textAlign: TextAlign.center,
                                     ),
-                                    textAlign: TextAlign.center,
-                                  ),
-                                  Text(
-                                    "${index + 1} ${DateFormat("MMM").format(DateTime(selectedYear, selectedMonth))}",
-                                    style: const TextStyle(
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.w100,
-                                    ),
-                                    textAlign: TextAlign.center,
-                                  ),
-                                ],
+                                  ],
+                                ),
                               ),
                             ),
                           ),
