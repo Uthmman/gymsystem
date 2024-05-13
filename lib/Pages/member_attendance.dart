@@ -446,9 +446,6 @@ class _MemberAttendanceState extends State<MemberAttendance> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const SizedBox(
-                        height: 8,
-                      ),
                       ...mainController.members.map((e) {
                         List<Attendance> myAttendance = mainController
                             .memberAttendance
