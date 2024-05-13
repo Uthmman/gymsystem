@@ -104,17 +104,29 @@ class _DaysState extends State<Days> {
                           setState(() {
                             mainController.selectedMonth.value--;
                           });
-                          mainController.getStaffAttendanceOfMonth(
-                              mainController.selectedMonth.value,
-                              mainController.selectedYear.value);
+                          if (widget.isStaff) {
+                            mainController.getStaffAttendanceOfMonth(
+                                mainController.selectedMonth.value,
+                                mainController.selectedYear.value);
+                          } else {
+                            mainController.getMembersAttendanceOfMonth(
+                                mainController.selectedMonth.value,
+                                mainController.selectedYear.value);
+                          }
                         } else if (mainController.selectedYear.value > 2000) {
                           setState(() {
                             mainController.selectedMonth.value = 12;
                             mainController.selectedYear.value--;
                           });
-                          mainController.getStaffAttendanceOfMonth(
-                              mainController.selectedMonth.value,
-                              mainController.selectedYear.value);
+                          if (widget.isStaff) {
+                            mainController.getStaffAttendanceOfMonth(
+                                mainController.selectedMonth.value,
+                                mainController.selectedYear.value);
+                          } else {
+                            mainController.getMembersAttendanceOfMonth(
+                                mainController.selectedMonth.value,
+                                mainController.selectedYear.value);
+                          }
                         }
                       },
                       icon: const Icon(Icons.chevron_left_outlined),
@@ -126,17 +138,29 @@ class _DaysState extends State<Days> {
                           setState(() {
                             mainController.selectedMonth.value++;
                           });
-                          mainController.getStaffAttendanceOfMonth(
-                              mainController.selectedMonth.value,
-                              mainController.selectedYear.value);
+                          if (widget.isStaff) {
+                            mainController.getStaffAttendanceOfMonth(
+                                mainController.selectedMonth.value,
+                                mainController.selectedYear.value);
+                          } else {
+                            mainController.getMembersAttendanceOfMonth(
+                                mainController.selectedMonth.value,
+                                mainController.selectedYear.value);
+                          }
                         } else if (mainController.selectedYear.value < 2049) {
                           setState(() {
                             mainController.selectedMonth.value = 1;
                             mainController.selectedYear.value++;
                           });
-                          mainController.getStaffAttendanceOfMonth(
-                              mainController.selectedMonth.value,
-                              mainController.selectedYear.value);
+                          if (widget.isStaff) {
+                            mainController.getStaffAttendanceOfMonth(
+                                mainController.selectedMonth.value,
+                                mainController.selectedYear.value);
+                          } else {
+                            mainController.getMembersAttendanceOfMonth(
+                                mainController.selectedMonth.value,
+                                mainController.selectedYear.value);
+                          }
                         }
                       },
                       icon: const Icon(Icons.chevron_right_outlined),
@@ -153,9 +177,15 @@ class _DaysState extends State<Days> {
                         setState(() {
                           mainController.selectedYear.value = value!;
                         });
-                        mainController.getStaffAttendanceOfMonth(
-                            mainController.selectedMonth.value,
-                            mainController.selectedYear.value);
+                        if (widget.isStaff) {
+                          mainController.getStaffAttendanceOfMonth(
+                              mainController.selectedMonth.value,
+                              mainController.selectedYear.value);
+                        } else {
+                          mainController.getMembersAttendanceOfMonth(
+                              mainController.selectedMonth.value,
+                              mainController.selectedYear.value);
+                        }
                       },
                     )
                   ],
