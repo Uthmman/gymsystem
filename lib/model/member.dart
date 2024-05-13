@@ -1,7 +1,7 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'dart:convert';
 
-enum PaymentState{
+enum PaymentState {
   payed,
   notPayed,
 }
@@ -68,6 +68,7 @@ class Member {
   final String gender;
   final String phone;
   final String rfid;
+  final String image;
   final String lastPaymentDate;
   final String lastPaymentType;
   final String registryDate;
@@ -77,6 +78,7 @@ class Member {
     required this.gender,
     required this.phone,
     required this.rfid,
+    required this.image,
     required this.lastPaymentDate,
     required this.lastPaymentType,
     required this.registryDate,
@@ -91,6 +93,7 @@ class Member {
     String? lastPaymentDate,
     String? lastPaymentType,
     String? registryDate,
+    String? image,
     String? lastAttendance,
   }) {
     return Member(
@@ -98,6 +101,7 @@ class Member {
       gender: gender ?? this.gender,
       phone: phone ?? this.phone,
       rfid: rfid ?? this.rfid,
+      image: image ?? this.image,
       lastPaymentDate: lastPaymentDate ?? this.lastPaymentDate,
       lastPaymentType: lastPaymentType ?? this.lastPaymentType,
       registryDate: registryDate ?? this.registryDate,
@@ -115,6 +119,7 @@ class Member {
       'lastPaymentType': lastPaymentType,
       'registryDate': registryDate,
       'lastAttendance': lastAttendance,
+      "image": image,
     };
   }
 
@@ -128,6 +133,7 @@ class Member {
       lastPaymentType: map['lastPaymentType'] as String,
       registryDate: map['registryDate'] as String,
       lastAttendance: map['lastAttendance'] as String,
+      image: map['image'] as String,
     );
   }
 

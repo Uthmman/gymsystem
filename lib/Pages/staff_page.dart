@@ -7,8 +7,9 @@ import 'package:gymsystem/controller/main_controller.dart';
 import 'staff_list.dart';
 
 class StaffsPage extends StatefulWidget {
- 
-  const StaffsPage({super.key,});
+  const StaffsPage({
+    super.key,
+  });
 
   @override
   State<StaffsPage> createState() => _StaffsPageState();
@@ -19,7 +20,7 @@ class _StaffsPageState extends State<StaffsPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Gym Management'),
+        title: const Text('Connect Wellness'),
         backgroundColor: mainColor,
         actions: [
           IconButton(
@@ -30,7 +31,7 @@ class _StaffsPageState extends State<StaffsPage> {
                 Get.find<MainController>(),
               );
             },
-          )
+          ),
         ],
       ),
       body: SingleChildScrollView(
@@ -44,7 +45,7 @@ class _StaffsPageState extends State<StaffsPage> {
                 children: [],
               ),
             ),
-             const Row(
+            const Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Flexible(

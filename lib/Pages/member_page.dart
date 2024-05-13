@@ -14,13 +14,11 @@ class MembersPage extends StatefulWidget {
 }
 
 class _MembersPageState extends State<MembersPage> {
-  
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Gym Management'),
+        title: const Text('Connect Wellness'),
         backgroundColor: mainColor,
         actions: [
           IconButton(

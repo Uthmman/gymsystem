@@ -5,7 +5,12 @@ import 'package:intl/intl.dart';
 
 class PaymentItem extends StatefulWidget {
   final Payment payment;
-  const PaymentItem({super.key, required this.payment});
+  final VoidCallback? onEdit;
+  const PaymentItem({
+    super.key,
+    required this.payment,
+    this.onEdit,
+  });
 
   @override
   State<PaymentItem> createState() => _PaymentItemState();
@@ -22,30 +27,48 @@ class _PaymentItemState extends State<PaymentItem> {
         ),
         child: Padding(
           padding: const EdgeInsets.all(8.0),
-          child: SizedBox(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Icon(
-                  Icons.receipt,
-                  size: 30,
-                  color: mainBoldColor,
+          child: Stack(
+            children: [
+              widget.onEdit != null
+                  ? Positioned(
+                      top: 0,
+                      right: 0,
+                      child: IconButton(
+                        icon: const Icon(
+                          Icons.edit,
+                          size: 15,
+                          color: mainBoldColor,
+                        ),
+                        onPressed: widget.onEdit,
+                      ),
+                    )
+                  : const SizedBox(),
+              SizedBox(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Icon(
+                      Icons.receipt,
+                      size: 30,
+                      color: mainBoldColor,
+                    ),
+                    const SizedBox(
+                      height: 5,
+                    ),
+                    Text("From: ${DateFormat("MMM dd/yyyy").format(
+                      DateTime.parse(widget.payment.startingDate),
+                    )}"),
+                    const SizedBox(
+                      height: 5,
+                    ),
+                    Text("to: ${DateFormat("MMM dd/yyyy").format(
+                      DateTime.parse(widget.payment.endingDate),
+                    )}")
+                  ],
                 ),
-                const SizedBox(
-                  height: 5,
-                ),
-                Text("From: ${DateFormat("MMM dd/yyyy").format(
-                  DateTime.parse(widget.payment.startingDate),
-                )}"),
-                const SizedBox(
-                  height: 5,
-                ),
-                Text("to: ${DateFormat("MMM dd/yyyy").format(
-                  DateTime.parse(widget.payment.endingDate),
-                )}")
-              ],
-            ),
+              ),
+            ],
           ),
         ),
       ),

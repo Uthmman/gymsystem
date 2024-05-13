@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:get/get_rx/get_rx.dart';
 import 'package:gymsystem/helper/db_helper.dart';
 import 'package:gymsystem/model/staff.dart';
 

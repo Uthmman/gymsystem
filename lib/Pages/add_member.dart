@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
@@ -9,15 +10,14 @@ import 'package:gymsystem/model/member.dart';
 import 'package:gymsystem/model/payment.dart';
 import 'package:gymsystem/widget/payment_item.dart';
 import 'package:gymsystem/widget/sl_btn.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
-import 'package:web_socket_channel/io.dart';
 
 import '../constants.dart';
 import '../helper/db_helper.dart';
 import '../widget/sl_input.dart';
 import '../widget/special_dropdown.dart';
 import 'password_page.dart';
-import 'package:http/http.dart' as http;
 
 class AddMember extends StatefulWidget {
   final Member? member;
@@ -45,6 +45,8 @@ class _AddMemberState extends State<AddMember> {
 
   bool isLoading = false;
 
+  var selectedImagePath;
+
   @override
   void initState() {
     super.initState();
@@ -67,6 +69,7 @@ class _AddMemberState extends State<AddMember> {
     // listener?.cancel();
     // startListeningCard(mainController);
     mainController.location = Location.main;
+    mainController.rfid.text = "";
   }
 
   // testHttp() async {
@@ -157,13 +160,72 @@ class _AddMemberState extends State<AddMember> {
             key: _addMemberKey,
             child: Column(
               children: [
+                GestureDetector(
+                  onTap: () async {
+                    final xFile = await ImagePicker()
+                        .pickImage(source: ImageSource.gallery);
+                    if (xFile != null) {
+                      selectedImagePath = xFile.path;
+                      setState(() {});
+                    }
+                  },
+                  child: selectedImagePath != null
+                      ? Image.file(
+                          File(
+                            selectedImagePath!,
+                          ),
+                          fit: BoxFit.cover,
+                          height: 150,
+                          width: 150,
+                        )
+                      : widget.member != null && widget.member!.image.isNotEmpty
+                          ? Image.file(
+                              File(widget.member!.image),
+                              height: 150,
+                              fit: BoxFit.cover,
+                              width: 150,
+                              // color: mainBoldColor,
+                            )
+                          : const Icon(
+                              Icons.image,
+                              size: 150,
+                              color: mainBoldColor,
+                            ),
+                ),
                 const SizedBox(
                   height: 20,
                 ),
-                Image.asset(
-                  'assets/card_verify.gif',
-                  width: 200,
-                  height: 200,
+                Padding(
+                  padding: const EdgeInsets.only(left: 8.0, right: 23),
+                  child: Row(
+                    children: [
+                      Image.asset(
+                        'assets/card_verify.gif',
+                        width: 100,
+                        height: 100,
+                      ),
+                      Expanded(
+                        child: SLInput(
+                          title: "RFID",
+                          hint: 'Scan the card',
+                          width: 100,
+                          inputColor: Colors.black,
+                          otherColor: Colors.black54,
+                          keyboardType: TextInputType.phone,
+                          controller: _rfidTc,
+                          isOutlined: true,
+                          readOnly: true,
+                          margin: 0,
+                          validation: (val) {
+                            if (val!.isEmpty) {
+                              return "Please scan the card.";
+                            }
+                            return null;
+                          },
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
                 const SizedBox(
                   height: 20,
@@ -205,25 +267,6 @@ class _AddMemberState extends State<AddMember> {
                   controller: _phoneTc,
                   isOutlined: true,
                 ),
-                const SizedBox(
-                  height: 20,
-                ),
-                SLInput(
-                  title: "RFID",
-                  hint: '8972348762',
-                  inputColor: Colors.black,
-                  otherColor: Colors.black54,
-                  keyboardType: TextInputType.phone,
-                  controller: _rfidTc,
-                  isOutlined: true,
-                  readOnly: true,
-                  validation: (val) {
-                    if (val!.isEmpty) {
-                      return "Please scan the card.";
-                    }
-                    return null;
-                  },
-                ),
                 widget.member != null
                     ? Column(
                         children: [
@@ -251,6 +294,25 @@ class _AddMemberState extends State<AddMember> {
                                 itemCount: payments.length,
                                 itemBuilder: (context, index) => PaymentItem(
                                   payment: payments[index],
+                                  onEdit: index == payments.length - 1
+                                      ? () async {
+                                          await showDialog(
+                                            context: context,
+                                            builder: (c) => AddPayment(
+                                              payment: payments[index],
+                                              member: member,
+                                            ),
+                                          );
+
+                                          mainController.getMembers();
+                                          member = (await DatabaseHelper()
+                                              .getMemberByRfid(
+                                                  widget.member!.rfid))[0];
+                                          payments = await DatabaseHelper()
+                                              .getPayments();
+                                          setState(() {});
+                                        }
+                                      : null,
                                 ),
                               ),
                             ),
@@ -309,11 +371,13 @@ class _AddMemberState extends State<AddMember> {
                                       ownerId: _rfidTc.text,
                                       startingDate: startDate.toString(),
                                       endingDate: endDate.toString(),
+                                      type: datas[1],
                                     ),
                                   );
 
                                   await DatabaseHelper().updateMember(
                                     Member(
+                                      image: '',
                                       fullName: _fullNameTc.text,
                                       gender: selectedGender,
                                       phone: _phoneTc.text,
@@ -328,6 +392,7 @@ class _AddMemberState extends State<AddMember> {
                                 } else {
                                   await DatabaseHelper().updateMember(
                                     Member(
+                                      image: selectedImagePath ?? member!.image,
                                       fullName: _fullNameTc.text,
                                       gender: selectedGender,
                                       phone: _phoneTc.text,
@@ -366,10 +431,12 @@ class _AddMemberState extends State<AddMember> {
                                     ownerId: _rfidTc.text,
                                     startingDate: startDate.toString(),
                                     endingDate: endDate.toString(),
+                                    type: datas[1],
                                   ),
                                 );
                                 await DatabaseHelper().insertMember(
                                   Member(
+                                    image: selectedImagePath ?? "",
                                     fullName: _fullNameTc.text,
                                     gender: selectedGender,
                                     phone: _phoneTc.text,

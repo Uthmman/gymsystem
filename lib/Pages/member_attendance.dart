@@ -10,7 +10,6 @@ import '../helper/db_helper.dart';
 import '../model/attendance.dart';
 import '../model/member.dart';
 import '../model/payment.dart';
-import 'password_page.dart';
 
 class MemberAttendance extends StatefulWidget {
   const MemberAttendance({super.key});
@@ -103,15 +102,15 @@ class _MemberAttendanceState extends State<MemberAttendance> {
             );
           }
         }
-        if (attendanceAdded) {
-          await DatabaseHelper().updateMember(
-            member.copyWith(
-              lastAttendance: today.toString(),
-            ),
-            null,
-          );
-        }
+        // if (attendanceAdded) {
+        // }
       }
+      await DatabaseHelper().updateMember(
+        member.copyWith(
+          lastAttendance: today.toString(),
+        ),
+        null,
+      );
     }
 
     // pref.setString(

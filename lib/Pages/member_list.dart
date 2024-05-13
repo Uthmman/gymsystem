@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:gymsystem/Pages/add_member.dart';
@@ -35,8 +37,9 @@ class _MemberListState extends State<MemberList> {
         right: 30,
         left: 30,
       ),
-      constraints:
-          BoxConstraints(minHeight: MediaQuery.of(context).size.height,),
+      constraints: BoxConstraints(
+        minHeight: MediaQuery.of(context).size.height,
+      ),
       decoration: const BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.vertical(
@@ -169,14 +172,27 @@ class _MemberListState extends State<MemberList> {
                             height: 50,
                             width: 50,
                             decoration: BoxDecoration(
-                              image: DecorationImage(
-                                image: mainController.members[index].gender ==
-                                        'Male'
-                                    ? const AssetImage(
-                                        'assets/male.jpg',
-                                      )
-                                    : const AssetImage('assets/female.jpg'),
-                              ),
+                              shape: BoxShape.circle,
+                              image:
+                                  mainController.members[index].image.isNotEmpty
+                                      ? DecorationImage(
+                                          fit: BoxFit.cover,
+                                          image: FileImage(
+                                            File(mainController
+                                                .members[index].image),
+                                          ),
+                                        )
+                                      : DecorationImage(
+                                          fit: BoxFit.cover,
+                                          image: mainController
+                                                      .members[index].gender ==
+                                                  'Male'
+                                              ? const AssetImage(
+                                                  'assets/male.jpg',
+                                                )
+                                              : const AssetImage(
+                                                  'assets/female.jpg'),
+                                        ),
                             ),
                           ),
                           trailing: Text(mainController.members[index].phone),

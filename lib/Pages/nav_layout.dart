@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:gymsystem/constants.dart';
 import 'package:gymsystem/controller/main_controller.dart';
-import 'package:web_socket_channel/io.dart';
 
 import '../widget/navigation_drawer.dart';
 import 'member_page.dart';

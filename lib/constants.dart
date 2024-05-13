@@ -1,10 +1,16 @@
+import 'dart:io';
 import 'dart:math';
 
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
+import 'package:gymsystem/Pages/add_member.dart';
+import 'package:gymsystem/Pages/add_staff.dart';
 import 'package:gymsystem/controller/main_controller.dart';
 import 'package:gymsystem/helper/db_helper.dart';
 import 'package:gymsystem/model/member.dart';
+import 'package:gymsystem/widget/scanned.dart';
 import 'package:intl/intl.dart';
 import 'package:web_socket_channel/io.dart';
 import 'package:http/http.dart' as http;
@@ -17,7 +23,7 @@ class DatabaseConst {
   static const String payments = "Payments";
 }
 
-const String dbPath = "/Database/GymData.db";
+const String dbPath = "/Database/Gym.Db.db";
 const Color mainBgColor = Colors.white;
 const Color whiteColor = Colors.white70;
 const Color mainColor = Color(0xffeab897);
@@ -76,13 +82,61 @@ int getDaysInMonth(int year, int month) {
   return daysInMonth;
 }
 
-void showToast(String message, Color bgcolor) {
+void showBottomSheet(
+  String message,
+  Color bgcolor, {
+  String? image,
+  bool isLong = false,
+  VoidCallback? onTap,
+  String? gender,
+}) {
+  Get.bottomSheet(
+    Scanned(
+      messege: message,
+      onTap: onTap!,
+      image: image!,
+      gender: gender!,
+    ),
+    // backgroundColor: Colors.transparent,
+    barrierColor: Colors.transparent,
+    elevation: 0,
+  );
+}
+
+void showToast(
+  String message,
+  Color bgcolor, {
+  bool isLong = false,
+  VoidCallback? onTap,
+  String? image,
+}) {
   // Check if the context is null or if it's not ready yet
   Future.delayed(const Duration(milliseconds: 500)).then((value) {
     Get.showSnackbar(GetSnackBar(
       backgroundColor: bgcolor,
       message: message,
-      duration: const Duration(seconds: 2),
+      mainButton: onTap != null
+          ? TextButton(onPressed: onTap, child: const Text("Show details"))
+          : null,
+      titleText: Row(children: [
+        image != null
+            ? Container(
+                height: 130,
+                width: 130,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  image: DecorationImage(
+                    fit: BoxFit.fill,
+                    image: FileImage(
+                      File(image),
+                    ),
+                  ),
+                ),
+              )
+            : const SizedBox(),
+      ]),
+      duration:
+          isLong ? const Duration(seconds: 3) : const Duration(seconds: 2),
     ));
   });
   // .snackbar(
@@ -151,9 +205,7 @@ void myMenu(BuildContext context, List<String> items,
 Future<String?> timePicker(String initialTime, BuildContext context) async {
   final TimeOfDay? selectedTime = await showTimePicker(
     context: context,
-    initialTime: initialTime.isEmpty
-        ? TimeOfDay.now()
-        : TimeOfDay.fromDateTime(parseTimeString(initialTime)),
+    initialTime: TimeOfDay.now(),
     builder: (BuildContext context, Widget? child) {
       return MediaQuery(
         data: MediaQuery.of(context).copyWith(
@@ -225,7 +277,18 @@ startListeningCard(MainController mainController) {
           print(mainController.location);
 
           if (staff != null) {
-            showToast("${staff.fullName}'s card is deteced.", greenColor);
+            showBottomSheet(
+              "${staff.fullName}'s card is deteced.",
+              greenColor,
+              isLong: true,
+              image: staff.image,
+              gender: staff.gender,
+              onTap: () {
+                Get.dialog(AddStaff(
+                  staff: staff,
+                ));
+              },
+            );
             http.get(Uri.parse('http://192.168.4.1/on'));
             mainController.getStaff();
           } else {
@@ -234,13 +297,45 @@ startListeningCard(MainController mainController) {
               final hasPayed = PaymentType.checkPaymentStatus(
                   member.lastPaymentDate, member.lastPaymentType);
               if (hasPayed) {
-                showToast("${member.fullName}'s card is deteced.", greenColor);
+                showBottomSheet(
+                  "${member.fullName}'s card is deteced.",
+                  greenColor,
+                  isLong: true,
+                  image: member.image,
+                  gender: member.gender,
+                  onTap: () {
+                    Get.dialog(AddMember(
+                      member: member,
+                    ));
+                  },
+                );
+
                 http.get(Uri.parse('http://192.168.4.1/on'));
                 mainController.getMembers();
               } else {
-                showToast(
+                if (DateTime.now()
+                        .compareTo(DateTime.parse(member.lastPaymentDate)) <
+                    0) {
+                  showToast(
+                    "${member.fullName}'s membership starts from ${DateFormat("MMM dd/yyyy").format(DateTime.parse(member.lastPaymentDate))}",
+                    redColor,
+                    onTap: () {
+                      Get.dialog(AddMember(
+                        member: member,
+                      ));
+                    },
+                  );
+                } else {
+                  showToast(
                     "${member.fullName}'s payment subscription has ended.",
-                    redColor);
+                    redColor,
+                    onTap: () {
+                      Get.dialog(AddMember(
+                        member: member,
+                      ));
+                    },
+                  );
+                }
                 http.get(Uri.parse('http://192.168.4.1/off'));
               }
             } else {
@@ -249,11 +344,16 @@ startListeningCard(MainController mainController) {
             }
           }
         }
-
-        // TODO: search and fill the attendance
       },
       onError: (error) {
-        showToast('Error: $error', redColor);
+        print(error);
+        if (error.toString().contains("SocketException:")) {
+          showToast(
+            'Scanner is disconnected. Please connect it and refresh.',
+            redColor,
+            isLong: true,
+          );
+        }
       },
       onDone: () {
         showToast('Device is disconnected.', redColor);

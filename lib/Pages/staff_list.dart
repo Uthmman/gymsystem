@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:gymsystem/Pages/add_staff.dart';
@@ -6,7 +8,9 @@ import 'package:gymsystem/controller/main_controller.dart';
 import 'package:gymsystem/widget/sl_input.dart';
 
 class StaffList extends StatefulWidget {
-  const StaffList({super.key,});
+  const StaffList({
+    super.key,
+  });
 
   @override
   State<StaffList> createState() => _StaffListState();
@@ -104,7 +108,7 @@ class _StaffListState extends State<StaffList> {
                   onPressed: () async {
                     await showDialog(
                       context: context,
-                      builder: (context) =>  const AddStaff(),
+                      builder: (context) => const AddStaff(),
                     );
                   },
                 ),
@@ -178,7 +182,6 @@ class _StaffListState extends State<StaffList> {
                               context: context,
                               builder: (context) => AddStaff(
                                 staff: mainController.staffs[index],
-                               
                               ),
                             );
                           },
@@ -188,18 +191,44 @@ class _StaffListState extends State<StaffList> {
                           ),
                           title: Text(mainController.staffs[index].fullName),
                           subtitle: Text(mainController.staffs[index].role),
+                          // Container(
+                          //   height: 130,
+                          //   width: 130,
+                          //   decoration: BoxDecoration(
+                          //     shape: BoxShape.circle,
+                          //     image: DecorationImage(
+                          //       fit: BoxFit.cover,
+                          //       image: FileImage(
+                          //         File(widget.image),
+                          //       ),
+                          //     ),
+                          //   ),
+                          // ),
                           leading: Container(
                             height: 50,
                             width: 50,
                             decoration: BoxDecoration(
-                              image: DecorationImage(
-                                image: mainController.staffs[index].gender ==
-                                        'Male'
-                                    ? const AssetImage(
-                                        'assets/male.jpg',
-                                      )
-                                    : const AssetImage('assets/female.jpg'),
-                              ),
+                              shape: BoxShape.circle,
+                              image: mainController
+                                      .staffs[index].image.isNotEmpty
+                                  ? DecorationImage(
+                                      fit: BoxFit.cover,
+                                      image: FileImage(
+                                        File(
+                                            mainController.staffs[index].image),
+                                      ),
+                                    )
+                                  : DecorationImage(
+                                      fit: BoxFit.cover,
+                                      image:
+                                          mainController.staffs[index].gender ==
+                                                  'Male'
+                                              ? const AssetImage(
+                                                  'assets/male.jpg',
+                                                )
+                                              : const AssetImage(
+                                                  'assets/female.jpg'),
+                                    ),
                             ),
                           ),
                           trailing: Text(mainController.staffs[index].phone),

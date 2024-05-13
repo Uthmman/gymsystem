@@ -1,6 +1,9 @@
 import 'dart:async';
+import 'dart:io';
 import 'dart:typed_data';
 
+import 'package:flutter/cupertino.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
 import 'package:gymsystem/controller/main_controller.dart';
@@ -14,6 +17,7 @@ import 'package:gymsystem/helper/db_helper.dart';
 import 'package:gymsystem/model/staff.dart';
 import 'package:gymsystem/widget/sl_btn.dart';
 import 'package:gymsystem/widget/sl_input.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:web_socket_channel/io.dart';
 import 'package:http/http.dart' as http;
@@ -56,6 +60,8 @@ class _AddStaffState extends State<AddStaff> {
   Staff? staff;
 
   StreamSubscription? listener;
+
+  String? selectedImagePath;
 
   // SerialPort port = SerialPort('COM5');
   // late SerialPortReader reader;
@@ -104,6 +110,7 @@ class _AddStaffState extends State<AddStaff> {
     // listener?.cancel();
     // startListeningCard(mainController);
     mainController.location = Location.main;
+    mainController.rfid.text = "";
   }
 
   // testHttp() async {
@@ -189,13 +196,72 @@ class _AddStaffState extends State<AddStaff> {
             key: _addStaffKey,
             child: Column(
               children: [
+                GestureDetector(
+                  onTap: () async {
+                    final xFile = await ImagePicker()
+                        .pickImage(source: ImageSource.gallery);
+                    if (xFile != null) {
+                      selectedImagePath = xFile.path;
+                      setState(() {});
+                    }
+                  },
+                  child: selectedImagePath != null
+                      ? Image.file(
+                          File(
+                            selectedImagePath!,
+                          ),
+                          fit: BoxFit.cover,
+                          height: 150,
+                          width: 150,
+                        )
+                      : widget.staff != null && widget.staff!.image.isNotEmpty
+                          ? Image.file(
+                              File(widget.staff!.image),
+                              height: 150,
+                              fit: BoxFit.cover,
+                              width: 150,
+                              // color: mainBoldColor,
+                            )
+                          : const Icon(
+                              Icons.image,
+                              size: 150,
+                              color: mainBoldColor,
+                            ),
+                ),
                 const SizedBox(
                   height: 20,
                 ),
-                Image.asset(
-                  'assets/card_verify.gif',
-                  width: 200,
-                  height: 200,
+                Padding(
+                  padding: const EdgeInsets.only(left: 8.0, right: 23),
+                  child: Row(
+                    children: [
+                      Image.asset(
+                        'assets/card_verify.gif',
+                        width: 100,
+                        height: 100,
+                      ),
+                      Expanded(
+                        child: SLInput(
+                          title: "RFID",
+                          hint: 'Scan the card',
+                          width: 100,
+                          inputColor: Colors.black,
+                          otherColor: Colors.black54,
+                          keyboardType: TextInputType.phone,
+                          controller: _rfidTc,
+                          isOutlined: true,
+                          readOnly: true,
+                          margin: 0,
+                          validation: (val) {
+                            if (val!.isEmpty) {
+                              return "Please scan the card.";
+                            }
+                            return null;
+                          },
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
                 const SizedBox(
                   height: 20,
@@ -348,25 +414,6 @@ class _AddStaffState extends State<AddStaff> {
                   },
                 ),
                 const SizedBox(
-                  height: 20,
-                ),
-                SLInput(
-                  title: "RFID",
-                  hint: '8972348762',
-                  inputColor: Colors.black,
-                  otherColor: Colors.black54,
-                  keyboardType: TextInputType.phone,
-                  controller: _rfidTc,
-                  isOutlined: true,
-                  readOnly: true,
-                  validation: (val) {
-                    if (val!.isEmpty) {
-                      return "Please scan the card.";
-                    }
-                    return null;
-                  },
-                ),
-                const SizedBox(
                   height: 30,
                 ),
                 SpecialDropdown(
@@ -447,7 +494,13 @@ class _AddStaffState extends State<AddStaff> {
                                     isActive: isActive,
                                     entranceTime: _entranceTime.text,
                                     exitTime: _exitTime.text,
-                                    lastAttendance: staff!.lastAttendance,
+                                    image: selectedImagePath ?? staff!.image,
+                                    lastAttendance: isActive == 1 &&
+                                            staff!.isActive == 0
+                                        ? today
+                                            .subtract(const Duration(days: 1))
+                                            .toString()
+                                        : staff!.lastAttendance,
                                     gender: selectedGender,
                                     defaultAttendance: AttendanceType.values
                                         .singleWhere((element) =>
@@ -468,6 +521,7 @@ class _AddStaffState extends State<AddStaff> {
                                     rfId: _rfidTc.text,
                                     isActive: isActive,
                                     entranceTime: _entranceTime.text,
+                                    image: selectedImagePath ?? "",
                                     exitTime: _exitTime.text,
                                     lastAttendance: today
                                         .subtract(const Duration(days: 1))

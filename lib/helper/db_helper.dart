@@ -62,6 +62,7 @@ class DatabaseHelper {
         'entranceTime TEXT,'
         'exitTime TEXT,'
         'dateOfBirth TEXT,'
+        'image TEXT,'
         'lastAttendance TEXT,'
         'gender TEXT,'
         'defaultAttendance TEXT,'
@@ -72,6 +73,7 @@ class DatabaseHelper {
         'fullName TEXT,'
         "gender TEXT,"
         "phone TEXT,"
+        'image TEXT,'
         "lastPaymentDate TEXT,"
         "lastPaymentType TEXT,"
         "registryDate TEXT,"
@@ -92,6 +94,7 @@ class DatabaseHelper {
     await db.execute('CREATE TABLE ${DatabaseConst.payments}('
         'id INTEGER PRIMARY KEY AUTOINCREMENT,'
         'ownerId TEXT,'
+        'type TEXT,'
         'startingDate TEXT,'
         'endingDate TEXT'
         ')');
@@ -597,7 +600,12 @@ class DatabaseHelper {
 
   Future<int> updatePayment(Payment payment) async {
     final db = await database;
-    var result = await db!.update(DatabaseConst.payments, payment.toMap());
+    var result = await db!.update(
+      DatabaseConst.payments,
+      payment.toMap(),
+      where: 'id = ?',
+      whereArgs: [payment.id],
+    );
 
     return result;
   }

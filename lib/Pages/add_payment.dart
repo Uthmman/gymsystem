@@ -1,14 +1,23 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:gymsystem/helper/db_helper.dart';
 import 'package:gymsystem/model/member.dart';
 import 'package:intl/intl.dart';
 
 import '../constants.dart';
+import '../model/payment.dart';
 import '../widget/sl_btn.dart';
 import '../widget/sl_input.dart';
 import '../widget/special_dropdown.dart';
 
 class AddPayment extends StatefulWidget {
-  const AddPayment({super.key});
+  final Payment? payment;
+  final Member? member;
+  const AddPayment({
+    super.key,
+    this.payment,
+    this.member,
+  });
 
   @override
   State<AddPayment> createState() => _AddPaymentState();
@@ -28,6 +37,13 @@ class _AddPaymentState extends State<AddPayment> {
     super.initState();
 
     _startsFromTc.text = DateFormat("MMM dd/yyyy").format(today);
+
+    if (widget.payment != null) {
+      _startsFromTc.text = DateFormat("MMM dd/yyyy")
+          .format(DateTime.parse(widget.payment!.startingDate));
+
+      selectedPaymentType = widget.payment!.type;
+    }
   }
 
   @override
@@ -79,6 +95,9 @@ class _AddPaymentState extends State<AddPayment> {
                   isOutlined: true,
                   readOnly: true,
                   onTap: () async {
+                    if (widget.payment != null) {
+                      return;
+                    }
                     final date = await datePicker(
                       _startsFromTc.text.isEmpty
                           ? ""
@@ -120,9 +139,31 @@ class _AddPaymentState extends State<AddPayment> {
                   text: "Save",
                   onTap: () async {
                     if (_formKey.currentState!.validate()) {
-                      if (mounted) {
-                        Navigator.pop(
-                            context, [_startsFromTc.text, selectedPaymentType]);
+                      if (widget.payment != null) {
+                        await DatabaseHelper().updatePayment(
+                          widget.payment!.copyWith(
+                            type: selectedPaymentType,
+                            endingDate: PaymentType()
+                                .getEndDate(
+                                  selectedPaymentType,
+                                  DateTime.parse(widget.payment!.startingDate),
+                                )
+                                .toString(),
+                          ),
+                        );
+                        // update member
+                        await DatabaseHelper().updateMember(
+                            widget.member!.copyWith(
+                              lastPaymentType: selectedPaymentType,
+                            ),
+                            null);
+
+                        Get.back();
+                      } else {
+                        if (mounted) {
+                          Navigator.pop(context,
+                              [_startsFromTc.text, selectedPaymentType]);
+                        }
                       }
                     }
                   },

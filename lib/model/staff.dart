@@ -6,6 +6,7 @@ import 'package:gymsystem/model/attendance.dart';
 class Staff {
   final String fullName;
   final String role;
+  final String image;
   final String startedWorkingFrom;
   final String phone;
   final String entranceTime;
@@ -21,6 +22,7 @@ class Staff {
       required this.role,
       required this.startedWorkingFrom,
       required this.phone,
+      required this.image,
       required this.entranceTime,
       required this.exitTime,
       required this.lastAttendance,
@@ -39,6 +41,7 @@ class Staff {
     String? exitTime,
     String? dateOfBirth,
     String? lastAttendance,
+    String? image,
     String? gender,
     AttendanceType? defaultAttendance,
     int? isActive,
@@ -57,6 +60,7 @@ class Staff {
       defaultAttendance: defaultAttendance ?? this.defaultAttendance,
       isActive: isActive ?? this.isActive,
       rfId: rfId ?? this.rfId,
+      image: image ?? this.image,
     );
   }
 
@@ -74,6 +78,7 @@ class Staff {
       'defaultAttendance': defaultAttendance.toString(),
       'isActive': isActive,
       'rfId': rfId,
+      'image': image,
     };
   }
 
@@ -92,6 +97,7 @@ class Staff {
           .singleWhere((e) => e.toString() == map['defaultAttendance']),
       isActive: map['isActive'] as int,
       rfId: map['rfId'] as String,
+      image: map['image'] as String,
     );
   }
 

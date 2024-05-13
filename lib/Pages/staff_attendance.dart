@@ -98,15 +98,14 @@ class _StaffAttendanceState extends State<StaffAttendance> {
             );
           }
         }
-        if (attendanceAdded) {
-          await DatabaseHelper().updateStaff(
-            staff.copyWith(
-              lastAttendance: today.toString(),
-            ),
-            null,
-          );
-        }
+        if (attendanceAdded) {}
       }
+      await DatabaseHelper().updateStaff(
+        staff.copyWith(
+          lastAttendance: today.toString(),
+        ),
+        null,
+      );
     }
 
     // pref.setString(

@@ -1,6 +1,7 @@
 // ignore_for_file: must_be_immutable
 
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:gymsystem/constants.dart';
 
 class NavDrawer extends StatefulWidget {
@@ -16,6 +17,31 @@ class _NavDrawerState extends State<NavDrawer> {
   // int index = 0;
 
   // const NavigationDrawer({Key? key, required this.onItemSelected})
+  void showCustomTooltip(BuildContext context) {
+    final RenderBox renderBox = context.findRenderObject() as RenderBox;
+    final offset = renderBox.localToGlobal(Offset.zero);
+
+    final overlay = OverlayEntry(
+      builder: (context) => Positioned(
+        left: offset.dx + 50, // Adjust positioning as needed
+        top: offset.dy + 50, // Adjust positioning as needed
+        child: Container(
+          color: Colors.black,
+          child: const Text(
+            'This is a custom tooltip',
+            style: TextStyle(color: whiteColor),
+          ),
+        ),
+      ),
+    );
+
+    Overlay.of(context).insert(overlay);
+
+    Future.delayed(const Duration(seconds: 2), () {
+      overlay.remove();
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -30,8 +56,8 @@ class _NavDrawerState extends State<NavDrawer> {
         ],
       ),
       // color: const Color.fromARGB(14, 0, 0, 0),
-      child: ListView(
-        padding: EdgeInsets.zero,
+      child: Column(
+        // padding: EdgeInsets.zero,
         children: <Widget>[
           // const DrawerHeader(
           //   decoration: BoxDecoration(
@@ -45,7 +71,16 @@ class _NavDrawerState extends State<NavDrawer> {
           //   ),
           // ),
           const SizedBox(
-            height: 60,
+            height: 10,
+          ),
+          SvgPicture.asset(
+            'assets/connect logo.svg',
+            height: 30,
+            width: 30,
+            color: Colors.white,
+          ),
+          const SizedBox(
+            height: 40,
           ),
           IconButton(
             tooltip: "Staffs",
@@ -82,6 +117,39 @@ class _NavDrawerState extends State<NavDrawer> {
               // Navigator.pop(context);
             },
           ),
+          const Spacer(),
+          IconButton(
+            tooltip: "Developed by ENSRA TECH\nPhone No: 0960216060",
+            onPressed: () {
+              // showCustomTooltip(context);
+            },
+            icon: Stack(
+              children: [
+                const Icon(
+                  Icons.info,
+                  color: Colors.white,
+                ),
+                Positioned(
+                  bottom: 40,
+                  left: 20,
+                  child: Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: Colors.black.withOpacity(0.8),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: const Text(
+                      "Developed by ENSRA TECH\nPhone No: 0960216060",
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 14,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          )
           // ListTile(
           //   // tileColor: index == 2 ? Colors.blue.shade100 : null,
           //   title: const Icon(Icons.),
