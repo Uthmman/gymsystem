@@ -19,8 +19,6 @@ class StaffAttendance extends StatefulWidget {
 
 class _StaffAttendanceState extends State<StaffAttendance> {
   DateTime today = DateTime.parse(DateTime.now().toString().split(" ")[0]);
-  int selectedMonth = DateTime.now().month;
-  int selectedYear = DateTime.now().year;
 
   MainController mainController = Get.find<MainController>();
 
@@ -35,9 +33,7 @@ class _StaffAttendanceState extends State<StaffAttendance> {
   @override
   void initState() {
     super.initState();
-
-    // DatabaseHelper.staffs
-
+   
     mainSub = mainController.staffs.listen((v) {
       print("staffs updated");
       addAttendancesUntilToday().then((value) {
@@ -47,31 +43,8 @@ class _StaffAttendanceState extends State<StaffAttendance> {
   }
 
   getAttendanceOfTheMonth(int month, int year) async {
-    // for (int i = 0; i < 30; i++) {
-    //   for (Staff staff in DatabaseHelper.staffs) {
-    //     int ran = i % 10;
-    //     attendances.add(
-    //       Attendance(
-    //         id: i,
-    //         date: DateTime.now().subtract(Duration(days: i)).toString(),
-    //         ownerId: staff.rfId,
-    //         type: ran < 2
-    //             ? AttendanceType.present
-    //             : ran < 4
-    //                 ? AttendanceType.absent
-    //                 : ran < 6
-    //                     ? AttendanceType.late
-    //                     : ran < 8
-    //                         ? AttendanceType.permission
-    //                         : AttendanceType.holyday,
-    //       ),
-    //     );
-    //   }
-    // }
     await mainController.getStaffAttendanceOfMonth(month, year);
     print("staffAttendance: ${mainController.staffAttendance.length}");
-    // print("len: ${DatabaseHelper.staffAttendance.length}");
-    // print(DatabaseHelper.staffAttendance);
 
     setState(() {});
   }
@@ -107,11 +80,6 @@ class _StaffAttendanceState extends State<StaffAttendance> {
         null,
       );
     }
-
-    // pref.setString(
-    //   "lastStaffAttendance",
-    //   today.toString(),
-    // );
   }
 
   onDayPressed(
@@ -137,7 +105,8 @@ class _StaffAttendanceState extends State<StaffAttendance> {
           type: type,
         ));
 
-        getAttendanceOfTheMonth(selectedMonth, selectedYear);
+        getAttendanceOfTheMonth(mainController.selectedMonth.value,
+            mainController.selectedYear.value);
       } else {
         if (mounted) {
           showToast("Permission Denied.", redColor);
@@ -168,7 +137,8 @@ class _StaffAttendanceState extends State<StaffAttendance> {
       if (permission) {
         await DatabaseHelper().updateStaffAttendancesOnADay(dateTime, type);
 
-        getAttendanceOfTheMonth(selectedMonth, selectedYear);
+        getAttendanceOfTheMonth(mainController.selectedMonth.value,
+            mainController.selectedYear.value);
       } else {
         if (mounted) {
           showToast("Permission Denied.", redColor);
@@ -486,155 +456,21 @@ class _StaffAttendanceState extends State<StaffAttendance> {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: EdgeInsets.only(
-        top: MediaQuery.of(context).size.height / 11,
-      ),
+      padding: EdgeInsets.zero,
       child: SizedBox(
         width: MediaQuery.of(context).size.width * 40 / 53,
         child: Column(
           mainAxisAlignment: MainAxisAlignment.start,
           children: [
-            const SizedBox(
-              height: 10,
-            ),
-            Stack(
-              children: [
-                const Positioned(
-                  top: 10,
-                  child: Text(
-                    "Attendance Records",
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    IconButton(
-                      onPressed: () {
-                        if (selectedMonth > 1) {
-                          setState(() {
-                            selectedMonth--;
-                          });
-                          getAttendanceOfTheMonth(selectedMonth, selectedYear);
-                        } else if (selectedYear > 2000) {
-                          setState(() {
-                            selectedMonth = 12;
-                            selectedYear--;
-                          });
-                          getAttendanceOfTheMonth(selectedMonth, selectedYear);
-                        }
-                      },
-                      icon: const Icon(Icons.chevron_left_outlined),
-                    ),
-                    Text(getMonthName(selectedMonth)),
-                    IconButton(
-                      onPressed: () {
-                        if (selectedMonth < 12) {
-                          setState(() {
-                            selectedMonth++;
-                          });
-                          getAttendanceOfTheMonth(selectedMonth, selectedYear);
-                        } else if (selectedYear < 2049) {
-                          setState(() {
-                            selectedMonth = 1;
-                            selectedYear++;
-                          });
-                          getAttendanceOfTheMonth(selectedMonth, selectedYear);
-                        }
-                      },
-                      icon: const Icon(Icons.chevron_right_outlined),
-                    ),
-                    DropdownButton(
-                      value: selectedYear,
-                      items: years
-                          .map((e) => DropdownMenuItem(
-                                value: e,
-                                child: Text("$e"),
-                              ))
-                          .toList(),
-                      onChanged: (value) {
-                        setState(() {
-                          selectedYear = value!;
-                        });
-                        getAttendanceOfTheMonth(selectedMonth, selectedYear);
-                      },
-                    )
-                  ],
-                ),
-              ],
-            ),
-            const SizedBox(
-              height: 10,
-            ),
             Obx(() {
               return SizedBox(
                 width: MediaQuery.of(context).size.width * 40 / 53,
                 child: SingleChildScrollView(
+                  controller: mainController.mainScroll,
                   scrollDirection: Axis.horizontal,
-                  physics: const BouncingScrollPhysics(),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        children: List.generate(
-                          getDaysInMonth(selectedYear, selectedMonth),
-                          (index) => Padding(
-                            padding: const EdgeInsets.symmetric(
-                              vertical: 17,
-                              horizontal: 36,
-                            ),
-                            child: GestureDetector(
-                              onTapDown: (details) {
-                                onDatePressed(
-                                  DateTime(
-                                    selectedYear,
-                                    selectedMonth,
-                                    index + 1,
-                                  ),
-                                  context,
-                                  details,
-                                );
-                              },
-                              child: SizedBox(
-                                width: 55,
-                                child: Column(
-                                  children: [
-                                    Text(
-                                      DateFormat("E").format(
-                                        DateTime(
-                                          selectedYear,
-                                          selectedMonth,
-                                          index + 1,
-                                        ),
-                                      ),
-                                      style: const TextStyle(
-                                        fontSize: 15,
-                                        fontWeight: FontWeight.w600,
-                                      ),
-                                      textAlign: TextAlign.center,
-                                    ),
-                                    Text(
-                                      "${index + 1} ${DateFormat("MMM").format(DateTime(selectedYear, selectedMonth))}",
-                                      style: const TextStyle(
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.w100,
-                                      ),
-                                      textAlign: TextAlign.center,
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(
-                        height: 8,
-                      ),
                       ...mainController.staffs.map((e) {
                         List<Attendance> myAttendance = mainController
                             .staffAttendance
@@ -643,7 +479,8 @@ class _StaffAttendanceState extends State<StaffAttendance> {
                         return Row(
                           mainAxisAlignment: MainAxisAlignment.start,
                           children: List.generate(
-                            getDaysInMonth(selectedYear, selectedMonth),
+                            getDaysInMonth(mainController.selectedYear.value,
+                                mainController.selectedMonth.value),
                             (index) => Container(
                               padding: const EdgeInsets.symmetric(
                                 vertical: 15.8,

@@ -27,27 +27,6 @@ class _StaffListState extends State<StaffList> {
   @override
   void initState() {
     super.initState();
-
-    // List<Staff> staffs = [];
-    // for (int i = 0; i < 30; i++) {
-    //   staffs.add(
-    //     Staff(
-    //         fullName: generateRandomString(),
-    //         role: generateRandomString(),
-    //         startedWorkingFrom: generateRandomString(),
-    //         phone: generateRandomInt().toString(),
-    //         isActive: 1,
-    //         rfId: generateRandomInt(),
-    //         entranceTime: DateFormat.jm().format(DateTime.now()),
-    //         exitTime: DateFormat.jm().format(DateTime.now()),
-    //         lastAttendance: DateTime.now().toString(),
-    //         gender: i % 2 == 0 ? "Male" : "Female",
-    //         defaultAttendance: AttendanceType.absent,
-    //         dateOfBirth: DateTime.now()
-    //             .subtract(Duration(days: 360 * (20 + i)))
-    //             .toString()),
-    //   );
-    // }
     mainController.getStaff();
   }
 
@@ -55,7 +34,7 @@ class _StaffListState extends State<StaffList> {
   Widget build(BuildContext context) {
     return Container(
       margin: EdgeInsets.only(
-        top: MediaQuery.of(context).size.height / 11,
+        // top: MediaQuery.of(context).size.height / 11,
         right: 30,
         left: 30,
       ),
@@ -64,9 +43,9 @@ class _StaffListState extends State<StaffList> {
       ),
       decoration: const BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.vertical(
-          top: Radius.circular(15),
-        ),
+        // borderRadius: BorderRadius.vertical(
+        //   top: Radius.circular(15),
+        // ),
         boxShadow: [
           BoxShadow(
             color: Colors.black12,
@@ -77,86 +56,86 @@ class _StaffListState extends State<StaffList> {
       ),
       child: Column(
         children: [
-          Padding(
-            padding: const EdgeInsets.only(
-              top: 12,
-              bottom: 2,
-              left: 20,
-            ),
-            child: Row(
-              children: [
-                Image.asset(
-                  'assets/employee.png',
-                  color: mainBoldColor,
-                  width: 30,
-                  height: 30,
-                ),
-                const SizedBox(
-                  width: 10,
-                ),
-                const Text(
-                  "Staff List",
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                const Spacer(),
-                IconButton(
-                  tooltip: "New Staff",
-                  icon: const Icon(Icons.add),
-                  onPressed: () async {
-                    await showDialog(
-                      context: context,
-                      builder: (context) => const AddStaff(),
-                    );
-                  },
-                ),
-                const SizedBox(
-                  width: 10,
-                )
-              ],
-            ),
-          ),
-          const Divider(
-            color: Colors.black26,
-          ),
-          const SizedBox(
-            height: 14.65,
-          ),
-          SLInput(
-            title: "Search Staffs",
-            hint: "",
-            focusNode: _searchFocus,
-            keyboardType: TextInputType.text,
-            controller: _searchTc,
-            isOutlined: true,
-            inputColor: Colors.black,
-            otherColor: Colors.black26,
-            sufixIcon: isSearching
-                ? GestureDetector(
-                    onTap: () {
-                      _searchTc.text = "";
-                      isSearching = false;
-                      _searchFocus.unfocus();
-                      mainController.getStaff();
-                      setState(() {});
-                    },
-                    child: const Icon(Icons.close),
-                  )
-                : null,
-            onChanged: (val) {
-              if (isSearching == false && val.isNotEmpty) {
-                setState(() {
-                  isSearching = true;
-                });
-              }
-              mainController.searchStaff(val);
-            },
-          ),
-          const SizedBox(
-            height: 14.65,
-          ),
+          // Padding(
+          //   padding: const EdgeInsets.only(
+          //     top: 12,
+          //     bottom: 2,
+          //     left: 20,
+          //   ),
+          //   child: Row(
+          //     children: [
+          //       Image.asset(
+          //         'assets/employee.png',
+          //         color: mainBoldColor,
+          //         width: 30,
+          //         height: 30,
+          //       ),
+          //       const SizedBox(
+          //         width: 10,
+          //       ),
+          //       const Text(
+          //         "Staff List",
+          //         style: TextStyle(
+          //           fontSize: 18,
+          //           fontWeight: FontWeight.bold,
+          //         ),
+          //       ),
+          //       const Spacer(),
+          //       IconButton(
+          //         tooltip: "New Staff",
+          //         icon: const Icon(Icons.add),
+          //         onPressed: () async {
+          //           await showDialog(
+          //             context: context,
+          //             builder: (context) => const AddStaff(),
+          //           );
+          //         },
+          //       ),
+          //       const SizedBox(
+          //         width: 10,
+          //       )
+          //     ],
+          //   ),
+          // ),
+          // const Divider(
+          //   color: Colors.black26,
+          // ),
+          // const SizedBox(
+          //   height: 14.65,
+          // ),
+          // SLInput(
+          //   title: "Search Staffs",
+          //   hint: "",
+          //   focusNode: _searchFocus,
+          //   keyboardType: TextInputType.text,
+          //   controller: _searchTc,
+          //   isOutlined: true,
+          //   inputColor: Colors.black,
+          //   otherColor: Colors.black26,
+          //   sufixIcon: isSearching
+          //       ? GestureDetector(
+          //           onTap: () {
+          //             _searchTc.text = "";
+          //             isSearching = false;
+          //             _searchFocus.unfocus();
+          //             mainController.getStaff();
+          //             setState(() {});
+          //           },
+          //           child: const Icon(Icons.close),
+          //         )
+          //       : null,
+          //   onChanged: (val) {
+          //     if (isSearching == false && val.isNotEmpty) {
+          //       setState(() {
+          //         isSearching = true;
+          //       });
+          //     }
+          //     mainController.searchStaff(val);
+          //   },
+          // ),
+          // const SizedBox(
+          //   height: 14.65,
+          // ),
           Obx(() {
             return mainController.staffs.isEmpty
                 ? const Center(

@@ -25,6 +25,22 @@ class MainController extends GetxController {
   StreamSubscription? mainStream;
   Location location = Location.main;
   TextEditingController rfid = TextEditingController();
+  RxInt selectedMonth = DateTime.now().month.obs;
+  RxInt selectedYear = DateTime.now().year.obs;
+  ScrollController mainScroll = ScrollController();
+  ScrollController daysScroll = ScrollController();
+
+  void mainScrollListener() {
+    if (daysScroll.offset != mainScroll.offset) {
+      daysScroll.jumpTo(mainScroll.offset);
+    }
+  }
+
+  void daysScrollListener() {
+    if (mainScroll.offset != daysScroll.offset) {
+      mainScroll.jumpTo(daysScroll.offset);
+    }
+  }
 
   // staff
 

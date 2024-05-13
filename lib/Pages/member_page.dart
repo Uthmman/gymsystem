@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:gymsystem/Pages/member_attendance.dart';
+import 'package:gymsystem/widget/member_search.dart';
+import 'package:gymsystem/widget/days.dart';
 
 import '../constants.dart';
 import '../controller/main_controller.dart';
-import 'member_list.dart';
+import '../widget/member_list.dart';
 
 class MembersPage extends StatefulWidget {
   const MembersPage({super.key});
@@ -32,32 +34,51 @@ class _MembersPageState extends State<MembersPage> {
           )
         ],
       ),
-      body: SingleChildScrollView(
-        child: Stack(
-          children: [
-            Container(
-              width: MediaQuery.of(context).size.width,
-              height: (MediaQuery.of(context).size.height / 11) + 63,
-              color: mainColor,
-              child: const Row(
-                children: [],
+      body: Stack(
+        children: [
+          Container(
+            width: MediaQuery.of(context).size.width,
+            height: (MediaQuery.of(context).size.height / 11) + 63,
+            color: mainColor,
+            child: const Row(
+              children: [],
+            ),
+          ),
+          const Column(
+            children: [
+              Row(
+                children: [
+                  Flexible(
+                    flex: 25,
+                    child: MemberSearch(),
+                  ),
+                  Flexible(
+                    flex: 40,
+                    child: Days(
+                      isStaff: false,
+                    ),
+                  ),
+                ],
               ),
-            ),
-            const Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Flexible(
-                  flex: 25,
-                  child: MemberList(),
+              Expanded(
+                  child: SingleChildScrollView(
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Flexible(
+                      flex: 25,
+                      child: MemberList(),
+                    ),
+                    Flexible(
+                      flex: 40,
+                      child: MemberAttendance(),
+                    ),
+                  ],
                 ),
-                Flexible(
-                  flex: 40,
-                  child: MemberAttendance(),
-                ),
-              ],
-            ),
-          ],
-        ),
+              )),
+            ],
+          ),
+        ],
       ),
     );
   }

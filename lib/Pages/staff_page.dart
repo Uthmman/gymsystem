@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:gymsystem/Pages/staff_attendance.dart';
+import 'package:gymsystem/widget/staff_attendance.dart';
 import 'package:gymsystem/constants.dart';
 import 'package:gymsystem/controller/main_controller.dart';
+import 'package:gymsystem/widget/days.dart';
+import 'package:gymsystem/widget/staff_search.dart';
 
-import 'staff_list.dart';
+import '../widget/staff_list.dart';
 
 class StaffsPage extends StatefulWidget {
   const StaffsPage({
@@ -17,6 +19,15 @@ class StaffsPage extends StatefulWidget {
 
 class _StaffsPageState extends State<StaffsPage> {
   @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    Get.find<MainController>()
+        .mainScroll
+        .addListener(Get.find<MainController>().mainScrollListener);
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
@@ -26,7 +37,7 @@ class _StaffsPageState extends State<StaffsPage> {
           IconButton(
             icon: const Icon(Icons.refresh),
             onPressed: () {
-              Get.find<MainController>().mainStream?.cancel();
+              // Get.find<MainController>().mainStream?.cancel();
               startListeningCard(
                 Get.find<MainController>(),
               );
@@ -34,32 +45,49 @@ class _StaffsPageState extends State<StaffsPage> {
           ),
         ],
       ),
-      body: SingleChildScrollView(
-        child: Stack(
-          children: [
-            Container(
-              width: MediaQuery.of(context).size.width,
-              height: (MediaQuery.of(context).size.height / 11) + 63,
-              color: mainColor,
-              child: const Row(
-                children: [],
+      body: Stack(
+        children: [
+          Container(
+            width: MediaQuery.of(context).size.width,
+            height: (MediaQuery.of(context).size.height / 11) + 63,
+            color: mainColor,
+            child: const Row(
+              children: [],
+            ),
+          ),
+          const Column(
+            children: [
+              Row(
+                children: [
+                  Flexible(
+                    flex: 25,
+                    child: StaffSearch(),
+                  ),
+                  Flexible(
+                    flex: 40,
+                    child: Days(),
+                  ),
+                ],
               ),
-            ),
-            const Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Flexible(
-                  flex: 25,
-                  child: StaffList(),
+              Expanded(
+                  child: SingleChildScrollView(
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Flexible(
+                      flex: 25,
+                      child: StaffList(),
+                    ),
+                    Flexible(
+                      flex: 40,
+                      child: StaffAttendance(),
+                    ),
+                  ],
                 ),
-                Flexible(
-                  flex: 40,
-                  child: StaffAttendance(),
-                ),
-              ],
-            ),
-          ],
-        ),
+              )),
+            ],
+          ),
+        ],
       ),
     );
   }

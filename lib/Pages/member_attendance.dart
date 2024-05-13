@@ -20,8 +20,6 @@ class MemberAttendance extends StatefulWidget {
 
 class _MemberAttendanceState extends State<MemberAttendance> {
   DateTime today = DateTime.parse(DateTime.now().toString().split(" ")[0]);
-  int selectedMonth = DateTime.now().month;
-  int selectedYear = DateTime.now().year;
 
   MainController mainController = Get.find<MainController>();
 
@@ -84,14 +82,14 @@ class _MemberAttendanceState extends State<MemberAttendance> {
       final lastAttendance = DateTime.parse(member.lastAttendance);
       if (PaymentType.checkPaymentStatus(
           member.lastPaymentDate, member.lastPaymentType)) {
-        bool attendanceAdded = false;
+        // bool attendanceAdded = false;
         for (var i = 1; i <= today.difference(lastAttendance).inDays; i++) {
           print("itemration: $i");
 
           if (lastAttendance.compareTo(today) != 0) {
             print("day: $i, rfid: ${member.rfid}");
             final savedDate = lastAttendance.add(Duration(days: i));
-            attendanceAdded = true;
+            // attendanceAdded = true;
             await DatabaseHelper().insertMemberAttendance(
               Attendance(
                 id: null,
@@ -139,7 +137,8 @@ class _MemberAttendanceState extends State<MemberAttendance> {
         type: type,
       ));
 
-      getAttendanceOfTheMonth(selectedMonth, selectedYear);
+      getAttendanceOfTheMonth(mainController.selectedMonth.value,
+          mainController.selectedYear.value);
     }, details);
   }
 
@@ -432,139 +431,21 @@ class _MemberAttendanceState extends State<MemberAttendance> {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: EdgeInsets.only(
-        top: MediaQuery.of(context).size.height / 11,
-      ),
+      padding: EdgeInsets.zero,
       child: SizedBox(
         width: MediaQuery.of(context).size.width * 40 / 53,
         child: Column(
           mainAxisAlignment: MainAxisAlignment.start,
           children: [
-            const SizedBox(
-              height: 10,
-            ),
-            Stack(
-              children: [
-                const Positioned(
-                  top: 10,
-                  child: Text(
-                    "Attendance Records",
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    IconButton(
-                      onPressed: () {
-                        if (selectedMonth > 1) {
-                          setState(() {
-                            selectedMonth--;
-                          });
-                          getAttendanceOfTheMonth(selectedMonth, selectedYear);
-                        } else if (selectedYear > 2000) {
-                          setState(() {
-                            selectedMonth = 12;
-                            selectedYear--;
-                          });
-                          getAttendanceOfTheMonth(selectedMonth, selectedYear);
-                        }
-                      },
-                      icon: const Icon(Icons.chevron_left_outlined),
-                    ),
-                    Text(getMonthName(selectedMonth)),
-                    IconButton(
-                      onPressed: () {
-                        if (selectedMonth < 12) {
-                          setState(() {
-                            selectedMonth++;
-                          });
-                          getAttendanceOfTheMonth(selectedMonth, selectedYear);
-                        } else if (selectedYear < 2049) {
-                          setState(() {
-                            selectedMonth = 1;
-                            selectedYear++;
-                          });
-                          getAttendanceOfTheMonth(selectedMonth, selectedYear);
-                        }
-                      },
-                      icon: const Icon(Icons.chevron_right_outlined),
-                    ),
-                    DropdownButton(
-                      value: selectedYear,
-                      items: years
-                          .map((e) => DropdownMenuItem(
-                                value: e,
-                                child: Text("$e"),
-                              ))
-                          .toList(),
-                      onChanged: (value) {
-                        setState(() {
-                          selectedYear = value!;
-                        });
-                        getAttendanceOfTheMonth(selectedMonth, selectedYear);
-                      },
-                    )
-                  ],
-                ),
-              ],
-            ),
-            const SizedBox(
-              height: 10,
-            ),
             Obx(() {
               return SizedBox(
                 width: MediaQuery.of(context).size.width * 40 / 53,
                 child: SingleChildScrollView(
                   scrollDirection: Axis.horizontal,
-                  physics: const BouncingScrollPhysics(),
+                  controller: mainController.mainScroll,
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        children: List.generate(
-                          getDaysInMonth(selectedYear, selectedMonth),
-                          (index) => Padding(
-                            padding: const EdgeInsets.symmetric(
-                              vertical: 17,
-                              horizontal: 36,
-                            ),
-                            child: SizedBox(
-                              width: 55,
-                              child: Column(
-                                children: [
-                                  Text(
-                                    DateFormat("E").format(
-                                      DateTime(
-                                        selectedYear,
-                                        selectedMonth,
-                                        index + 1,
-                                      ),
-                                    ),
-                                    style: const TextStyle(
-                                      fontSize: 15,
-                                      fontWeight: FontWeight.w600,
-                                    ),
-                                    textAlign: TextAlign.center,
-                                  ),
-                                  Text(
-                                    "${index + 1} ${DateFormat("MMM").format(DateTime(selectedYear, selectedMonth))}",
-                                    style: const TextStyle(
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.w100,
-                                    ),
-                                    textAlign: TextAlign.center,
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
                       const SizedBox(
                         height: 8,
                       ),
@@ -579,7 +460,8 @@ class _MemberAttendanceState extends State<MemberAttendance> {
                         return Row(
                           mainAxisAlignment: MainAxisAlignment.start,
                           children: List.generate(
-                            getDaysInMonth(selectedYear, selectedMonth),
+                            getDaysInMonth(mainController.selectedYear.value,
+                                mainController.selectedMonth.value),
                             (index) => Container(
                               padding: const EdgeInsets.symmetric(
                                 vertical: 15.8,
@@ -599,8 +481,10 @@ class _MemberAttendanceState extends State<MemberAttendance> {
                                     myPayment
                                         .where((element) =>
                                             DateTime(
-                                                  selectedYear,
-                                                  selectedMonth,
+                                                  mainController
+                                                      .selectedYear.value,
+                                                  mainController
+                                                      .selectedMonth.value,
                                                   index + 1,
                                                 ).compareTo(
                                                   DateTime.parse(
@@ -608,8 +492,10 @@ class _MemberAttendanceState extends State<MemberAttendance> {
                                                 ) >
                                                 0 &&
                                             DateTime(
-                                                  selectedYear,
-                                                  selectedMonth,
+                                                  mainController
+                                                      .selectedYear.value,
+                                                  mainController
+                                                      .selectedMonth.value,
                                                   index,
                                                 ).compareTo(
                                                   DateTime.parse(
@@ -631,8 +517,10 @@ class _MemberAttendanceState extends State<MemberAttendance> {
                                     myPayment
                                         .where((element) =>
                                             DateTime(
-                                                  selectedYear,
-                                                  selectedMonth,
+                                                  mainController
+                                                      .selectedYear.value,
+                                                  mainController
+                                                      .selectedMonth.value,
                                                   index + 1,
                                                 ).compareTo(
                                                   DateTime.parse(
@@ -640,8 +528,10 @@ class _MemberAttendanceState extends State<MemberAttendance> {
                                                 ) >=
                                                 0 &&
                                             DateTime(
-                                                  selectedYear,
-                                                  selectedMonth,
+                                                  mainController
+                                                      .selectedYear.value,
+                                                  mainController
+                                                      .selectedMonth.value,
                                                   index + 1,
                                                 ).compareTo(
                                                   DateTime.parse(

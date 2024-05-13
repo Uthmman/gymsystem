@@ -14,34 +14,6 @@ class NavDrawer extends StatefulWidget {
 }
 
 class _NavDrawerState extends State<NavDrawer> {
-  // int index = 0;
-
-  // const NavigationDrawer({Key? key, required this.onItemSelected})
-  void showCustomTooltip(BuildContext context) {
-    final RenderBox renderBox = context.findRenderObject() as RenderBox;
-    final offset = renderBox.localToGlobal(Offset.zero);
-
-    final overlay = OverlayEntry(
-      builder: (context) => Positioned(
-        left: offset.dx + 50, // Adjust positioning as needed
-        top: offset.dy + 50, // Adjust positioning as needed
-        child: Container(
-          color: Colors.black,
-          child: const Text(
-            'This is a custom tooltip',
-            style: TextStyle(color: whiteColor),
-          ),
-        ),
-      ),
-    );
-
-    Overlay.of(context).insert(overlay);
-
-    Future.delayed(const Duration(seconds: 2), () {
-      overlay.remove();
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -55,21 +27,8 @@ class _NavDrawerState extends State<NavDrawer> {
           ),
         ],
       ),
-      // color: const Color.fromARGB(14, 0, 0, 0),
       child: Column(
-        // padding: EdgeInsets.zero,
         children: <Widget>[
-          // const DrawerHeader(
-          //   decoration: BoxDecoration(
-          //     color: mainColor,
-          //   ),
-          //   child: Text(
-          //     'Gym Management',
-          //     style: TextStyle(
-          //       fontSize: 24,
-          //     ),
-          //   ),
-          // ),
           const SizedBox(
             height: 10,
           ),

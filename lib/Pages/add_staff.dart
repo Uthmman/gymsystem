@@ -1,13 +1,7 @@
 import 'dart:async';
 import 'dart:io';
-import 'dart:typed_data';
-
-import 'package:flutter/cupertino.dart';
-import 'package:flutter/gestures.dart';
-import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
 import 'package:gymsystem/controller/main_controller.dart';
-import 'package:gymsystem/main.dart';
 import 'package:gymsystem/model/attendance.dart';
 import 'package:gymsystem/widget/special_dropdown.dart';
 import 'package:flutter/material.dart';
@@ -19,8 +13,6 @@ import 'package:gymsystem/widget/sl_btn.dart';
 import 'package:gymsystem/widget/sl_input.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
-import 'package:web_socket_channel/io.dart';
-import 'package:http/http.dart' as http;
 
 import 'password_page.dart';
 // import 'package:udp/udp.dart';

@@ -22,6 +22,8 @@ class _NavigationLayoutState extends State<NavigationLayout> {
   @override
   void initState() {
     super.initState();
+    mainController.daysScroll.addListener(mainController.daysScrollListener);
+    mainController.mainScroll.addListener(mainController.mainScrollListener);
     startListeningCard(mainController);
   }
 
@@ -31,12 +33,8 @@ class _NavigationLayoutState extends State<NavigationLayout> {
       // drawer: NavDrawer(onItemSelected: _onNavigationItemSelected),
       body: Row(
         children: [
-          Flexible(
-            flex: 1,
-            child: NavDrawer(onItemSelected: _onNavigationItemSelected),
-          ),
-          Flexible(
-            flex: 22,
+          NavDrawer(onItemSelected: _onNavigationItemSelected),
+          Expanded(
             child: _buildBody(),
           ),
         ],
