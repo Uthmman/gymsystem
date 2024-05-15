@@ -309,7 +309,8 @@ class _AddMemberState extends State<AddMember> {
                                               .getMemberByRfid(
                                                   widget.member!.rfid))[0];
                                           payments = await DatabaseHelper()
-                                              .getPayments();
+                                              .getPaymentsOfaMember(
+                                                  widget.member!.rfid);
                                           setState(() {});
                                         }
                                       : null,

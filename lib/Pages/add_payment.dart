@@ -64,8 +64,11 @@ class _AddPaymentState extends State<AddPayment> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    const SizedBox(
-                      width: 60,
+                    IconButton(
+                      onPressed: () {
+                        Navigator.pop(context);
+                      },
+                      icon: const Icon(Icons.delete),
                     ),
                     const Text(
                       "Add Payment",

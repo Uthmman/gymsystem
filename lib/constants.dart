@@ -265,6 +265,10 @@ startListeningCard(MainController mainController) {
       showToast('Connected succuessfully.', greenColor);
     });
 
+    if(mainController.mainStream != null){
+      mainController.mainStream!.cancel();
+    }
+
     mainController.mainStream = channel.stream.listen(
       (data) async {
         // Process the RFID data received from the ESP8266
